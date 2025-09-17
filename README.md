@@ -1,7 +1,6 @@
-Treasure Island Ama Adventure
+Ama Treasure Adventure
 
-Description
-Treasure Island Adventure is an engaging, top-down game built with HTML, CSS, and JavaScript. The objective is to navigate an island map, collect as many treasure chests as possible, and level up before time runs out. The game features two modes: a single-player challenge to beat your personal high score and a competitive two-player mode. Each level increases the number and speed of obstacles, making it progressively more challenging. Players receive bonus time and extra lives at specific milestones, and collecting 15 points or more grants a bonus 5 seconds for every 5 points earned thereafter. The game includes customisable avatars and a dynamic scoreboard to track your progress and compete with others.
+Is an engaging, top-down game built with HTML, CSS, and JavaScript. The objective is to navigate around an island map, collect as many treasure chests as possible, and level up before time runs out. The game features two modes: a single-player challenge to beat your personal high score and a competitive two-player mode. Each level increases the number and speed of obstacles, making it progressively more challenging. Players receive bonus time and extra lives at specific milestones, and collecting 15 points or more grants a bonus 5 seconds for every 5 points earned thereafter. The game includes customisable avatars and a dynamic scoreboard to track your progress and compete with others.
 
 
 How to Play
