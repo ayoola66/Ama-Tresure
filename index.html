@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Treasure Island Adventure</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      overflow: hidden;
+      background: linear-gradient(to bottom right, #87CEEB, #F08080);
+    }
+    #game {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      background-image: url("https://st4.depositphotos.com/1000673/25687/v/450/depositphotos_256875936-stock-illustration-treasure-island-background-for-game.jpg");
+      background-size: cover;
+      background-position: center;
+    }
+    .sprite {
+      position: absolute;
+      font-size: 50px;
+    }
+    #player1, #player2 {
+      display: none;
+    }
+    .obstacle { font-size: 60px; }
+    #scoreboard {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      font-size: 16px;
+      font-weight: bold;
+      background: rgba(255, 255, 255, 0.8);
+      padding: 10px 15px;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+      line-height: 1.4em;
+    }
+    #gameover, #startscreen, #achievement {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      font-weight: bold;
+      background: rgba(0, 0, 0, 0.8);
+      color: white;
+      padding: 20px;
+      text-align: center;
+      border-radius: 10px;
+      width: 90%;
+      max-width: 400px;
+    }
+    #startscreen {
+        max-height: 80vh;
+        overflow-y: auto;
+        padding: 20px;
+    }
+    #gameover { display: none; }
+    #achievement {
+      top: 20%;
+      font-size: 18px;
+      background: darkgreen;
+      display: none;
+    }
+    #startscreen p, #startscreen label, #startscreen input {
+      font-size: 20px;
+      margin: 10px 0;
+    }
+    #gameover button, #startscreen button {
+      font-size: 22px;
+      padding: 12px 24px;
+      margin-top: 15px;
+      border: none;
+      border-radius: 8px;
+      background: orange;
+      color: white;
+      cursor: pointer;
+    }
+    #avatarChoicesP1 span, #avatarChoicesP2 span {
+      cursor: pointer;
+      font-size: 40px;
+      margin: 5px;
+      padding: 8px;
+      border-radius: 6px;
+      display: inline-block;
+    }
+    #avatarChoicesP1 span.selected, #avatarChoicesP2 span.selected {
+      background: rgba(255, 255, 255, 0.6);
+      border: 2px solid orange;
+    }
+    .game-button {
+      position: absolute;
+      top: 10px;
+      background: rgba(0, 0, 0, 0.6);
+      color: white;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 14px;
+      z-index: 100;
+    }
+    #muteButton {
+      right: 10px;
+    }
+    #how-to-play summary {
+        cursor: pointer;
+        font-size: 24px;
+        margin-bottom: 10px;
+    }
+    #how-to-play {
+        text-align: left;
+        font-size: 16px;
+        line-height: 1.6em;
+    }
+  </style>
+</head>
+<body>
+  <div id="game">
+    <div id="player1" class="sprite">🧜‍♀️</div>
+    <div id="player2" class="sprite">🧑‍🚀</div>
+    <div id="treasure" class="sprite">💰</div>
+    <div id="scoreboard"></div>
+    <div id="gameover"></div>
+    <div id="achievement"></div>
+    <div id="startscreen">
+      <p>🏝️ Treasure Island Adventure 🏝️</p>
+      <p>Select Mode:</p>
+      <label><input type="radio" name="mode" value="1" checked> 1 Player</label>
+      <label><input type="radio" name="mode" value="2"> 2 Players</label>
+      <p>Enter Player 1 name:</p>
+      <input id="player1Name" type="text" placeholder="Player 1 name"><br><br>
+      <div id="player2Settings">
+        <p>Enter Player 2 name:</p>
+        <input id="player2Name" type="text" placeholder="Player 2 name"><br><br>
+      </div>
+      <p>Select Player 1 avatar:</p>
+      <div id="avatarChoicesP1"></div>
+      <div id="player2AvatarSelect">
+        <p>Select Player 2 avatar:</p>
+        <div id="avatarChoicesP2"></div>
+      </div>
+
+      <details id="how-to-play">
+        <summary>How to Play</summary>
+        <p>
+            The objective is to navigate the island, collect treasure, and level up before time runs out.
+        </p>
+        <p>
+            <strong>1. Controls</strong><br>
+            - <strong>Player 1:</strong> Use the <strong>Arrow Keys</strong> (Up, Down, Left, Right).<br>
+            - <strong>Player 2:</strong> Use the <strong>WASD</strong> keys (W=Up, A=Left, S=Down, D=Right).
+        </p>
+        <p>
+            <strong>2. Gameplay</strong><br>
+            - <strong>Treasure:</strong> Run into the 💰 to collect it. Each one adds one point to your score.
+            - <strong>Obstacles:</strong> Avoid the moving obstacles like 🐊, 🔥, and 🥥. Colliding with one decreases your lives.
+            - <strong>End of Game:</strong> The game ends when your lives run out or the timer hits zero.
+        </p>
+        <p>
+            <strong>3. Special Bonuses</strong><br>
+            - <strong>Level Up:</strong> Every 5 points, you level up and get 10 extra seconds.
+            - <strong>Time Bonus:</strong> Once you reach 15 points, you'll earn an extra 5 seconds for every 5 points thereafter.
+            - <strong>Bonus Life:</strong> You get a bonus life at Level 6.
+        </p>
+      </details>
+
+      <button onclick="startGame()">Play</button>
+    </div>
+  </div>
+
+  <!-- Audio Elements with multiple sources for compatibility -->
+  <audio id="backgroundMusic" loop>
+    <source src="https://archive.org/download/8-bit_Dungeon_Level/8-bit%20Dungeon%20Level.mp3" type="audio/mpeg">
+    <source src="https://actions.google.com/sounds/v1/ambiences/forest_crickets.ogg" type="audio/ogg">
+  </audio>
+  <audio id="treasureSound">
+    <source src="https://actions.google.com/sounds/v1/foley/coin_jingle_1.mp3" type="audio/mpeg">
+    <source src="https://actions.google.com/sounds/v1/foley/coin_jingle_1.ogg" type="audio/ogg">
+  </audio>
+  <audio id="obstacleSound">
+    <source src="https://actions.google.com/sounds/v1/impacts/punch_with_thud_2.mp3" type="audio/mpeg">
+    <source src="https://actions.google.com/sounds/v1/impacts/punch_with_thud_2.ogg" type="audio/ogg">
+  </audio>
+  <audio id="gameOverSound">
+    <source src="https://actions.google.com/sounds/v1/foley/swoosh_and_whoosh.mp3" type="audio/mpeg">
+    <source src="https://actions.google.com/sounds/v1/foley/swoosh_and_whoosh.ogg" type="audio/ogg">
+  </audio>
+  <audio id="achievementSound">
+    <source src="https://actions.google.com/sounds/v1/impacts/impact_electric_02.mp3" type="audio/mpeg">
+    <source src="https://actions.google.com/sounds/v1/impacts/impact_electric_02.ogg" type="audio/ogg">
+  </audio>
+
+  <button id="muteButton" class="game-button">Mute 🔇</button>
+
+  <script>
+    const player1 = document.getElementById("player1");
+    const player2 = document.getElementById("player2");
+    const treasure = document.getElementById("treasure");
+    const scoreboard = document.getElementById("scoreboard");
+    const gameover = document.getElementById("gameover");
+    const startscreen = document.getElementById("startscreen");
+    const achievementBox = document.getElementById("achievement");
+    const gameContainer = document.getElementById("game");
+
+    // Audio elements
+    const backgroundMusic = document.getElementById("backgroundMusic");
+    const treasureSound = document.getElementById("treasureSound");
+    const obstacleSound = document.getElementById("obstacleSound");
+    const gameOverSound = document.getElementById("gameOverSound");
+    const achievementSound = document.getElementById("achievementSound");
+    const muteButton = document.getElementById("muteButton");
+
+    let obstacles = [];
+    const avatarOptions = ["🧜‍♀️", "🧑‍🚀", "🚴", "🧙‍♂️", "🧙‍♀️"];
+    let mode = 1;
+
+    function initAvatarSelection() {
+      const p1Div = document.getElementById("avatarChoicesP1");
+      const p2Div = document.getElementById("avatarChoicesP2");
+      if (p1Div.children.length > 0) {
+        p1Div.children[0].classList.add("selected");
+      }
+      if (p2Div.children.length > 0) {
+        p2Div.children[0].classList.add("selected");
+      }
+    }
+
+    function loadAvatarChoices() {
+      const p1Div = document.getElementById("avatarChoicesP1");
+      const p2Div = document.getElementById("avatarChoicesP2");
+      p1Div.innerHTML = '';
+      p2Div.innerHTML = '';
+      avatarOptions.forEach(av => {
+        const span1 = document.createElement("span");
+        span1.innerText = av;
+        span1.onclick = () => selectAvatar(span1, "p1");
+        p1Div.appendChild(span1);
+
+        const span2 = document.createElement("span");
+        span2.innerText = av;
+        span2.onclick = () => selectAvatar(span2, "p2");
+        p2Div.appendChild(span2);
+      });
+      initAvatarSelection();
+    }
+
+    function selectAvatar(span, player) {
+      if (player === "p1") {
+        document.querySelectorAll("#avatarChoicesP1 span").forEach(s => s.classList.remove("selected"));
+        span.classList.add("selected");
+      } else {
+        document.querySelectorAll("#avatarChoicesP2 span").forEach(s => s.classList.remove("selected"));
+        span.classList.add("selected");
+      }
+    }
+
+    loadAvatarChoices();
+
+    let p1Name, p2Name;
+    let p1Score, p2Score, p1Lives, p2Lives, timeLeft, level, obstacleSpeed, timer;
+    let p1X, p1Y, p2X, p2Y;
+    const moveStep = 20;
+    let highScore = localStorage.getItem("treasureHighScore") || 0;
+
+    muteButton.addEventListener("click", () => {
+      if (backgroundMusic.paused) {
+        backgroundMusic.play().catch(e => console.log("Audio playback was blocked:", e));
+        muteButton.innerText = "Mute 🔇";
+      } else {
+        backgroundMusic.pause();
+        muteButton.innerText = "Unmute 🔊";
+      }
+    });
+
+    function playAudio(audioElement) {
+      audioElement.currentTime = 0;
+      audioElement.play().catch(e => console.log("Audio playback was blocked:", e));
+    }
+
+    function startGame() {
+      playAudio(backgroundMusic);
+      mode = document.querySelector('input[name="mode"]:checked').value;
+      p1Name = document.getElementById("player1Name").value || "Player 1";
+      p2Name = document.getElementById("player2Name").value || "Player 2";
+
+      const p1SelectedAvatar = document.querySelector("#avatarChoicesP1 .selected").innerText;
+      player1.innerText = p1SelectedAvatar;
+      player1.style.display = "block";
+      if (mode == 2) {
+        const p2SelectedAvatar = document.querySelector("#avatarChoicesP2 .selected").innerText;
+        player2.innerText = p2SelectedAvatar;
+        player2.style.display = "block";
+      }
+
+      if (mode == 1) {
+        document.getElementById("player2Settings").style.display = "none";
+        document.getElementById("player2AvatarSelect").style.display = "none";
+        player2.style.display = "none";
+      } else {
+        document.getElementById("player2Settings").style.display = "block";
+        document.getElementById("player2AvatarSelect").style.display = "block";
+        player2.style.display = "block";
+      }
+
+      startscreen.style.display = "none";
+      initGame();
+    }
+
+    function initGame() {
+      p1Score = 0; p2Score = 0;
+      p1Lives = 3; p2Lives = 3;
+      timeLeft = 40;
+      level = 1;
+      obstacleSpeed = 2;
+
+      obstacles.forEach(obs => obs.remove());
+      obstacles = [];
+
+      placePlayers();
+      placeTreasure();
+      createObstacles();
+
+      updateScoreboard();
+      gameover.style.display = "none";
+
+      clearInterval(timer);
+      timer = setInterval(() => {
+        if (timeLeft > 0 && (p1Lives > 0 || (mode == 2 && p2Lives > 0))) {
+          timeLeft--;
+          moveObstacles();
+          updateScoreboard();
+        } else {
+          endGame();
+        }
+      }, 1000);
+    }
+
+    function createObstacles() {
+        let currentObstacleCount;
+        if (level >= 13) {
+            currentObstacleCount = 8;
+        } else if (level >= 9) {
+            currentObstacleCount = 6;
+        } else if (level >= 6) {
+            currentObstacleCount = 5;
+        } else if (level >= 4) {
+            currentObstacleCount = 4;
+        } else if (level >= 3) {
+            currentObstacleCount = 3;
+        } else {
+            currentObstacleCount = 2;
+        }
+
+        obstacles.forEach(obs => obs.remove());
+        obstacles = [];
+
+        const allObstacles = ['🐊', '🔥', '🥥'];
+        for (let i = 0; i < currentObstacleCount; i++) {
+            const obs = document.createElement('div');
+            obs.className = 'obstacle sprite';
+            obs.innerText = allObstacles[Math.floor(Math.random() * allObstacles.length)];
+            gameContainer.appendChild(obs);
+            obstacles.push(obs);
+        }
+
+        placeObstacles();
+    }
+
+    function isOverlapping(rect1, rect2) {
+      return !(rect1.top > rect2.bottom || rect1.bottom < rect2.top || rect1.left > rect2.right || rect1.right < rect2.left);
+    }
+    
+    function randomPosition() {
+      const x = Math.random() * (window.innerWidth - 60);
+      const y = Math.random() * (window.innerHeight - 60);
+      return { x, y };
+    }
+
+    function placePlayers() {
+      let p1Pos;
+      let p2Pos;
+      
+      // Place Player 1
+      do {
+        p1Pos = randomPosition();
+        p1X = p1Pos.x;
+        p1Y = p1Pos.y;
+        player1.style.left = p1X + "px";
+        player1.style.top = p1Y + "px";
+      } while (isOverlapping(player1.getBoundingClientRect(), scoreboard.getBoundingClientRect()));
+      
+      // Place Player 2 if in 2-player mode
+      if (mode == 2) {
+        do {
+          p2Pos = randomPosition();
+          p2X = p2Pos.x;
+          p2Y = p2Pos.y;
+          player2.style.left = p2X + "px";
+          player2.style.top = p2Y + "px";
+        } while (isOverlapping(player2.getBoundingClientRect(), scoreboard.getBoundingClientRect()) || isOverlapping(player2.getBoundingClientRect(), player1.getBoundingClientRect()));
+      }
+    }
+
+    function placeTreasure() {
+      let valid = false;
+      while (!valid) {
+        const pos = randomPosition();
+        treasure.style.left = pos.x + "px";
+        treasure.style.top = pos.y + "px";
+        
+        let overlaps = false;
+        if (isOverlapping(treasure.getBoundingClientRect(), player1.getBoundingClientRect())) overlaps = true;
+        if (mode == 2 && isOverlapping(treasure.getBoundingClientRect(), player2.getBoundingClientRect())) overlaps = true;
+        if (isOverlapping(treasure.getBoundingClientRect(), scoreboard.getBoundingClientRect())) overlaps = true;
+
+        if (!overlaps) {
+          valid = true;
+        }
+      }
+    }
+
+    function placeObstacles() {
+      obstacles.forEach(obs => {
+        let valid = false;
+        while (!valid) {
+          const pos = randomPosition();
+          obs.style.left = pos.x + "px";
+          obs.style.top = pos.y + "px";
+          
+          let overlaps = false;
+          if (isOverlapping(obs.getBoundingClientRect(), player1.getBoundingClientRect())) overlaps = true;
+          if (mode == 2 && isOverlapping(obs.getBoundingClientRect(), player2.getBoundingClientRect())) overlaps = true;
+          if (isOverlapping(obs.getBoundingClientRect(), scoreboard.getBoundingClientRect())) overlaps = true;
+          if (isOverlapping(obs.getBoundingClientRect(), treasure.getBoundingClientRect())) overlaps = true;
+          
+          if (!overlaps) {
+            valid = true;
+          }
+        }
+        obs.dataset.dx = (Math.random() < 0.5 ? -1 : 1) * obstacleSpeed;
+      });
+    }
+
+    window.addEventListener("keydown", (e) => {
+      if (timeLeft <= 0 || (p1Lives <= 0 && (mode == 1 || p2Lives <= 0))) return;
+
+      if (e.key === "ArrowRight") p1X += moveStep;
+      if (e.key === "ArrowLeft") p1X -= moveStep;
+      if (e.key === "ArrowUp") p1Y -= moveStep;
+      if (e.key === "ArrowDown") p1Y += moveStep;
+
+      if (mode == 2) {
+        if (e.key === "d") p2X += moveStep;
+        if (e.key === "a") p2X -= moveStep;
+        if (e.key === "w") p2Y -= moveStep;
+        if (e.key === "s") p2Y += moveStep;
+      }
+
+      p1X = Math.max(0, Math.min(window.innerWidth - 60, p1X));
+      p1Y = Math.max(0, Math.min(window.innerHeight - 60, p1Y));
+      player1.style.left = p1X + "px";
+      player1.style.top = p1Y + "px";
+
+      if (mode == 2) {
+        p2X = Math.max(0, Math.min(window.innerWidth - 60, p2X));
+        p2Y = Math.max(0, Math.min(window.innerHeight - 60, p2Y));
+        player2.style.left = p2X + "px";
+        player2.style.top = p2Y + "px";
+      }
+
+      checkTreasureCollision();
+      checkObstacleCollision();
+    });
+
+    function checkTreasureCollision() {
+      if (isOverlapping(player1.getBoundingClientRect(), treasure.getBoundingClientRect())) {
+        p1Score++;
+        placeTreasure();
+        playAudio(treasureSound);
+        if (p1Score % 5 === 0) {
+          levelUp();
+          timeLeft += 10;
+          showAchievement("🎉 " + p1Name + " gets a bonus! +10s added!");
+        }
+        // New bonus logic
+        if (p1Score >= 15 && p1Score % 5 === 0) {
+            timeLeft += 5;
+            showAchievement("⏱️ " + p1Name + " gets a time bonus! +5s added!");
+        }
+      }
+      if (mode == 2 && isOverlapping(player2.getBoundingClientRect(), treasure.getBoundingClientRect())) {
+        p2Score++;
+        placeTreasure();
+        playAudio(treasureSound);
+        if (p2Score % 5 === 0) {
+          levelUp();
+          timeLeft += 10;
+          showAchievement("🎉 " + p2Name + " gets a bonus! +10s added!");
+        }
+        // New bonus logic
+        if (p2Score >= 15 && p2Score % 5 === 0) {
+            timeLeft += 5;
+            showAchievement("⏱️ " + p2Name + " gets a time bonus! +5s added!");
+        }
+      }
+      updateScoreboard();
+    }
+
+    function checkObstacleCollision() {
+      obstacles.forEach(obs => {
+        if (isOverlapping(player1.getBoundingClientRect(), obs.getBoundingClientRect())) {
+          p1Lives--;
+          placeObstacles();
+          playAudio(obstacleSound);
+          if (p1Lives === 1) showAchievement("🛡️ " + p1Name + " is a Survivor! Only 1 life left!");
+        }
+        if (mode == 2 && isOverlapping(player2.getBoundingClientRect(), obs.getBoundingClientRect())) {
+          p2Lives--;
+          placeObstacles();
+          playAudio(obstacleSound);
+          if (p2Lives === 1) showAchievement("🛡️ " + p2Name + " is a Survivor! Only 1 life left!");
+        }
+      });
+      if (p1Lives <= 0 && (mode == 1 || p2Lives <= 0)) endGame();
+      updateScoreboard();
+    }
+
+    function levelUp() {
+      level++;
+      if (level >= 4) {
+        obstacleSpeed = 3;
+      }
+      if (level >= 7) {
+        obstacleSpeed++;
+      }
+      if (level === 6) {
+        p1Lives++;
+        p2Lives++;
+        showAchievement("💖 Bonus Life! +1 life added!");
+      }
+      createObstacles();
+      if (level === 3) showAchievement("⚡ Speed Demon! Level 3 reached!");
+    }
+
+    function updateScoreboard() {
+      scoreboard.innerHTML = `
+        <div>⏳ Time: ${timeLeft || 0}</div>
+        <div>🏆 Level: ${level || 1}</div>
+        <div>⭐ High Score: ${highScore || 0}</div>
+        <hr>
+        <div>${p1Name || "Player 1"}: ${p1Score || 0} points ❤️ ${p1Lives || 0} lives</div>
+        ${mode == 2 ? `<div>${p2Name || "Player 2"}: ${p2Score || 0} points ❤️ ${p2Lives || 0} lives</div>` : ""}
+      `;
+    }
+
+    function showAchievement(text) {
+      achievementBox.innerText = text;
+      achievementBox.style.display = "block";
+      playAudio(achievementSound);
+      setTimeout(() => achievementBox.style.display = "none", 3000);
+    }
+
+    function endGame() {
+      clearInterval(timer);
+      backgroundMusic.pause();
+      playAudio(gameOverSound);
+      let message = `Game Over! ${p1Name}: ${p1Score}`;
+      if (mode == 2) message += `, ${p2Name}: ${p2Score}`;
+      let winner = p1Score > p2Score ? p1Name : (p2Score > p1Score ? p2Name : "Tie");
+      message += `. Winner: ${winner}`;
+      let best = Math.max(p1Score, p2Score);
+      if (best > highScore) {
+        highScore = best;
+        localStorage.setItem("treasureHighScore", highScore);
+        message += " 🎉 NEW HIGH SCORE!";
+      }
+      gameover.style.display = "block";
+      gameover.innerHTML = `
+        ${message}<br><br>
+        <button onclick="initGame(); playAudio(backgroundMusic);">Play Again</button>
+      `;
+    }
+  </script>
+</body>
+</html>
