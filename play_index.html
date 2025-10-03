@@ -189,10 +189,36 @@
       }
 
       #achievement {
-        top: 20%;
+        position: fixed;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%) translateX(120px);
         background: rgba(0, 150, 0, 0.9);
-        font-size: 18px;
-        animation: slideIn 0.5s ease-out;
+        color: white;
+        padding: 12px 20px;
+        text-align: center;
+        border-radius: 8px;
+        z-index: 1001;
+        display: none;
+        font-size: 14px;
+        font-weight: bold;
+        box-shadow: 0 4px 15px rgba(0, 150, 0, 0.3);
+        animation: slideInTop 0.3s ease-out;
+        max-width: 300px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      @keyframes slideInTop {
+        from {
+          transform: translateX(-50%) translateX(120px) translateY(-20px);
+          opacity: 0;
+        }
+        to {
+          transform: translateX(-50%) translateX(120px) translateY(0);
+          opacity: 1;
+        }
       }
 
       @keyframes slideIn {
@@ -1661,6 +1687,16 @@
         const pauseBtn = document.getElementById("pauseButton");
         pauseBtn.innerHTML = "⏸ PAUSE";
         pauseBtn.style.background = "rgba(255, 193, 7, 0.8)";
+
+        // Start background music automatically
+        if (!isMuted) {
+          startBackgroundMusic();
+          isPlaying = true;
+          const musicBtn = document.getElementById("playMusicBtn");
+          if (musicBtn) {
+            musicBtn.textContent = "⏸ Pause Music";
+          }
+        }
 
         if (mode === 2) {
           player2.style.display = "block";
