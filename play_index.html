@@ -484,15 +484,18 @@
       }
 
       .character-selection {
-        display: flex;
-        justify-content: center;
-        gap: 10px;
-        margin: 15px 0;
-        flex-wrap: wrap;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        grid-template-rows: repeat(2, 1fr);
+        gap: 15px;
+        margin: 20px auto;
+        max-width: 400px;
+        justify-items: center;
+        align-items: center;
       }
 
       .character-option {
-        padding: 10px 15px;
+        padding: 15px 20px;
         font-size: 36px;
         background: rgba(255, 255, 255, 0.1);
         border: 2px solid rgba(255, 255, 255, 0.3);
@@ -502,8 +505,11 @@
         display: flex;
         flex-direction: column;
         align-items: center;
-        gap: 5px;
-        min-width: 80px;
+        gap: 8px;
+        min-width: 100px;
+        min-height: 100px;
+        width: 100%;
+        box-sizing: border-box;
       }
 
       .character-option:hover {
@@ -512,10 +518,41 @@
       }
 
       .character-option.selected {
-        background: rgba(255, 165, 0, 0.4);
+        background: rgba(255, 165, 0, 0.8);
         border-color: orange;
-        transform: scale(1.1);
-        box-shadow: 0 0 15px rgba(255, 165, 0, 0.4);
+        transform: scale(1.05);
+        box-shadow: 0 0 20px rgba(255, 165, 0, 0.5);
+      }
+
+      /* Player Settings Sections */
+      .player-section {
+        background: rgba(0, 0, 0, 0.3);
+        border-radius: 15px;
+        padding: 25px;
+        margin: 20px 0;
+        border: 2px solid rgba(255, 255, 255, 0.2);
+      }
+
+      .player-section h3 {
+        color: #ffd700;
+        margin: 0 0 15px 0;
+        text-align: center;
+        font-size: 1.3em;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+      }
+
+      .player-section p {
+        margin: 15px 0 10px 0;
+        font-weight: bold;
+        color: #fff;
+        text-align: center;
+      }
+
+      .player-section input {
+        width: 100%;
+        max-width: 300px;
+        margin: 0 auto;
+        display: block;
       }
 
       .character-option .name {
@@ -597,18 +634,24 @@
           </button>
         </div>
 
-        <p>Enter Player 1 name:</p>
-        <input
-          id="player1Name"
-          type="text"
-          placeholder="Player 1 name"
-          value="Player 1"
-        />
+        <!-- Player 1 Settings -->
+        <div class="player-section">
+          <h3>🎮 Player 1 Setup</h3>
+          <p>Enter Player 1 name:</p>
+          <input
+            id="player1Name"
+            type="text"
+            placeholder="Player 1 name"
+            value="Player 1"
+          />
 
-        <p>Choose Player 1 character:</p>
-        <div id="player1Characters" class="character-selection"></div>
+          <p>Choose Player 1 character:</p>
+          <div id="player1Characters" class="character-selection"></div>
+        </div>
 
-        <div id="player2Settings" style="display: none">
+        <!-- Player 2 Settings -->
+        <div id="player2Settings" class="player-section" style="display: none">
+          <h3>🎮 Player 2 Setup</h3>
           <p>Enter Player 2 name:</p>
           <input
             id="player2Name"
@@ -820,30 +863,57 @@
 
       // Play specific sound effect
       function playAudio(audioElement) {
-        if (!audioElement || isMuted) return;
+        if (!audioElement) return;
 
         try {
+          // Don't check isMuted for sound effects - let them play with volume control
           audioElement.currentTime = 0; // Reset to start
+
           // Set volume based on FX settings
           const fxVolume = document.getElementById("fxVolume")
             ? document.getElementById("fxVolume").value / 100
             : 0.7;
-          audioElement.volume = fxVolume;
 
-          audioElement.play().catch((e) => {
-            console.log("Audio play failed:", e.message);
-            // Fallback to procedural sound
-            fallbackProceduralSound(audioElement.id || "default");
-          });
+          // Apply mute only to volume, don't prevent playing
+          audioElement.volume = isMuted ? 0 : fxVolume;
+
+          // Force play the audio
+          const playPromise = audioElement.play();
+
+          if (playPromise !== undefined) {
+            playPromise
+              .then(() => {
+                console.log(`Audio played successfully: ${audioElement.id}`);
+              })
+              .catch((e) => {
+                console.log(
+                  `Audio play failed for ${audioElement.id}:`,
+                  e.message
+                );
+                // Fallback to procedural sound
+                fallbackProceduralSound(audioElement.id || "default");
+              });
+          }
         } catch (e) {
-          console.log("Audio error:", e);
+          console.log(`Audio error for ${audioElement.id}:`, e);
           fallbackProceduralSound(audioElement.id || "default");
         }
       }
 
       // Fallback procedural sound generation
       function fallbackProceduralSound(soundType) {
-        if (isMuted || !audioContext) return;
+        if (isMuted) return;
+
+        // Initialize AudioContext if needed
+        if (!audioContext) {
+          try {
+            audioContext = new (window.AudioContext ||
+              window.webkitAudioContext)();
+          } catch (e) {
+            console.log("AudioContext not available");
+            return;
+          }
+        }
 
         try {
           const oscillator = audioContext.createOscillator();
@@ -852,11 +922,19 @@
           oscillator.connect(gainNode);
           gainNode.connect(audioContext.destination);
 
+          // Get FX volume for procedural sounds
+          const fxVolume = document.getElementById("fxVolume")
+            ? document.getElementById("fxVolume").value / 100
+            : 0.7;
+
           // Different tones for different sound types
           switch (soundType) {
             case "treasureSound":
               oscillator.frequency.value = 800;
-              gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+              gainNode.gain.setValueAtTime(
+                0.1 * fxVolume,
+                audioContext.currentTime
+              );
               gainNode.gain.exponentialRampToValueAtTime(
                 0.01,
                 audioContext.currentTime + 0.3
@@ -864,7 +942,10 @@
               break;
             case "powerupSound":
               oscillator.frequency.value = 600;
-              gainNode.gain.setValueAtTime(0.15, audioContext.currentTime);
+              gainNode.gain.setValueAtTime(
+                0.15 * fxVolume,
+                audioContext.currentTime
+              );
               gainNode.gain.exponentialRampToValueAtTime(
                 0.01,
                 audioContext.currentTime + 0.5
@@ -872,7 +953,10 @@
               break;
             case "obstacleSound":
               oscillator.frequency.value = 200;
-              gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+              gainNode.gain.setValueAtTime(
+                0.1 * fxVolume,
+                audioContext.currentTime
+              );
               gainNode.gain.exponentialRampToValueAtTime(
                 0.01,
                 audioContext.currentTime + 0.2
@@ -880,15 +964,32 @@
               break;
             case "achievementSound":
               oscillator.frequency.value = 1000;
-              gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+              gainNode.gain.setValueAtTime(
+                0.1 * fxVolume,
+                audioContext.currentTime
+              );
               gainNode.gain.exponentialRampToValueAtTime(
                 0.01,
                 audioContext.currentTime + 0.8
               );
               break;
+            case "gameoverSound":
+              oscillator.frequency.value = 150;
+              gainNode.gain.setValueAtTime(
+                0.15 * fxVolume,
+                audioContext.currentTime
+              );
+              gainNode.gain.exponentialRampToValueAtTime(
+                0.01,
+                audioContext.currentTime + 1.0
+              );
+              break;
             default:
               oscillator.frequency.value = 440;
-              gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+              gainNode.gain.setValueAtTime(
+                0.1 * fxVolume,
+                audioContext.currentTime
+              );
               gainNode.gain.exponentialRampToValueAtTime(
                 0.01,
                 audioContext.currentTime + 0.2
@@ -897,6 +998,7 @@
 
           oscillator.start();
           oscillator.stop(audioContext.currentTime + 1);
+          console.log(`Procedural sound played: ${soundType}`);
         } catch (e) {
           console.log("Fallback sound failed:", e);
         }
