@@ -106,9 +106,10 @@
         border-radius: 15px;
         overflow: hidden;
         box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
-        background-image: url("https://st4.depositphotos.com/1000673/25687/v/450/depositphotos_256875936-stock-illustration-treasure-island-background-for-game.jpg");
+        background-image: url("data/mermaid-background-1.png");
         background-size: cover;
         background-position: center;
+        background-repeat: no-repeat;
       }
 
       .sprite {
@@ -711,7 +712,7 @@
 
       // Character selection and facing direction
       let selectedP1Character = "MERMAID";
-      let selectedP2Character = "ASTRONAUT";
+      let selectedP2Character = "RUNNER";
       let p1FacingLeft = false;
       let p2FacingLeft = false;
 
@@ -736,16 +737,14 @@
       const gameoverSound = document.getElementById("gameoverSound");
       const menuClickSound = document.getElementById("menuClickSound");
 
-      // Character options for players
+      // Character options for players - Directional characters with clear left/right facing
       const characterOptions = {
         MERMAID: { emoji: "🧜‍♀️", name: "Mermaid" },
-        ASTRONAUT: { emoji: "🧑‍🚀", name: "Astronaut" },
-        PIRATE: { emoji: "🏴‍☠️", name: "Pirate" },
-        NINJA: { emoji: "🥷", name: "Ninja" },
-        EXPLORER: { emoji: "🧭", name: "Explorer" },
-        DIVER: { emoji: "🤿", name: "Diver" },
-        SAILOR: { emoji: "⛵", name: "Sailor" },
-        VIKING: { emoji: "🪓", name: "Viking" },
+        RUNNER: { emoji: "🏃‍♂️", name: "Runner" },
+        FISH: { emoji: "🐟", name: "Fish" },
+        CAR: { emoji: "🚗", name: "Car" },
+        HORSE: { emoji: "🐎", name: "Horse" },
+        SURFER: { emoji: "🏄‍♂️", name: "Surfer" },
       };
 
       const treasureTypes = {
@@ -1653,6 +1652,7 @@
 
         // Show game elements
         startscreen.style.display = "none";
+        gameover.style.display = "none"; // Hide game over dialog
         player1.style.display = "block";
         treasure.style.display = "block";
         document.querySelector(".game-header-buttons").style.display = "flex";
@@ -1887,18 +1887,66 @@
         }
 
         if (moved) {
-          // Keep players in bounds with screen wrapping
+          // Keep players in bounds with smooth screen wrapping
           const game = document.getElementById("game");
-          if (p1X < 0) p1X = game.clientWidth - 60;
-          if (p1X > game.clientWidth - 60) p1X = 0;
-          if (p1Y < 0) p1Y = game.clientHeight - 60;
-          if (p1Y > game.clientHeight - 60) p1Y = 0;
+          let p1Wrapped = false;
+          let p2Wrapped = false;
 
+          // Player 1 screen wrapping with smooth transition
+          if (p1X < -30) {
+            p1X = game.clientWidth - 30;
+            p1Wrapped = true;
+          } else if (p1X > game.clientWidth - 30) {
+            p1X = -30;
+            p1Wrapped = true;
+          }
+          if (p1Y < -30) {
+            p1Y = game.clientHeight - 30;
+            p1Wrapped = true;
+          } else if (p1Y > game.clientHeight - 30) {
+            p1Y = -30;
+            p1Wrapped = true;
+          }
+
+          // Player 2 screen wrapping with smooth transition
           if (mode === 2) {
-            if (p2X < 0) p2X = game.clientWidth - 60;
-            if (p2X > game.clientWidth - 60) p2X = 0;
-            if (p2Y < 0) p2Y = game.clientHeight - 60;
-            if (p2Y > game.clientHeight - 60) p2Y = 0;
+            if (p2X < -30) {
+              p2X = game.clientWidth - 30;
+              p2Wrapped = true;
+            } else if (p2X > game.clientWidth - 30) {
+              p2X = -30;
+              p2Wrapped = true;
+            }
+            if (p2Y < -30) {
+              p2Y = game.clientHeight - 30;
+              p2Wrapped = true;
+            } else if (p2Y > game.clientHeight - 30) {
+              p2Y = -30;
+              p2Wrapped = true;
+            }
+          }
+
+          // Apply smooth wrapping effect
+          if (p1Wrapped) {
+            player1.style.transition = "opacity 0.15s ease-in-out";
+            player1.style.opacity = "0.3";
+            setTimeout(() => {
+              player1.style.opacity = "1";
+              setTimeout(() => {
+                player1.style.transition = "none";
+              }, 150);
+            }, 50);
+          }
+
+          if (p2Wrapped && mode === 2) {
+            player2.style.transition = "opacity 0.15s ease-in-out";
+            player2.style.opacity = "0.3";
+            setTimeout(() => {
+              player2.style.opacity = "1";
+              setTimeout(() => {
+                player2.style.transition = "none";
+              }, 150);
+            }, 50);
           }
 
           // Update player positions
