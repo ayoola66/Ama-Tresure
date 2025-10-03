@@ -288,6 +288,186 @@
         }
       }
 
+      /* Leaderboard Styles */
+      .leaderboard-container {
+        background: rgba(0, 0, 0, 0.95);
+        border-radius: 15px;
+        padding: 25px;
+        margin: 20px auto;
+        max-width: 600px;
+        border: 2px solid #ffd700;
+        box-shadow: 0 8px 32px rgba(255, 215, 0, 0.3);
+      }
+
+      .leaderboard-title {
+        text-align: center;
+        color: #ffd700;
+        font-size: 28px;
+        font-weight: bold;
+        margin-bottom: 20px;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+      }
+
+      .leaderboard-table {
+        width: 100%;
+        border-collapse: collapse;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 10px;
+        overflow: hidden;
+      }
+
+      .leaderboard-header {
+        background: linear-gradient(135deg, #ffd700, #ffa500);
+        color: #000;
+        font-weight: bold;
+      }
+
+      .leaderboard-header th {
+        padding: 15px 10px;
+        text-align: center;
+        font-size: 14px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+
+      .leaderboard-row {
+        transition: all 0.3s ease;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .leaderboard-row:hover {
+        background: rgba(255, 215, 0, 0.1);
+      }
+
+      .leaderboard-row td {
+        padding: 12px 10px;
+        text-align: center;
+        color: #fff;
+        font-size: 14px;
+      }
+
+      .leaderboard-position {
+        font-weight: bold;
+        color: #ffd700;
+        font-size: 16px;
+      }
+
+      .leaderboard-name {
+        font-weight: bold;
+        max-width: 150px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .leaderboard-score {
+        font-weight: bold;
+        color: #00ff00;
+      }
+
+      .leaderboard-date {
+        color: #ccc;
+        font-size: 12px;
+      }
+
+      /* Special styling for top 3 positions */
+      .leaderboard-row.position-1 .leaderboard-position {
+        color: #ffd700;
+        text-shadow: 0 0 10px #ffd700;
+      }
+
+      .leaderboard-row.position-2 .leaderboard-position {
+        color: #c0c0c0;
+        text-shadow: 0 0 10px #c0c0c0;
+      }
+
+      .leaderboard-row.position-3 .leaderboard-position {
+        color: #cd7f32;
+        text-shadow: 0 0 10px #cd7f32;
+      }
+
+      /* New score insertion animation */
+      .leaderboard-row.new-entry {
+        background: linear-gradient(90deg, transparent, #ffd700, transparent);
+        animation: newScoreGlow 2s ease-in-out;
+      }
+
+      .leaderboard-row.inserting {
+        transform: translateX(100%);
+        opacity: 0;
+        animation: slideInFromRight 0.8s ease-out forwards;
+      }
+
+      .leaderboard-row.moving-down {
+        animation: moveDown 0.8s ease-out forwards;
+      }
+
+      @keyframes newScoreGlow {
+        0%,
+        100% {
+          background: rgba(255, 215, 0, 0.1);
+        }
+        50% {
+          background: rgba(255, 215, 0, 0.3);
+        }
+      }
+
+      @keyframes slideInFromRight {
+        0% {
+          transform: translateX(100%);
+          opacity: 0;
+        }
+        100% {
+          transform: translateX(0);
+          opacity: 1;
+        }
+      }
+
+      @keyframes moveDown {
+        0% {
+          transform: translateY(0);
+        }
+        100% {
+          transform: translateY(50px);
+        }
+      }
+
+      /* Leaderboard buttons */
+      .leaderboard-buttons {
+        text-align: center;
+        margin-top: 20px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+      }
+
+      .leaderboard-button {
+        padding: 12px 24px;
+        background: linear-gradient(135deg, #4caf50, #45a049);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 16px;
+        font-weight: bold;
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+
+      .leaderboard-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(76, 175, 80, 0.4);
+      }
+
+      .leaderboard-button.secondary {
+        background: linear-gradient(135deg, #ff6b6b, #ff5252);
+      }
+
+      .leaderboard-button.secondary:hover {
+        box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
+      }
+
       input {
         font-size: 16px;
         padding: 12px;
@@ -616,6 +796,37 @@
         <div id="treasure" class="sprite">💰</div>
         <div id="gameover"></div>
         <div id="achievement"></div>
+
+        <!-- Leaderboard Modal -->
+        <div id="leaderboardModal" style="display: none">
+          <div class="leaderboard-container">
+            <div class="leaderboard-title">🏆 TOP 10 LEADERBOARD 🏆</div>
+            <table class="leaderboard-table">
+              <thead class="leaderboard-header">
+                <tr>
+                  <th>Rank</th>
+                  <th>Player</th>
+                  <th>Score</th>
+                  <th>Date</th>
+                </tr>
+              </thead>
+              <tbody id="leaderboardBody">
+                <!-- Leaderboard entries will be inserted here -->
+              </tbody>
+            </table>
+            <div class="leaderboard-buttons">
+              <button class="leaderboard-button" onclick="startGame()">
+                🔄 Play Again
+              </button>
+              <button
+                class="leaderboard-button secondary"
+                onclick="backToMenu()"
+              >
+                🏠 Main Menu
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div id="startscreen">
@@ -779,6 +990,82 @@
       const moveStep = 20;
       let highScore = localStorage.getItem("treasureHighScore") || 0;
 
+      // Leaderboard System
+      class LeaderboardManager {
+        constructor() {
+          this.storageKey = "treasureLeaderboard";
+          this.maxEntries = 10;
+        }
+
+        // Get current leaderboard from localStorage
+        getLeaderboard() {
+          const stored = localStorage.getItem(this.storageKey);
+          return stored ? JSON.parse(stored) : [];
+        }
+
+        // Save leaderboard to localStorage
+        saveLeaderboard(leaderboard) {
+          localStorage.setItem(this.storageKey, JSON.stringify(leaderboard));
+        }
+
+        // Add new score and return position (1-based, 0 if not in top 10)
+        addScore(playerName, score) {
+          const leaderboard = this.getLeaderboard();
+          const timestamp = new Date().toISOString();
+
+          const newEntry = {
+            name: playerName,
+            score: score,
+            date: timestamp,
+            id: Date.now() + Math.random(), // Unique ID for animations
+          };
+
+          // Find insertion position
+          let insertPosition = leaderboard.length;
+          for (let i = 0; i < leaderboard.length; i++) {
+            if (score > leaderboard[i].score) {
+              insertPosition = i;
+              break;
+            }
+          }
+
+          // Insert new entry
+          leaderboard.splice(insertPosition, 0, newEntry);
+
+          // Keep only top 10
+          if (leaderboard.length > this.maxEntries) {
+            leaderboard.splice(this.maxEntries);
+          }
+
+          this.saveLeaderboard(leaderboard);
+
+          // Return position (1-based) or 0 if not in top 10
+          const finalPosition = leaderboard.findIndex(
+            (entry) => entry.id === newEntry.id
+          );
+          return finalPosition >= 0 ? finalPosition + 1 : 0;
+        }
+
+        // Get formatted leaderboard for display
+        getFormattedLeaderboard() {
+          return this.getLeaderboard().map((entry, index) => ({
+            position: index + 1,
+            name: entry.name,
+            score: entry.score,
+            date: new Date(entry.date).toLocaleDateString(),
+            id: entry.id,
+          }));
+        }
+
+        // Clear leaderboard (for testing)
+        clearLeaderboard() {
+          localStorage.removeItem(this.storageKey);
+        }
+      }
+
+      // Initialize leaderboard manager
+      const leaderboard = new LeaderboardManager();
+
       // Character selection and facing direction
       let selectedP1Character = "MERMAID";
       let selectedP2Character = "RUNNER";
@@ -842,11 +1129,40 @@
 
       // Initialize audio system
       function initAudio() {
+        // Get all audio elements
+        const audioElements = [
+          treasureSound,
+          powerupSound,
+          obstacleSound,
+          achievementSound,
+          gameoverSound,
+          menuClickSound,
+        ];
+
+        // Force load all audio elements
+        audioElements.forEach((audio) => {
+          if (audio) {
+            audio.load();
+            audio.preload = "auto";
+          }
+        });
+
         // Set initial volumes
         updateAudioVolumes();
 
         // Enable user interaction for audio autoplay
         backgroundMusic.volume = musicVolume;
+
+        // Initialize AudioContext for fallback sounds
+        if (!audioContext) {
+          try {
+            audioContext = new (window.AudioContext ||
+              window.webkitAudioContext)();
+          } catch (e) {
+            console.log("AudioContext initialization failed:", e);
+          }
+        }
+
         console.log("Audio system initialized with MP3 files");
       }
 
@@ -866,8 +1182,10 @@
         if (!audioElement) return;
 
         try {
-          // Don't check isMuted for sound effects - let them play with volume control
-          audioElement.currentTime = 0; // Reset to start
+          // Ensure audio is loaded
+          if (audioElement.readyState < 2) {
+            audioElement.load();
+          }
 
           // Set volume based on FX settings
           const fxVolume = document.getElementById("fxVolume")
@@ -876,6 +1194,7 @@
 
           // Apply mute only to volume, don't prevent playing
           audioElement.volume = isMuted ? 0 : fxVolume;
+          audioElement.currentTime = 0; // Reset to start
 
           // Force play the audio
           const playPromise = audioElement.play();
@@ -883,11 +1202,11 @@
           if (playPromise !== undefined) {
             playPromise
               .then(() => {
-                console.log(`Audio played successfully: ${audioElement.id}`);
+                console.log(`✅ Audio played successfully: ${audioElement.id}`);
               })
               .catch((e) => {
                 console.log(
-                  `Audio play failed for ${audioElement.id}:`,
+                  `❌ Audio play failed for ${audioElement.id}:`,
                   e.message
                 );
                 // Fallback to procedural sound
@@ -895,7 +1214,7 @@
               });
           }
         } catch (e) {
-          console.log(`Audio error for ${audioElement.id}:`, e);
+          console.log(`❌ Audio error for ${audioElement.id}:`, e);
           fallbackProceduralSound(audioElement.id || "default");
         }
       }
@@ -1432,6 +1751,47 @@
         const pos = getSafeRandomPosition(treasure);
         treasure.style.left = pos.x + "px";
         treasure.style.top = pos.y + "px";
+
+        // Check and resolve treasure-obstacle collisions
+        resolveTreasureObstacleCollisions();
+      }
+
+      // Check for treasure-obstacle collisions and relocate obstacles if needed
+      function resolveTreasureObstacleCollisions() {
+        const treasureRect = {
+          left: parseFloat(treasure.style.left),
+          top: parseFloat(treasure.style.top),
+          right: parseFloat(treasure.style.left) + 60,
+          bottom: parseFloat(treasure.style.top) + 60,
+        };
+
+        obstacles.forEach((obstacle) => {
+          const obstacleRect = {
+            left: parseFloat(obstacle.style.left),
+            top: parseFloat(obstacle.style.top),
+            right: parseFloat(obstacle.style.left) + 60,
+            bottom: parseFloat(obstacle.style.top) + 60,
+          };
+
+          // Check if treasure and obstacle are too close (within 80px)
+          const distance = Math.sqrt(
+            Math.pow(treasureRect.left - obstacleRect.left, 2) +
+              Math.pow(treasureRect.top - obstacleRect.top, 2)
+          );
+
+          if (distance < 80) {
+            console.log(
+              "🚫 Treasure-obstacle collision detected, relocating obstacle"
+            );
+
+            // Find a new safe position for the obstacle
+            const newPos = getSafeRandomPosition(obstacle);
+            obstacle.style.left = newPos.x + "px";
+            obstacle.style.top = newPos.y + "px";
+
+            console.log("✅ Obstacle relocated to avoid treasure collision");
+          }
+        });
       }
 
       function createPowerUp() {
@@ -1585,27 +1945,73 @@
           let dy = parseFloat(obs.dataset.dy);
           let oldDx = dx; // Store original dx to check for direction change
 
-          // Enhanced movement for level 7+
-          if (level >= 7) {
-            // Add aggressive tracking behavior towards players
-            const player =
-              mode === 2 ? (Math.random() < 0.5 ? player1 : player2) : player1;
-            const playerRect = player.getBoundingClientRect();
+          // Level 7-9: Random movement in any direction
+          if (level >= 7 && level < 10) {
+            // Random movement - change direction occasionally
+            if (Math.random() < 0.05) {
+              // 5% chance to change direction
+              dx = (Math.random() - 0.5) * 4; // Random horizontal speed
+              dy = (Math.random() - 0.5) * 4; // Random vertical speed
+              obs.dataset.dx = dx;
+              obs.dataset.dy = dy;
+              console.log(
+                `🎲 Obstacle random movement: dx=${dx.toFixed(
+                  2
+                )}, dy=${dy.toFixed(2)}`
+              );
+            }
+          }
+
+          // Level 10+: Player-driven movement towards nearest character
+          if (level >= 10) {
+            // Find nearest player
+            let nearestPlayer = player1;
+            let nearestDistance = Infinity;
+
             const obsRect = obs.getBoundingClientRect();
 
-            const distanceToPlayer = Math.sqrt(
-              Math.pow(playerRect.left - obsRect.left, 2) +
-                Math.pow(playerRect.top - obsRect.top, 2)
+            // Check distance to player 1
+            const p1Rect = player1.getBoundingClientRect();
+            const p1Distance = Math.sqrt(
+              Math.pow(p1Rect.left - obsRect.left, 2) +
+                Math.pow(p1Rect.top - obsRect.top, 2)
             );
 
-            if (distanceToPlayer < 200) {
-              const attraction = 0.2 + (level - 7) * 0.1; // Increased attraction
-              dx +=
-                ((playerRect.left - obsRect.left) * attraction) /
-                distanceToPlayer;
-              dy +=
-                ((playerRect.top - obsRect.top) * attraction) /
-                distanceToPlayer;
+            nearestDistance = p1Distance;
+
+            // Check distance to player 2 if in two-player mode
+            if (mode === 2) {
+              const p2Rect = player2.getBoundingClientRect();
+              const p2Distance = Math.sqrt(
+                Math.pow(p2Rect.left - obsRect.left, 2) +
+                  Math.pow(p2Rect.top - obsRect.top, 2)
+              );
+
+              if (p2Distance < nearestDistance) {
+                nearestPlayer = player2;
+                nearestDistance = p2Distance;
+              }
+            }
+
+            // Move towards nearest player with increasing intensity based on level
+            const playerRect = nearestPlayer.getBoundingClientRect();
+            const trackingRange = 300; // Always track within this range
+            const trackingStrength = 0.3 + (level - 10) * 0.05; // Increase with level
+
+            if (nearestDistance < trackingRange) {
+              const directionX = playerRect.left > obsRect.left ? 1 : -1;
+              const directionY = playerRect.top > obsRect.top ? 1 : -1;
+
+              dx += directionX * trackingStrength;
+              dy += directionY * trackingStrength;
+
+              // Cap the speed to prevent obstacles from becoming too fast
+              const maxSpeed = 3 + (level - 10) * 0.2;
+              dx = Math.max(-maxSpeed, Math.min(maxSpeed, dx));
+              dy = Math.max(-maxSpeed, Math.min(maxSpeed, dy));
+
+              obs.dataset.dx = dx;
+              obs.dataset.dy = dy;
             }
           }
 
@@ -1656,10 +2062,11 @@
       }
 
       function applyMagnetEffect(player) {
+        const playerKey = player === player1 ? "player1" : "player2";
+
         if (
-          !activePowerUps[player === player1 ? "player1" : "player2"] ||
-          activePowerUps[player === player1 ? "player1" : "player2"].type !==
-            "MAGNET"
+          !activePowerUps[playerKey] ||
+          activePowerUps[playerKey].type !== "MAGNET"
         )
           return;
 
@@ -1670,23 +2077,49 @@
         const dy = playerRect.top - treasureRect.top;
         const distance = Math.sqrt(dx * dx + dy * dy);
 
-        if (distance < 200) {
-          // Magnet range increased to 200px for better effect
-          const speed = 5; // Increased magnet speed
+        // Increased magnet range and effectiveness
+        if (distance < 250) {
+          console.log(
+            `🧲 Magnet active for ${playerKey}, distance: ${distance.toFixed(
+              2
+            )}px`
+          );
+
+          // Enhanced magnet speed based on distance (closer = faster)
+          const baseSpeed = 8;
+          const speedMultiplier = Math.max(0.3, (250 - distance) / 250);
+          const speed = baseSpeed * speedMultiplier;
+
           const moveX = (dx / distance) * speed;
           const moveY = (dy / distance) * speed;
 
           const currentLeft = parseFloat(treasure.style.left);
           const currentTop = parseFloat(treasure.style.top);
-          treasure.style.left = currentLeft + moveX + "px";
-          treasure.style.top = currentTop + moveY + "px";
 
-          // Add visual effect
+          // Apply movement with bounds checking
+          const newLeft = Math.max(
+            0,
+            Math.min(gameContainer.clientWidth - 60, currentLeft + moveX)
+          );
+          const newTop = Math.max(
+            0,
+            Math.min(gameContainer.clientHeight - 60, currentTop + moveY)
+          );
+
+          treasure.style.left = newLeft + "px";
+          treasure.style.top = newTop + "px";
+
+          // Add enhanced visual effect
           if (!treasure.classList.contains("magnet-active")) {
             treasure.classList.add("magnet-active");
+            console.log("✨ Magnet visual effect activated");
           }
         } else {
-          treasure.classList.remove("magnet-active");
+          // Remove visual effect when out of range
+          if (treasure.classList.contains("magnet-active")) {
+            treasure.classList.remove("magnet-active");
+            console.log("🔄 Magnet visual effect deactivated");
+          }
         }
       }
 
@@ -1768,7 +2201,7 @@
             } points`
           );
 
-          if (p1Score % 5 === 0) {
+          if (p1Score >= level * 5) {
             levelUp();
           }
         }
@@ -1793,7 +2226,7 @@
               } points`
             );
 
-            if (p2Score % 5 === 0) {
+            if (p2Score >= level * 5) {
               levelUp();
             }
           }
@@ -1957,6 +2390,7 @@
         // Show game elements
         startscreen.style.display = "none";
         gameover.style.display = "none"; // Hide game over dialog
+        document.getElementById("leaderboardModal").style.display = "none"; // Hide leaderboard
         player1.style.display = "block";
         treasure.style.display = "block";
         document.querySelector(".game-header-buttons").style.display = "flex";
@@ -2005,6 +2439,97 @@
         console.log("Game started successfully");
       }
 
+      // Leaderboard Display Functions
+      function displayLeaderboard(newEntryId = null) {
+        const leaderboardBody = document.getElementById("leaderboardBody");
+        const entries = leaderboard.getFormattedLeaderboard();
+
+        leaderboardBody.innerHTML = "";
+
+        entries.forEach((entry, index) => {
+          const row = document.createElement("tr");
+          row.className = `leaderboard-row position-${entry.position}`;
+          row.dataset.entryId = entry.id;
+
+          // Mark new entry for animation
+          if (entry.id === newEntryId) {
+            row.classList.add("new-entry");
+          }
+
+          row.innerHTML = `
+            <td class="leaderboard-position">${entry.position}</td>
+            <td class="leaderboard-name">${entry.name}</td>
+            <td class="leaderboard-score">${entry.score}</td>
+            <td class="leaderboard-date">${entry.date}</td>
+          `;
+
+          leaderboardBody.appendChild(row);
+        });
+      }
+
+      function showLeaderboardWithAnimation(playerName, finalScore) {
+        // First, add the score to leaderboard
+        const position = leaderboard.addScore(playerName, finalScore);
+
+        console.log(
+          `Score submitted: ${playerName} - ${finalScore} points (Position: ${
+            position || "Not in top 10"
+          })`
+        );
+
+        // Show the leaderboard modal
+        const modal = document.getElementById("leaderboardModal");
+        const gameover = document.getElementById("gameover");
+
+        // Hide game over dialog
+        gameover.style.display = "none";
+
+        // Show leaderboard
+        modal.style.display = "block";
+
+        if (position > 0) {
+          // Score made it to top 10 - show with animation
+          const entries = leaderboard.getFormattedLeaderboard();
+          const newEntry = entries.find(
+            (entry) => entry.name === playerName && entry.score === finalScore
+          );
+
+          if (newEntry) {
+            displayLeaderboard(newEntry.id);
+            animateScoreInsertion(newEntry.id, position);
+          }
+        } else {
+          // Score didn't make top 10 - show regular leaderboard
+          displayLeaderboard();
+        }
+      }
+
+      function animateScoreInsertion(newEntryId, position) {
+        setTimeout(() => {
+          const newRow = document.querySelector(
+            `[data-entry-id="${newEntryId}"]`
+          );
+          if (newRow) {
+            // Add insertion animation
+            newRow.classList.add("inserting");
+
+            // Animate other rows moving down
+            const allRows = document.querySelectorAll(".leaderboard-row");
+            allRows.forEach((row, index) => {
+              if (row.dataset.entryId !== newEntryId && index >= position - 1) {
+                row.classList.add("moving-down");
+              }
+            });
+
+            // Remove animation classes after animation completes
+            setTimeout(() => {
+              newRow.classList.remove("inserting");
+              allRows.forEach((row) => row.classList.remove("moving-down"));
+            }, 800);
+          }
+        }, 100);
+      }
+
       function endGame() {
         clearInterval(timer);
         if (movementInterval) {
@@ -2027,6 +2552,9 @@
         }
 
         const bestScore = Math.max(p1Score, p2Score || 0);
+        const bestPlayerName =
+          p1Score >= (p2Score || 0) ? player1Name : player2Name;
+
         if (bestScore > highScore) {
           highScore = bestScore;
           localStorage.setItem("treasureHighScore", highScore);
@@ -2035,12 +2563,17 @@
 
         playAudio(gameoverSound); // Game over sound
 
+        // Show initial game over message briefly, then show leaderboard
         gameover.style.display = "block";
         gameover.innerHTML = `
         ${message}<br><br>
-        <button onclick="startGame()">🔄 Play Again</button>
-        <button onclick="backToMenu()">🏠 Main Menu</button>
+        <div style="color: #FFD700; font-size: 18px;">📊 Updating Leaderboard...</div>
       `;
+
+        // After 2 seconds, show the leaderboard with animation
+        setTimeout(() => {
+          showLeaderboardWithAnimation(bestPlayerName, bestScore);
+        }, 2000);
       }
 
       function backToMenu() {
@@ -2058,6 +2591,7 @@
         document.querySelector(".game-header-buttons").style.display = "none";
         powerUpStatus.style.display = "none";
         gameover.style.display = "none";
+        document.getElementById("leaderboardModal").style.display = "none"; // Hide leaderboard
 
         obstacles.forEach((obs) => obs.remove());
         obstacles = [];
