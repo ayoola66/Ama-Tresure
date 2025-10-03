@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Treasure Island Adventure</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #1a1a1a;
+      color: white;
+      overflow: hidden;
+    }
+
+    #game-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    #game {
+      position: relative;
+      width: 80vw;
+      height: 80vh;
+      border: 10px solid rgba(0, 0, 0, 0.8);
+      border-radius: 15px;
+      overflow: hidden;
+      background: #1f1f1f;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+    }
+
+    #startscreen {
+      position: fixed;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(0, 0, 0, 0.8);
+      padding: 30px;
+      border-radius: 15px;
+      text-align: center;
+      width: 90%;
+      max-width: 500px;
+      z-index: 1000;
+    }
+
+    .mode-selection {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      margin: 20px 0;
+    }
+
+    .mode-button {
+      padding: 20px;
+      background: rgba(255, 165, 0, 0.2);
+      border: 2px solid rgba(255, 165, 0, 0.3);
+      border-radius: 10px;
+      color: white;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      width: 200px;
+    }
+
+    .mode-button:hover {
+      background: rgba(255, 165, 0, 0.3);
+      transform: translateY(-2px);
+    }
+
+    .mode-button.selected {
+      background: rgba(255, 165, 0, 0.4);
+      border-color: orange;
+    }
+
+    .mode-button .icon {
+      font-size: 30px;
+      margin-bottom: 10px;
+    }
+
+    .mode-button .description {
+      font-size: 14px;
+      opacity: 0.8;
+    }
+
+    input[type="text"] {
+      font-size: 18px;
+      padding: 8px 12px;
+      margin: 10px 0;
+      background: rgba(255, 255, 255, 0.1);
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      border-radius: 6px;
+      color: white;
+      width: 80%;
+      max-width: 300px;
+    }
+
+    input[type="text"]:focus {
+      outline: none;
+      border-color: orange;
+    }
+
+    .game-stats {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      color: white;
+      font-size: 18px;
+      z-index: 1000;
+    }
+
+    .pause-button {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 10px 20px;
+      background: rgba(0, 0, 0, 0.8);
+      color: white;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      z-index: 1000;
+      display: none;
+    }
+
+    .sprite {
+      position: absolute;
+      font-size: 50px;
+      transition: transform 0.05s ease-out;
+      will-change: transform;
+      display: none;
+    }
+
+    .game-title {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 32px;
+      font-weight: bold;
+      background: linear-gradient(to right, #462523 0%, #cb9b51 22%, #f6e27a 45%, #f6f2c0 50%, #f6e27a 55%, #cb9b51 78%, #462523 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: shine 3s infinite linear;
+      z-index: 1000;
+    }
+
+    @keyframes shine {
+      0% { background-position: 0; }
+      60% { background-position: 600px; }
+      100% { background-position: 600px; }
+    }
+
+    button {
+      font-size: 18px;
+      padding: 12px 24px;
+      background: orange;
+      border: none;
+      border-radius: 8px;
+      color: white;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      background: #ffa500;
+    }
+  </style>
+</head>
+<body>
+  <div id="game-container">
+    <div class="game-stats">
+      <div>⏳ Time: <span id="timeDisplay">40</span></div>
+      <div>🏆 Level: <span id="levelDisplay">1</span></div>
+      <div>⭐ High Score: <span id="highScoreDisplay">0</span></div>
+      <div id="playerStats"></div>
+    </div>
+
+    <div id="game">
+      <div id="player1" class="sprite">🧜‍♀️</div>
+      <div id="player2" class="sprite">🧑‍🚀</div>
+      <div id="treasure" class="sprite">💰</div>
+    </div>
+
+    <div id="startscreen">
+      <h1>🏝️ Treasure Island Adventure 🏝️</h1>
+      
+      <div class="mode-selection">
+        <div class="mode-button selected" data-mode="1">
+          <div class="icon">🤹‍♂️</div>
+          <div class="label">Single Player</div>
+          <div class="description">Challenge yourself in solo mode!</div>
+        </div>
+        <div class="mode-button" data-mode="2">
+          <div class="icon">🤸‍♂️🤸‍♀️</div>
+          <div class="label">Two Players</div>
+          <div class="description">Compete with a friend!</div>
+        </div>
+      </div>
+
+      <div>
+        <p>Enter Player 1 name:</p>
+        <input type="text" id="player1Name" placeholder="Player 1 name">
+      </div>
+
+      <div id="player2Settings" style="display: none;">
+        <p>Enter Player 2 name:</p>
+        <input type="text" id="player2Name" placeholder="Player 2 name">
+      </div>
+
+      <button onclick="startGame()">Play</button>
+    </div>
+
+    <div class="pause-button" onclick="togglePause()">EXIT/PAUSE GAME</div>
+    <div class="game-title">Ama Treasure Adventure</div>
+  </div>
+
+  <script>
+    // Game state
+    let mode = 1;
+    let gameActive = false;
+    let isPaused = false;
+    let timer;
+    let p1Score = 0, p2Score = 0;
+    let p1Lives = 3, p2Lives = 3;
+    let timeLeft = 40;
+    let level = 1;
+    let p1X, p1Y, p2X, p2Y;
+    const moveStep = 20;
+    let highScore = localStorage.getItem("treasureHighScore") || 0;
+
+    // Mode selection
+    document.querySelectorAll('.mode-button').forEach(button => {
+      button.addEventListener('click', () => {
+        document.querySelectorAll('.mode-button').forEach(b => b.classList.remove('selected'));
+        button.classList.add('selected');
+        mode = parseInt(button.dataset.mode);
+        document.getElementById('player2Settings').style.display = mode === 2 ? 'block' : 'none';
+      });
+    });
+
+    function startGame() {
+      // Validate inputs
+      const p1Name = document.getElementById('player1Name').value.trim() || 'Player 1';
+      if (mode === 2) {
+        const p2Name = document.getElementById('player2Name').value.trim();
+        if (!p2Name) {
+          alert('Please enter Player 2 name');
+          return;
+        }
+      }
+
+      // Hide start screen, show game elements
+      document.getElementById('startscreen').style.display = 'none';
+      document.getElementById('player1').style.display = 'block';
+      document.getElementById('treasure').style.display = 'block';
+      document.querySelector('.pause-button').style.display = 'block';
+      
+      if (mode === 2) {
+        document.getElementById('player2').style.display = 'block';
+      }
+
+      // Initialize game
+      gameActive = true;
+      initGame();
+    }
+
+    function initGame() {
+      // Reset game state
+      p1Score = 0; p2Score = 0;
+      p1Lives = 3; p2Lives = 3;
+      timeLeft = 40;
+      level = 1;
+      
+      // Position players and treasure
+      placePlayers();
+      placeTreasure();
+      
+      // Start game loop
+      updateStats();
+      timer = setInterval(gameLoop, 1000);
+    }
+
+    function gameLoop() {
+      if (isPaused) return;
+      
+      if (timeLeft > 0 && (p1Lives > 0 || (mode === 2 && p2Lives > 0))) {
+        timeLeft--;
+        updateStats();
+      } else {
+        endGame();
+      }
+    }
+
+    function placePlayers() {
+      const game = document.getElementById('game');
+      p1X = Math.random() * (game.clientWidth - 60);
+      p1Y = Math.random() * (game.clientHeight - 60);
+      document.getElementById('player1').style.left = p1X + 'px';
+      document.getElementById('player1').style.top = p1Y + 'px';
+
+      if (mode === 2) {
+        p2X = Math.random() * (game.clientWidth - 60);
+        p2Y = Math.random() * (game.clientHeight - 60);
+        document.getElementById('player2').style.left = p2X + 'px';
+        document.getElementById('player2').style.top = p2Y + 'px';
+      }
+    }
+
+    function placeTreasure() {
+      const game = document.getElementById('game');
+      const treasure = document.getElementById('treasure');
+      treasure.style.left = Math.random() * (game.clientWidth - 60) + 'px';
+      treasure.style.top = Math.random() * (game.clientHeight - 60) + 'px';
+    }
+
+    function updateStats() {
+      document.getElementById('timeDisplay').textContent = timeLeft;
+      document.getElementById('levelDisplay').textContent = level;
+      document.getElementById('highScoreDisplay').textContent = highScore;
+      
+      const p1Name = document.getElementById('player1Name').value.trim() || 'Player 1';
+      let stats = `${p1Name}: ${p1Score} points ❤️ ${p1Lives} lives`;
+      
+      if (mode === 2) {
+        const p2Name = document.getElementById('player2Name').value.trim() || 'Player 2';
+        stats += `<br>${p2Name}: ${p2Score} points ❤️ ${p2Lives} lives`;
+      }
+      
+      document.getElementById('playerStats').innerHTML = stats;
+    }
+
+    function togglePause() {
+      isPaused = !isPaused;
+      document.querySelector('.pause-button').textContent = isPaused ? 'RESUME GAME' : 'EXIT/PAUSE GAME';
+    }
+
+    function endGame() {
+      clearInterval(timer);
+      gameActive = false;
+      
+      const p1Name = document.getElementById('player1Name').value.trim() || 'Player 1';
+      let message = `Game Over! ${p1Name}: ${p1Score}`;
+      
+      if (mode === 2) {
+        const p2Name = document.getElementById('player2Name').value.trim() || 'Player 2';
+        message += `, ${p2Name}: ${p2Score}`;
+      }
+      
+      const best = Math.max(p1Score, p2Score);
+      if (best > highScore) {
+        highScore = best;
+        localStorage.setItem("treasureHighScore", highScore);
+        message += " 🎉 NEW HIGH SCORE!";
+      }
+      
+      alert(message);
+      document.getElementById('startscreen').style.display = 'block';
+    }
+
+    // Movement handlers
+    document.addEventListener('keydown', (e) => {
+      if (!gameActive || isPaused) return;
+
+      const game = document.getElementById('game');
+      
+      // Player 1 movement
+      if (e.key === 'ArrowRight') p1X = Math.min(game.clientWidth - 60, p1X + moveStep);
+      if (e.key === 'ArrowLeft') p1X = Math.max(0, p1X - moveStep);
+      if (e.key === 'ArrowUp') p1Y = Math.max(0, p1Y - moveStep);
+      if (e.key === 'ArrowDown') p1Y = Math.min(game.clientHeight - 60, p1Y + moveStep);
+      
+      document.getElementById('player1').style.left = p1X + 'px';
+      document.getElementById('player1').style.top = p1Y + 'px';
+
+      // Player 2 movement
+      if (mode === 2) {
+        if (e.key === 'd') p2X = Math.min(game.clientWidth - 60, p2X + moveStep);
+        if (e.key === 'a') p2X = Math.max(0, p2X - moveStep);
+        if (e.key === 'w') p2Y = Math.max(0, p2Y - moveStep);
+        if (e.key === 's') p2Y = Math.min(game.clientHeight - 60, p2Y + moveStep);
+        
+        document.getElementById('player2').style.left = p2X + 'px';
+        document.getElementById('player2').style.top = p2Y + 'px';
+      }
+
+      checkCollisions();
+    });
+
+    function checkCollisions() {
+      const treasure = document.getElementById('treasure');
+      const treasureRect = treasure.getBoundingClientRect();
+      const p1Rect = document.getElementById('player1').getBoundingClientRect();
+      
+      if (isColliding(p1Rect, treasureRect)) {
+        p1Score++;
+        if (p1Score % 5 === 0) {
+          level++;
+          timeLeft += 10;
+        }
+        placeTreasure();
+        updateStats();
+      }
+
+      if (mode === 2) {
+        const p2Rect = document.getElementById('player2').getBoundingClientRect();
+        if (isColliding(p2Rect, treasureRect)) {
+          p2Score++;
+          if (p2Score % 5 === 0) {
+            level++;
+            timeLeft += 10;
+          }
+          placeTreasure();
+          updateStats();
+        }
+      }
+    }
+
+    function isColliding(rect1, rect2) {
+      return !(rect1.right < rect2.left || 
+               rect1.left > rect2.right || 
+               rect1.bottom < rect2.top || 
+               rect1.top > rect2.bottom);
+    }
+  </script>
+</body>
+</html>

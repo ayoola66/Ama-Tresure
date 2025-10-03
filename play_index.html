@@ -824,11 +824,81 @@
 
         try {
           audioElement.currentTime = 0; // Reset to start
+          // Set volume based on FX settings
+          const fxVolume = document.getElementById("fxVolume")
+            ? document.getElementById("fxVolume").value / 100
+            : 0.7;
+          audioElement.volume = fxVolume;
+
           audioElement.play().catch((e) => {
             console.log("Audio play failed:", e.message);
+            // Fallback to procedural sound
+            fallbackProceduralSound(audioElement.id || "default");
           });
         } catch (e) {
           console.log("Audio error:", e);
+          fallbackProceduralSound(audioElement.id || "default");
+        }
+      }
+
+      // Fallback procedural sound generation
+      function fallbackProceduralSound(soundType) {
+        if (isMuted || !audioContext) return;
+
+        try {
+          const oscillator = audioContext.createOscillator();
+          const gainNode = audioContext.createGain();
+
+          oscillator.connect(gainNode);
+          gainNode.connect(audioContext.destination);
+
+          // Different tones for different sound types
+          switch (soundType) {
+            case "treasureSound":
+              oscillator.frequency.value = 800;
+              gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+              gainNode.gain.exponentialRampToValueAtTime(
+                0.01,
+                audioContext.currentTime + 0.3
+              );
+              break;
+            case "powerupSound":
+              oscillator.frequency.value = 600;
+              gainNode.gain.setValueAtTime(0.15, audioContext.currentTime);
+              gainNode.gain.exponentialRampToValueAtTime(
+                0.01,
+                audioContext.currentTime + 0.5
+              );
+              break;
+            case "obstacleSound":
+              oscillator.frequency.value = 200;
+              gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+              gainNode.gain.exponentialRampToValueAtTime(
+                0.01,
+                audioContext.currentTime + 0.2
+              );
+              break;
+            case "achievementSound":
+              oscillator.frequency.value = 1000;
+              gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+              gainNode.gain.exponentialRampToValueAtTime(
+                0.01,
+                audioContext.currentTime + 0.8
+              );
+              break;
+            default:
+              oscillator.frequency.value = 440;
+              gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+              gainNode.gain.exponentialRampToValueAtTime(
+                0.01,
+                audioContext.currentTime + 0.2
+              );
+          }
+
+          oscillator.start();
+          oscillator.stop(audioContext.currentTime + 1);
+        } catch (e) {
+          console.log("Fallback sound failed:", e);
         }
       }
 
@@ -1134,6 +1204,108 @@
         return { x, y };
       }
 
+      // Check if a position overlaps with existing elements
+      function isPositionSafe(x, y, elementWidth = 60, excludeElement = null) {
+        const newRect = {
+          left: x,
+          top: y,
+          right: x + elementWidth,
+          bottom: y + elementWidth,
+        };
+
+        // Check against players
+        const p1Rect = player1.getBoundingClientRect();
+        const p2Rect = player2.getBoundingClientRect();
+
+        if (
+          isRectOverlapping(newRect, {
+            left: parseFloat(player1.style.left),
+            top: parseFloat(player1.style.top),
+            right: parseFloat(player1.style.left) + 60,
+            bottom: parseFloat(player1.style.top) + 60,
+          })
+        )
+          return false;
+
+        if (
+          mode === 2 &&
+          isRectOverlapping(newRect, {
+            left: parseFloat(player2.style.left),
+            top: parseFloat(player2.style.top),
+            right: parseFloat(player2.style.left) + 60,
+            bottom: parseFloat(player2.style.top) + 60,
+          })
+        )
+          return false;
+
+        // Check against obstacles
+        for (let obs of obstacles) {
+          if (obs === excludeElement) continue;
+
+          const obsRect = {
+            left: parseFloat(obs.style.left),
+            top: parseFloat(obs.style.top),
+            right: parseFloat(obs.style.left) + 60,
+            bottom: parseFloat(obs.style.top) + 60,
+          };
+
+          if (isRectOverlapping(newRect, obsRect)) return false;
+        }
+
+        // Check against treasure (if not excluding it)
+        if (excludeElement !== treasure && treasure.style.display !== "none") {
+          const treasureRect = {
+            left: parseFloat(treasure.style.left),
+            top: parseFloat(treasure.style.top),
+            right: parseFloat(treasure.style.left) + 60,
+            bottom: parseFloat(treasure.style.top) + 60,
+          };
+
+          if (isRectOverlapping(newRect, treasureRect)) return false;
+        }
+
+        // Check against power-ups
+        for (let powerUp of powerUps) {
+          if (powerUp === excludeElement) continue;
+
+          const powerUpRect = {
+            left: parseFloat(powerUp.style.left),
+            top: parseFloat(powerUp.style.top),
+            right: parseFloat(powerUp.style.left) + 60,
+            bottom: parseFloat(powerUp.style.top) + 60,
+          };
+
+          if (isRectOverlapping(newRect, powerUpRect)) return false;
+        }
+
+        return true;
+      }
+
+      // Check if two rectangles overlap
+      function isRectOverlapping(rect1, rect2) {
+        return !(
+          rect1.right < rect2.left ||
+          rect2.right < rect1.left ||
+          rect1.bottom < rect2.top ||
+          rect2.bottom < rect1.top
+        );
+      }
+
+      // Get a safe random position that doesn't overlap with other elements
+      function getSafeRandomPosition(excludeElement = null, maxAttempts = 50) {
+        for (let attempt = 0; attempt < maxAttempts; attempt++) {
+          const pos = randomPosition();
+          if (isPositionSafe(pos.x, pos.y, 60, excludeElement)) {
+            return pos;
+          }
+        }
+
+        // If we can't find a safe position after max attempts, return a random one
+        // This prevents infinite loops but is rare
+        console.warn("Could not find safe position, using random position");
+        return randomPosition();
+      }
+
       function placeTreasure() {
         // Select random treasure type based on rarity
         const rand = Math.random();
@@ -1154,7 +1326,8 @@
           (key) => treasureTypes[key] === selectedType
         );
 
-        const pos = randomPosition();
+        // Use safe positioning to avoid overlaps
+        const pos = getSafeRandomPosition(treasure);
         treasure.style.left = pos.x + "px";
         treasure.style.top = pos.y + "px";
       }
@@ -1179,7 +1352,7 @@
         powerUp.innerText = powerUpType.emoji;
         powerUp.dataset.type = powerUpName;
 
-        const pos = randomPosition();
+        const pos = getSafeRandomPosition(); // Use safe positioning
         powerUp.style.left = pos.x + "px";
         powerUp.style.top = pos.y + "px";
 
@@ -1223,7 +1396,7 @@
           obs.dataset.type = selectedObstacle.type;
           obs.dataset.faceable = selectedObstacle.faceable;
 
-          const pos = randomPosition();
+          const pos = getSafeRandomPosition(); // Use safe positioning to avoid overlaps
           obs.style.left = pos.x + "px";
           obs.style.top = pos.y + "px";
 
@@ -1300,6 +1473,9 @@
       }
 
       function moveObstacles() {
+        // Only move obstacles from Level 7 onwards
+        if (level < 7) return;
+
         obstacles.forEach((obs) => {
           let currentLeft = parseFloat(obs.style.left);
           let currentTop = parseFloat(obs.style.top);
@@ -1307,9 +1483,9 @@
           let dy = parseFloat(obs.dataset.dy);
           let oldDx = dx; // Store original dx to check for direction change
 
-          // Enhanced movement for level 3+
-          if (level >= 3) {
-            // Add some tracking behavior towards players
+          // Enhanced movement for level 7+
+          if (level >= 7) {
+            // Add aggressive tracking behavior towards players
             const player =
               mode === 2 ? (Math.random() < 0.5 ? player1 : player2) : player1;
             const playerRect = player.getBoundingClientRect();
@@ -1321,7 +1497,7 @@
             );
 
             if (distanceToPlayer < 200) {
-              const attraction = 0.1 + (level - 3) * 0.05;
+              const attraction = 0.2 + (level - 7) * 0.1; // Increased attraction
               dx +=
                 ((playerRect.left - obsRect.left) * attraction) /
                 distanceToPlayer;
@@ -1392,9 +1568,9 @@
         const dy = playerRect.top - treasureRect.top;
         const distance = Math.sqrt(dx * dx + dy * dy);
 
-        if (distance < 150) {
-          // Magnet range
-          const speed = 3;
+        if (distance < 200) {
+          // Magnet range increased to 200px for better effect
+          const speed = 5; // Increased magnet speed
           const moveX = (dx / distance) * speed;
           const moveY = (dy / distance) * speed;
 

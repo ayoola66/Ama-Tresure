@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Ama Treasure Adventure</title>
+    <style>
+      body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        overflow: hidden;
+        background: linear-gradient(to bottom right, #87ceeb, #f08080);
+      }
+
+      #game-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        background: #1a1a1a;
+        padding: 20px;
+      }
+
+      .game-stats {
+        position: fixed;
+        top: 20px;
+        left: 20px;
+        z-index: 1000;
+        color: white;
+        font-size: 18px;
+        display: flex;
+        gap: 20px;
+      }
+
+      .game-header-button {
+        position: fixed;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        padding: 10px 20px;
+        background: rgba(0, 0, 0, 0.8);
+        color: white;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 16px;
+        transition: all 0.2s;
+        z-index: 1000;
+        border: none;
+      }
+
+      #startscreen {
+        position: fixed;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        background: rgba(0, 0, 0, 0.9);
+        color: white;
+        padding: 30px;
+        border-radius: 15px;
+        text-align: center;
+        width: 90%;
+        max-width: 600px;
+        z-index: 1000;
+      }
+
+      #game {
+        position: relative;
+        width: 80vw;
+        height: 80vh;
+        border: 10px solid rgba(0, 0, 0, 0.8);
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+        background-image: url("https://st4.depositphotos.com/1000673/25687/v/450/depositphotos_256875936-stock-illustration-treasure-island-background-for-game.jpg");
+        background-size: cover;
+        background-position: center;
+      }
+
+      .sprite {
+        position: absolute;
+        font-size: 50px;
+        transition: all 0.1s ease-out;
+        z-index: 2;
+      }
+
+      .obstacle {
+        font-size: 60px;
+        z-index: 1;
+      }
+
+      #gameover,
+      #achievement {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        background: rgba(0, 0, 0, 0.9);
+        color: white;
+        padding: 30px;
+        text-align: center;
+        border-radius: 15px;
+        z-index: 1000;
+        display: none;
+      }
+
+      button {
+        font-size: 18px;
+        padding: 12px 24px;
+        margin: 10px;
+        border: none;
+        border-radius: 8px;
+        background: orange;
+        color: white;
+        cursor: pointer;
+      }
+
+      .game-title {
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 32px;
+        font-weight: bold;
+        color: orange;
+        z-index: 1000;
+      }
+
+      input {
+        font-size: 16px;
+        padding: 8px;
+        margin: 5px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="game-container">
+      <div class="game-stats">
+        <div>⏳ Time: <span id="timeDisplay">40</span></div>
+        <div>🏆 Level: <span id="levelDisplay">1</span></div>
+        <div>⭐ High Score: <span id="highScoreDisplay">0</span></div>
+        <div id="playerStats"></div>
+      </div>
+
+      <button id="pauseButton" class="game-header-button">
+        EXIT/PAUSE GAME
+      </button>
+
+      <div id="game">
+        <div id="player1" class="sprite">🧜‍♀️</div>
+        <div id="treasure" class="sprite">💰</div>
+        <div id="gameover"></div>
+        <div id="achievement"></div>
+      </div>
+
+      <div id="startscreen">
+        <h2>🏝️ Treasure Island Adventure 🏝️</h2>
+        <p>Enter your name:</p>
+        <input
+          id="playerName"
+          type="text"
+          placeholder="Player name"
+          value="Player 1"
+        />
+        <br /><br />
+        <p><strong>Controls:</strong> Use Arrow Keys to move</p>
+        <p><strong>Goal:</strong> Collect treasure 💰 and avoid obstacles!</p>
+        <button onclick="startGame()">Play Game</button>
+      </div>
+
+      <div class="game-title">AMA TREASURE ADVENTURE</div>
+    </div>
+
+    <script>
+      // Game Elements
+      const player = document.getElementById("player1");
+      const treasure = document.getElementById("treasure");
+      const gameover = document.getElementById("gameover");
+      const startscreen = document.getElementById("startscreen");
+      const achievement = document.getElementById("achievement");
+      const gameContainer = document.getElementById("game");
+
+      // Game State
+      let obstacles = [];
+      let playerName = "Player 1";
+      let score = 0;
+      let lives = 3;
+      let timeLeft = 40;
+      let level = 1;
+      let timer;
+      let playerX = 100;
+      let playerY = 100;
+      const moveStep = 20;
+      let highScore = localStorage.getItem("treasureHighScore") || 0;
+
+      // Initialize game
+      function init() {
+        console.log("Initializing game...");
+
+        // Show start screen
+        startscreen.style.display = "block";
+        player.style.display = "none";
+        treasure.style.display = "none";
+        document.getElementById("pauseButton").style.display = "none";
+
+        // Update high score display
+        document.getElementById("highScoreDisplay").textContent = highScore;
+
+        console.log("Game initialized");
+      }
+
+      function randomPosition() {
+        const game = document.getElementById("game");
+        const x = Math.random() * (game.clientWidth - 60);
+        const y = Math.random() * (game.clientHeight - 60);
+        return { x, y };
+      }
+
+      function placeTreasure() {
+        const pos = randomPosition();
+        treasure.style.left = pos.x + "px";
+        treasure.style.top = pos.y + "px";
+      }
+
+      function createObstacles() {
+        // Clear existing obstacles
+        obstacles.forEach((obs) => obs.remove());
+        obstacles = [];
+
+        const obstacleTypes = ["🐊", "🔥", "🥥"];
+        const obstacleCount = Math.min(2 + level, 6);
+
+        for (let i = 0; i < obstacleCount; i++) {
+          const obs = document.createElement("div");
+          obs.className = "obstacle sprite";
+          obs.innerText =
+            obstacleTypes[Math.floor(Math.random() * obstacleTypes.length)];
+
+          const pos = randomPosition();
+          obs.style.left = pos.x + "px";
+          obs.style.top = pos.y + "px";
+
+          gameContainer.appendChild(obs);
+          obstacles.push(obs);
+        }
+      }
+
+      function moveObstacles() {
+        obstacles.forEach((obs) => {
+          let currentLeft = parseFloat(obs.style.left);
+          currentLeft += (Math.random() - 0.5) * 4; // Random movement
+
+          // Keep in bounds
+          if (currentLeft < 0) currentLeft = 0;
+          if (currentLeft > gameContainer.clientWidth - 60)
+            currentLeft = gameContainer.clientWidth - 60;
+
+          obs.style.left = currentLeft + "px";
+        });
+      }
+
+      function checkCollisions() {
+        const playerRect = player.getBoundingClientRect();
+        const treasureRect = treasure.getBoundingClientRect();
+
+        // Check treasure collision
+        if (isOverlapping(playerRect, treasureRect)) {
+          score++;
+          placeTreasure();
+          showMessage("💰 Treasure collected! Score: " + score);
+
+          if (score % 5 === 0) {
+            level++;
+            timeLeft += 10;
+            createObstacles();
+            showMessage("🎉 Level " + level + "! +10 seconds!");
+          }
+        }
+
+        // Check obstacle collisions
+        obstacles.forEach((obs) => {
+          const obsRect = obs.getBoundingClientRect();
+          if (isOverlapping(playerRect, obsRect)) {
+            lives--;
+            showMessage("💥 Hit obstacle! Lives: " + lives);
+
+            if (lives <= 0) {
+              endGame();
+            }
+          }
+        });
+      }
+
+      function isOverlapping(rect1, rect2) {
+        return !(
+          rect1.top > rect2.bottom ||
+          rect1.bottom < rect2.top ||
+          rect1.left > rect2.right ||
+          rect1.right < rect2.left
+        );
+      }
+
+      function updateDisplay() {
+        document.getElementById("timeDisplay").textContent = timeLeft;
+        document.getElementById("levelDisplay").textContent = level;
+        document.getElementById(
+          "playerStats"
+        ).innerHTML = `${playerName}: ${score} points ❤️ ${lives} lives`;
+      }
+
+      function showMessage(text) {
+        achievement.innerText = text;
+        achievement.style.display = "block";
+        setTimeout(() => (achievement.style.display = "none"), 2000);
+      }
+
+      function gameTick() {
+        if (timeLeft > 0 && lives > 0) {
+          timeLeft--;
+          moveObstacles();
+          updateDisplay();
+        } else {
+          endGame();
+        }
+      }
+
+      function startGame() {
+        console.log("Starting game...");
+
+        playerName = document.getElementById("playerName").value || "Player 1";
+
+        // Reset game state
+        score = 0;
+        lives = 3;
+        timeLeft = 40;
+        level = 1;
+        playerX = 100;
+        playerY = 100;
+
+        // Show game elements
+        startscreen.style.display = "none";
+        player.style.display = "block";
+        treasure.style.display = "block";
+        document.getElementById("pauseButton").style.display = "block";
+
+        // Position player
+        player.style.left = playerX + "px";
+        player.style.top = playerY + "px";
+
+        // Place treasure and obstacles
+        placeTreasure();
+        createObstacles();
+
+        // Update display
+        updateDisplay();
+
+        // Start game timer
+        clearInterval(timer);
+        timer = setInterval(gameTick, 1000);
+
+        console.log("Game started successfully");
+      }
+
+      function endGame() {
+        clearInterval(timer);
+
+        let message = `Game Over! ${playerName}: ${score} points`;
+
+        if (score > highScore) {
+          highScore = score;
+          localStorage.setItem("treasureHighScore", highScore);
+          message += " 🎉 NEW HIGH SCORE!";
+        }
+
+        gameover.style.display = "block";
+        gameover.innerHTML = `
+        ${message}<br><br>
+        <button onclick="startGame()">Play Again</button>
+        <button onclick="backToMenu()">Main Menu</button>
+      `;
+      }
+
+      function backToMenu() {
+        clearInterval(timer);
+        player.style.display = "none";
+        treasure.style.display = "none";
+        document.getElementById("pauseButton").style.display = "none";
+        gameover.style.display = "none";
+        obstacles.forEach((obs) => obs.remove());
+        obstacles = [];
+        startscreen.style.display = "block";
+      }
+
+      // Movement controls
+      document.addEventListener("keydown", (e) => {
+        if (lives <= 0 || timeLeft <= 0) return;
+
+        switch (e.key) {
+          case "ArrowRight":
+            playerX += moveStep;
+            break;
+          case "ArrowLeft":
+            playerX -= moveStep;
+            break;
+          case "ArrowUp":
+            playerY -= moveStep;
+            break;
+          case "ArrowDown":
+            playerY += moveStep;
+            break;
+          case "Escape":
+            if (timer) {
+              clearInterval(timer);
+              timer = null;
+              showMessage("⏸ Game Paused - Press ESC to resume");
+            } else {
+              timer = setInterval(gameTick, 1000);
+              showMessage("▶ Game Resumed");
+            }
+            return;
+        }
+
+        // Keep player in bounds
+        const game = document.getElementById("game");
+        if (playerX < 0) playerX = game.clientWidth - 60;
+        if (playerX > game.clientWidth - 60) playerX = 0;
+        if (playerY < 0) playerY = game.clientHeight - 60;
+        if (playerY > game.clientHeight - 60) playerY = 0;
+
+        // Update player position
+        player.style.left = playerX + "px";
+        player.style.top = playerY + "px";
+
+        // Check collisions
+        checkCollisions();
+      });
+
+      // Pause button
+      document.getElementById("pauseButton").addEventListener("click", () => {
+        if (timer) {
+          clearInterval(timer);
+          timer = null;
+          showMessage("⏸ Game Paused");
+        } else {
+          timer = setInterval(gameTick, 1000);
+          showMessage("▶ Game Resumed");
+        }
+      });
+
+      // Initialize when page loads
+      document.addEventListener("DOMContentLoaded", init);
+
+      // Also initialize immediately if DOM is already loaded
+      if (document.readyState !== "loading") {
+        init();
+      }
+    </script>
+  </body>
+</html>

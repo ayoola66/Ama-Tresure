@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Debug Test - Ama Treasure Adventure</title>
+    <style>
+      body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background: #1a1a1a;
+        color: white;
+        padding: 20px;
+      }
+      #game {
+        width: 80vw;
+        height: 80vh;
+        border: 5px solid white;
+        position: relative;
+        background: linear-gradient(45deg, #87ceeb, #f08080);
+        margin: 20px auto;
+      }
+      .sprite {
+        position: absolute;
+        font-size: 50px;
+        z-index: 2;
+      }
+      button {
+        padding: 10px 20px;
+        font-size: 16px;
+        margin: 10px;
+        cursor: pointer;
+      }
+      #debug {
+        position: fixed;
+        top: 10px;
+        right: 10px;
+        background: rgba(0, 0, 0, 0.8);
+        padding: 10px;
+        border-radius: 5px;
+        font-family: monospace;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>🏝️ Ama Treasure Adventure - Debug Test</h1>
+
+    <div id="debug">
+      <div>Status: <span id="status">Initializing...</span></div>
+      <div>Game Container: <span id="gameStatus">Checking...</span></div>
+      <div>Player: <span id="playerStatus">Checking...</span></div>
+    </div>
+
+    <button onclick="testGame()">Test Game</button>
+    <button onclick="startGame()">Start Game</button>
+
+    <div id="game">
+      <div id="player1" class="sprite" style="left: 100px; top: 100px">🧜‍♀️</div>
+      <div id="treasure" class="sprite" style="left: 300px; top: 200px">💰</div>
+    </div>
+
+    <script>
+      function updateStatus(message) {
+        document.getElementById("status").textContent = message;
+        console.log("DEBUG:", message);
+      }
+
+      function testGame() {
+        updateStatus("Testing game elements...");
+
+        // Test 1: Check if game container exists
+        const game = document.getElementById("game");
+        document.getElementById("gameStatus").textContent = game
+          ? "✅ Found"
+          : "❌ Missing";
+
+        // Test 2: Check if player exists
+        const player = document.getElementById("player1");
+        document.getElementById("playerStatus").textContent = player
+          ? "✅ Found"
+          : "❌ Missing";
+
+        // Test 3: Test movement
+        if (player) {
+          let x = 100;
+          player.style.left = x + "px";
+          updateStatus("Movement test: Player positioned");
+
+          // Test movement animation
+          setInterval(() => {
+            x += 5;
+            if (x > 500) x = 100;
+            player.style.left = x + "px";
+          }, 100);
+        }
+
+        updateStatus("Basic tests completed");
+      }
+
+      function startGame() {
+        updateStatus("Starting game...");
+
+        // Simple game variables
+        let playerX = 100;
+        let playerY = 100;
+        const player = document.getElementById("player1");
+
+        // Movement controls
+        document.addEventListener("keydown", (e) => {
+          switch (e.key) {
+            case "ArrowRight":
+              playerX += 20;
+              break;
+            case "ArrowLeft":
+              playerX -= 20;
+              break;
+            case "ArrowUp":
+              playerY -= 20;
+              break;
+            case "ArrowDown":
+              playerY += 20;
+              break;
+          }
+
+          // Keep player in bounds
+          const game = document.getElementById("game");
+          if (playerX < 0) playerX = 0;
+          if (playerY < 0) playerY = 0;
+          if (playerX > game.clientWidth - 50) playerX = game.clientWidth - 50;
+          if (playerY > game.clientHeight - 50)
+            playerY = game.clientHeight - 50;
+
+          player.style.left = playerX + "px";
+          player.style.top = playerY + "px";
+
+          updateStatus(`Player at (${playerX}, ${playerY})`);
+        });
+
+        updateStatus("Game started! Use arrow keys to move.");
+      }
+
+      // Initialize
+      document.addEventListener("DOMContentLoaded", () => {
+        updateStatus("DOM loaded, ready for testing");
+      });
+    </script>
+  </body>
+</html>
