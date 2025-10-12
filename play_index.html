@@ -295,6 +295,8 @@
         padding: 25px;
         margin: 20px auto;
         max-width: 600px;
+        max-height: 80vh;
+        overflow-y: auto;
         border: 2px solid #ffd700;
         box-shadow: 0 8px 32px rgba(255, 215, 0, 0.3);
       }
@@ -978,8 +980,8 @@
       let player2Name = "Player 2";
       let p1Score = 0,
         p2Score = 0;
-      let p1Lives = 3,
-        p2Lives = 3;
+      let p1Lives = 2,
+        p2Lives = 2;
       let timeLeft = 40;
       let level = 1;
       let timer;
@@ -989,6 +991,10 @@
         p2Y = 200;
       const moveStep = 20;
       let highScore = localStorage.getItem("treasureHighScore") || 0;
+
+      // Collision tracking to prevent multiple hits within short time
+      let lastCollisionTime = { player1: {}, player2: {} };
+      const COLLISION_COOLDOWN = 1000; // 1 second between hits from same obstacle
 
       // Leaderboard System
       class LeaderboardManager {
@@ -1104,10 +1110,10 @@
       };
 
       const treasureTypes = {
-        COIN: { emoji: "💰", points: 1, rarity: 0.6 },
-        SILVER: { emoji: "⚪", points: 3, rarity: 0.25 },
-        GOLD: { emoji: "🌟", points: 5, rarity: 0.1 },
-        GEM: { emoji: "💎", points: 10, rarity: 0.05 },
+        COIN: { emoji: "💰", points: 0.5, rarity: 0.6 },
+        SILVER: { emoji: "⚪", points: 1, rarity: 0.25 },
+        GOLD: { emoji: "🌟", points: 1.5, rarity: 0.1 },
+        GEM: { emoji: "💎", points: 2, rarity: 0.05 },
       };
 
       const powerUpTypes = {
@@ -2185,7 +2191,7 @@
 
         // Check treasure collision for player 1
         if (isOverlapping(p1Rect, treasureRect)) {
-          const points = parseInt(treasure.dataset.points) || 1;
+          const points = parseFloat(treasure.dataset.points) || 0.5;
           const multiplier =
             activePowerUps.player1 && activePowerUps.player1.type === "POINTS"
               ? 2
@@ -2201,16 +2207,15 @@
             } points`
           );
 
-          if (p1Score >= level * 5) {
-            levelUp();
-          }
+          // Check for level progression
+          checkLevelProgress();
         }
 
         // Check treasure collision for player 2
         if (mode === 2) {
           const p2Rect = player2.getBoundingClientRect();
           if (isOverlapping(p2Rect, treasureRect)) {
-            const points = parseInt(treasure.dataset.points) || 1;
+            const points = parseFloat(treasure.dataset.points) || 0.5;
             const multiplier =
               activePowerUps.player2 && activePowerUps.player2.type === "POINTS"
                 ? 2
@@ -2226,9 +2231,8 @@
               } points`
             );
 
-            if (p2Score >= level * 5) {
-              levelUp();
-            }
+            // Check for level progression
+            checkLevelProgress();
           }
         }
 
@@ -2251,8 +2255,10 @@
         });
 
         // Check obstacle collisions
-        obstacles.forEach((obs) => {
+        obstacles.forEach((obs, obsIndex) => {
           const obsRect = obs.getBoundingClientRect();
+          const currentTime = Date.now();
+          const obsId = `obs_${obsIndex}`;
 
           if (
             isOverlapping(p1Rect, obsRect) &&
@@ -2260,12 +2266,17 @@
               activePowerUps.player1 && activePowerUps.player1.type === "SHIELD"
             )
           ) {
-            p1Lives--;
-            playAudio(obstacleSound); // Hit sound
-            showMessage(`💥 ${player1Name} hit obstacle! Lives: ${p1Lives}`);
+            // Check collision cooldown for this specific obstacle
+            if (!lastCollisionTime.player1[obsId] || 
+                currentTime - lastCollisionTime.player1[obsId] >= COLLISION_COOLDOWN) {
+              p1Lives--;
+              lastCollisionTime.player1[obsId] = currentTime;
+              playAudio(obstacleSound); // Hit sound
+              showMessage(`💥 ${player1Name} hit obstacle! Lives: ${p1Lives}`);
 
-            if (p1Lives <= 0 && (mode === 1 || p2Lives <= 0)) {
-              endGame();
+              if (p1Lives <= 0 && (mode === 1 || p2Lives <= 0)) {
+                endGame();
+              }
             }
           }
 
@@ -2278,12 +2289,17 @@
                 activePowerUps.player2.type === "SHIELD"
               )
             ) {
-              p2Lives--;
-              playAudio(obstacleSound);
-              showMessage(`💥 ${player2Name} hit obstacle! Lives: ${p2Lives}`);
+              // Check collision cooldown for this specific obstacle
+              if (!lastCollisionTime.player2[obsId] || 
+                  currentTime - lastCollisionTime.player2[obsId] >= COLLISION_COOLDOWN) {
+                p2Lives--;
+                lastCollisionTime.player2[obsId] = currentTime;
+                playAudio(obstacleSound);
+                showMessage(`💥 ${player2Name} hit obstacle! Lives: ${p2Lives}`);
 
-              if (p2Lives <= 0 && p1Lives <= 0) {
-                endGame();
+                if (p2Lives <= 0 && p1Lives <= 0) {
+                  endGame();
+                }
               }
             }
           }
@@ -2337,6 +2353,31 @@
         }
       }
 
+      function checkLevelProgress() {
+        const maxScore = Math.max(p1Score, mode === 2 ? p2Score : 0);
+        const targetLevel = Math.floor(maxScore / 5) + 1;
+        
+        if (targetLevel > level) {
+          level = targetLevel;
+          timeLeft += 10;
+          
+          if (level === 6) {
+            p1Lives++;
+            if (mode === 2) p2Lives++;
+            showMessage("💖 Bonus Life! +1 life added!");
+          }
+
+          createObstacles();
+          playAudio(achievementSound);
+          showMessage(`🎉 Level ${level}! +10 seconds!`);
+
+          // Chance to spawn power-up on level up
+          if (level >= 3 && Math.random() < 0.7) {
+            setTimeout(createPowerUp, 1000);
+          }
+        }
+      }
+
       function gameTick() {
         if (timeLeft > 0 && (p1Lives > 0 || (mode === 2 && p2Lives > 0))) {
           timeLeft--;
@@ -2373,8 +2414,8 @@
         // Reset game state
         p1Score = 0;
         p2Score = 0;
-        p1Lives = 3;
-        p2Lives = 3;
+        p1Lives = 2;
+        p2Lives = 2;
         timeLeft = 40;
         level = 1;
         p1X = 100;
@@ -2386,6 +2427,9 @@
         activePowerUps = { player1: null, player2: null };
         powerUps.forEach((p) => p.remove());
         powerUps = [];
+
+        // Reset collision tracking
+        lastCollisionTime = { player1: {}, player2: {} };
 
         // Show game elements
         startscreen.style.display = "none";
