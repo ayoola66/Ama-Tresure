@@ -2531,7 +2531,11 @@
             // Only end game if lives reach 0
             if (p1Lives <= 0) {
               if (mode === 1 || p2Lives <= 0) {
-                logGameOver(mode === 1 ? "Player 1 out of lives" : "Both players out of lives");
+                logGameOver(
+                  mode === 1
+                    ? "Player 1 out of lives"
+                    : "Both players out of lives"
+                );
                 endGame();
               }
             }
@@ -2688,7 +2692,7 @@
         p2Lives = 2;
         timeLeft = 40;
         level = 1;
-        
+
         // Clear debug log and start fresh
         gameLogger.clearSessionLogs();
         logGameStart(mode, player1Name, player2Name, p1Lives);
