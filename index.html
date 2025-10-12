@@ -31,9 +31,9 @@
         left: 20px;
         z-index: 1000;
         color: white;
-        font-size: 18px;
+        font-size: 14px;
         display: flex;
-        gap: 20px;
+        gap: 15px;
       }
 
       .game-header-button {
@@ -1304,42 +1304,73 @@
 
       function placeObstacles() {
         obstacles.forEach((obs) => {
-          let valid = false;
-          while (!valid) {
-            const pos = randomPosition();
-            obs.style.left = pos.x + "px";
-            obs.style.top = pos.y + "px";
-
-            let overlaps = false;
-            if (
-              isOverlapping(
-                obs.getBoundingClientRect(),
-                player1.getBoundingClientRect()
-              )
-            )
-              overlaps = true;
-            if (
-              mode == 2 &&
-              isOverlapping(
-                obs.getBoundingClientRect(),
-                player2.getBoundingClientRect()
-              )
-            )
-              overlaps = true;
-            if (
-              isOverlapping(
-                obs.getBoundingClientRect(),
-                treasure.getBoundingClientRect()
-              )
-            )
-              overlaps = true;
-
-            if (!overlaps) {
-              valid = true;
-            }
-          }
-          obs.dataset.dx = (Math.random() < 0.5 ? -1 : 1) * obstacleSpeed;
+          placeObstacle(obs);
         });
+      }
+
+      function placeObstacle(obs) {
+        let valid = false;
+        let attempts = 0;
+        const maxAttempts = 100;
+
+        while (!valid && attempts < maxAttempts) {
+          attempts++;
+          const pos = randomPosition();
+          obs.style.left = pos.x + "px";
+          obs.style.top = pos.y + "px";
+
+          let overlaps = false;
+
+          // Check overlap with player 1
+          if (
+            isOverlapping(
+              obs.getBoundingClientRect(),
+              player1.getBoundingClientRect()
+            )
+          ) {
+            overlaps = true;
+          }
+
+          // Check overlap with player 2
+          if (
+            mode == 2 &&
+            isOverlapping(
+              obs.getBoundingClientRect(),
+              player2.getBoundingClientRect()
+            )
+          ) {
+            overlaps = true;
+          }
+
+          // Check overlap with treasure
+          if (
+            isOverlapping(
+              obs.getBoundingClientRect(),
+              treasure.getBoundingClientRect()
+            )
+          ) {
+            overlaps = true;
+          }
+
+          // Check overlap with other obstacles
+          obstacles.forEach((otherObs) => {
+            if (
+              otherObs !== obs &&
+              isOverlapping(
+                obs.getBoundingClientRect(),
+                otherObs.getBoundingClientRect()
+              )
+            ) {
+              overlaps = true;
+            }
+          });
+
+          if (!overlaps) {
+            valid = true;
+          }
+        }
+
+        obs.dataset.dx = (Math.random() < 0.5 ? -1 : 1) * obstacleSpeed;
       }
 
       function moveObstacles() {
@@ -1397,12 +1428,12 @@
         const playerStatsHtml = `
         <div>${p1Name || "Player 1"}: ${p1Score || 0} points ❤️ ${
           p1Lives || 0
-        } lives</div>
+        } Lives</div>
         ${
           mode == 2
             ? `<div>${p2Name || "Player 2"}: ${p2Score || 0} points ❤️ ${
                 p2Lives || 0
-              } lives</div>`
+              } Lives</div>`
             : ""
         }
       `;
@@ -1522,7 +1553,7 @@
             )
           ) {
             p1Lives--;
-            placeObstacles();
+            placeObstacle(obs); // Only reposition this specific obstacle
             playAudio(obstacleSound);
             if (p1Lives === 1)
               showAchievement(
@@ -1537,7 +1568,7 @@
             )
           ) {
             p2Lives--;
-            placeObstacles();
+            placeObstacle(obs); // Only reposition this specific obstacle
             playAudio(obstacleSound);
             if (p2Lives === 1)
               showAchievement(
