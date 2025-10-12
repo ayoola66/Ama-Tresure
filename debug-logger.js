@@ -236,7 +236,21 @@ function logPowerUp(playerName, powerUpType, duration) {
   );
 }
 
-// Export for use in other files
+// Make available globally for browser use
+if (typeof window !== "undefined") {
+  window.GameActivityLogger = GameActivityLogger;
+  window.gameLogger = gameLogger;
+  window.logGameStart = logGameStart;
+  window.logTreasure = logTreasure;
+  window.logLevelCheck = logLevelCheck;
+  window.logLevelUp = logLevelUp;
+  window.logNoLevelUp = logNoLevelUp;
+  window.logCollision = logCollision;
+  window.logGameOver = logGameOver;
+  window.logPowerUp = logPowerUp;
+}
+
+// Export for Node.js environments (if needed)
 if (typeof module !== "undefined" && module.exports) {
   module.exports = {
     GameActivityLogger,
