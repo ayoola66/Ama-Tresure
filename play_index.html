@@ -993,8 +993,8 @@
       let highScore = localStorage.getItem("treasureHighScore") || 0;
 
       // Collision tracking to prevent multiple hits within short time
-      let lastCollisionTime = { player1: {}, player2: {} };
-      const COLLISION_COOLDOWN = 1000; // 1 second between hits from same obstacle
+      let lastCollisionTime = { player1: { global: 0 }, player2: { global: 0 } };
+      const COLLISION_COOLDOWN = 1000; // 1 second between any hits
 
       // Leaderboard System
       class LeaderboardManager {
@@ -2255,32 +2255,53 @@
         });
 
         // Check obstacle collisions
+        const currentTime = Date.now();
+        let p1Hit = false;
+        let p2Hit = false;
+
+        // Check if player can take damage (not in cooldown)
+        const p1CanTakeDamage =
+          !lastCollisionTime.player1.global ||
+          currentTime - lastCollisionTime.player1.global >= COLLISION_COOLDOWN;
+        const p2CanTakeDamage =
+          !lastCollisionTime.player2.global ||
+          currentTime - lastCollisionTime.player2.global >= COLLISION_COOLDOWN;
+
         obstacles.forEach((obs, obsIndex) => {
           const obsRect = obs.getBoundingClientRect();
-          const currentTime = Date.now();
-          const obsId = `obs_${obsIndex}`;
 
+          // Player 1 collision - only process if not already hit this cycle and can take damage
           if (
+            !p1Hit &&
+            p1CanTakeDamage &&
             isOverlapping(p1Rect, obsRect) &&
             !(
               activePowerUps.player1 && activePowerUps.player1.type === "SHIELD"
             )
           ) {
-            // Check collision cooldown for this specific obstacle
-            if (!lastCollisionTime.player1[obsId] || 
-                currentTime - lastCollisionTime.player1[obsId] >= COLLISION_COOLDOWN) {
-              p1Lives--;
-              lastCollisionTime.player1[obsId] = currentTime;
-              playAudio(obstacleSound); // Hit sound
-              showMessage(`💥 ${player1Name} hit obstacle! Lives: ${p1Lives}`);
+            p1Lives--;
+            p1Hit = true;
+            lastCollisionTime.player1.global = currentTime;
+            playAudio(obstacleSound); // Hit sound
+            showMessage(`💥 ${player1Name} hit obstacle! Lives: ${p1Lives}`);
+            
+            console.log(`Player 1 hit! Lives remaining: ${p1Lives}`);
 
-              if (p1Lives <= 0 && (mode === 1 || p2Lives <= 0)) {
+            // Only end game if lives reach 0
+            if (p1Lives <= 0) {
+              if (mode === 1 || p2Lives <= 0) {
+                console.log("Game Over - Player 1 out of lives");
                 endGame();
               }
             }
           }
 
-          if (mode === 2) {
+          // Player 2 collision - only process if not already hit this cycle and can take damage
+          if (
+            mode === 2 &&
+            !p2Hit &&
+            p2CanTakeDamage
+          ) {
             const p2Rect = player2.getBoundingClientRect();
             if (
               isOverlapping(p2Rect, obsRect) &&
@@ -2289,17 +2310,18 @@
                 activePowerUps.player2.type === "SHIELD"
               )
             ) {
-              // Check collision cooldown for this specific obstacle
-              if (!lastCollisionTime.player2[obsId] || 
-                  currentTime - lastCollisionTime.player2[obsId] >= COLLISION_COOLDOWN) {
-                p2Lives--;
-                lastCollisionTime.player2[obsId] = currentTime;
-                playAudio(obstacleSound);
-                showMessage(`💥 ${player2Name} hit obstacle! Lives: ${p2Lives}`);
+              p2Lives--;
+              p2Hit = true;
+              lastCollisionTime.player2.global = currentTime;
+              playAudio(obstacleSound);
+              showMessage(`💥 ${player2Name} hit obstacle! Lives: ${p2Lives}`);
+              
+              console.log(`Player 2 hit! Lives remaining: ${p2Lives}`);
 
-                if (p2Lives <= 0 && p1Lives <= 0) {
-                  endGame();
-                }
+              // Only end game if both players are out of lives
+              if (p2Lives <= 0 && p1Lives <= 0) {
+                console.log("Game Over - Both players out of lives");
+                endGame();
               }
             }
           }
@@ -2356,11 +2378,11 @@
       function checkLevelProgress() {
         const maxScore = Math.max(p1Score, mode === 2 ? p2Score : 0);
         const targetLevel = Math.floor(maxScore / 5) + 1;
-        
+
         if (targetLevel > level) {
           level = targetLevel;
           timeLeft += 10;
-          
+
           if (level === 6) {
             p1Lives++;
             if (mode === 2) p2Lives++;
@@ -2429,7 +2451,7 @@
         powerUps = [];
 
         // Reset collision tracking
-        lastCollisionTime = { player1: {}, player2: {} };
+        lastCollisionTime = { player1: { global: 0 }, player2: { global: 0 } };
 
         // Show game elements
         startscreen.style.display = "none";
