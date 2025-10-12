@@ -115,6 +115,42 @@ http://localhost:8000/play_index.html
 - ✅ **Game Integration**: Seamless leaderboard display after each game completion
 - ✅ **Data Persistence**: Scores survive browser restarts and maintain across sessions
 
+### ⚖️ **Phase 10: Game Balance & Optimization (October 12, 2024)**
+
+**Critical Gameplay Balance Fixes**
+
+- ✅ **Rebalanced Treasure Point System**: Completely overhauled scoring to prevent level jumping
+  - 💰 **Coins**: 0.5 points (reduced from 1) - Common baseline treasure
+  - ⚪ **Silver**: 1 point (reduced from 3) - Balanced rare find
+  - 🌟 **Gold**: 1.5 points (reduced from 5) - Valuable special treasure
+  - 💎 **Gems**: 2 points (reduced from 10) - Premium rare treasure
+- ✅ **Fixed Level Progression System**: Proper threshold-based leveling (5 points per level)
+  - Eliminated multiple level jumps from single treasure collection
+  - Level 1→2 at 5 points, 2→3 at 10 points, progressive thereafter
+  - No more jumping from Level 4 to Level 7 with one treasure
+- ✅ **Adjusted Starting Lives**: Reduced from 3 to 2 lives for balanced difficulty
+  - More challenging early game requiring skill and awareness
+  - Better risk/reward balance for treasure hunting decisions
+- ✅ **Fixed Lives Countdown System**: Lives now decrease immediately from Level 1
+  - Implemented per-obstacle collision cooldown (1 second)
+  - Prevents multiple rapid hits from single obstacle
+  - Eliminated bug where lives stayed at 3 for first few levels
+  - Fixed issue where collision detection only worked from Level 10+
+- ✅ **Enhanced Leaderboard UX**: Added scrollable container for better visibility
+  - Maximum height: 80vh with auto-scroll for overflow
+  - Play/Quit buttons always remain visible and accessible
+  - Professional scrollbar styling for smooth user experience
+- ✅ **Code Cleanup**: Removed obsolete `index.html` file
+  - Consolidated to single main file (`play_index.html`)
+  - Streamlined project structure for better maintainability
+
+**Technical Improvements**
+
+- ✅ **Collision Tracking System**: Smart per-player, per-obstacle cooldown mechanism
+- ✅ **parseFloat Support**: Changed from `parseInt` to `parseFloat` for fractional point values
+- ✅ **Progressive Level Check**: New `checkLevelProgress()` function for accurate leveling
+- ✅ **State Management**: Proper collision tracking reset on new game initialization
+
 ---
 
 ## 🎮 **CURRENT GAME FEATURES**
@@ -173,12 +209,14 @@ http://localhost:8000/play_index.html
 - **⌨️ Perfect Simultaneous Controls**: Resolved hardware limitations for smooth gameplay
 - **🎯 Fair Competition**: Equal character selection and power-up access
 
-### 💎 **Treasure Collection System**
+### 💎 **Treasure Collection System** (Balanced October 2024)
 
-- **💰 Common Coins**: 1 point each (60% spawn rate) - Foundation treasures
-- **⚪ Silver Treasure**: 3 points each (25% spawn rate) - Valuable finds
-- **🌟 Gold Treasure**: 5 points each (10% spawn rate) - Precious discoveries
-- **💎 Rare Gems**: 10 points each (5% spawn rate) - Ultimate treasures
+- **💰 Common Coins**: 0.5 points each (60% spawn rate) - Foundation treasures
+- **⚪ Silver Treasure**: 1 point each (25% spawn rate) - Valuable finds
+- **🌟 Gold Treasure**: 1.5 points each (10% spawn rate) - Precious discoveries
+- **💎 Rare Gems**: 2 points each (5% spawn rate) - Ultimate treasures
+
+*Point values carefully balanced to ensure smooth level progression without jumps*
 
 ### ⚡ **Advanced Power-Up System** (Level 3+)
 
@@ -206,7 +244,13 @@ http://localhost:8000/play_index.html
 
 ---
 
-## 🎯 **LEVEL PROGRESSION SYSTEM**
+## 🎯 **LEVEL PROGRESSION SYSTEM** (Rebalanced October 2024)
+
+### **Game Balance Philosophy**
+- **Starting Lives**: 2 (down from 3) for increased challenge and skill requirement
+- **Level Progression**: 5 points per level (Level 1→2 at 5pts, 2→3 at 10pts, etc.)
+- **Fractional Points**: Support for decimal point values (0.5, 1.5) for fine-tuned balance
+- **No Level Jumping**: Smooth, predictable progression without skipping levels
 
 ### **🆕 Level 1-2: Underwater Introduction**
 
@@ -214,6 +258,7 @@ http://localhost:8000/play_index.html
 - Standard movement speeds for learning phase
 - Basic treasure types (mostly coins) for skill building
 - No power-ups yet - focus on movement mastery
+- **Critical Period**: Starting with only 2 lives makes early mistakes costly
 
 ### **⚡ Level 3-4: Power-ups & Real Jeopardy**
 
@@ -337,6 +382,15 @@ http://localhost:8000/play_index.html
 - **🎵 Intelligent Audio System**: MP3 primary with procedural backup for compatibility
 - **🔧 Server Management Tools**: Professional development workflow with process cleanup
 
+### **🎯 Advanced Collision System (October 2024)**
+
+- **Per-Obstacle Cooldown**: Individual 1-second cooldown for each obstacle per player
+- **Immediate Response**: Lives decrease from Level 1 (no delayed activation)
+- **Fair Hit Detection**: Prevents multiple rapid hits from single obstacle contact
+- **Smart State Tracking**: Collision timestamps reset properly on new game
+- **Fractional Point Support**: `parseFloat()` implementation for decimal treasure values
+- **Optimized Detection**: Collision checks run every frame for responsive gameplay
+
 ### **🛠️ Development & Debugging Tools**
 
 - **🔍 Chrome DevTools Integration**: Comprehensive audio and gameplay testing
@@ -413,11 +467,11 @@ http://localhost:8000/play_index.html
 - **Latest Commit**: All enhancements and fixes included
 - **Instant Play**: Clone and play immediately - no additional setup required
 
-### **📁 Project Structure**
+### **📁 Project Structure** (Updated October 2024)
 
 ```
 Ama-Treasure-Adventure/
-├── play_index.html          # Main game file (comprehensive)
+├── play_index.html          # Main game file (single comprehensive file)
 ├── data/
 │   ├── mermaid-background-1.png  # High-quality underwater background
 │   └── audio/               # Professional MP3 audio library
@@ -426,6 +480,8 @@ Ama-Treasure-Adventure/
 │       ├── powerup.mp3      # Power-up activation sounds
 │       └── [additional MP3s] # Complete audio experience
 └── README.md               # This comprehensive documentation
+
+Note: Obsolete index.html removed October 12, 2024 - play_index.html is the single main file
 ```
 
 ### **🎮 Ready-to-Play Features**
