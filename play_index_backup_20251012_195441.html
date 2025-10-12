@@ -1095,9 +1095,6 @@
       <div class="game-title">AMA TREASURE ADVENTURE</div>
     </div>
 
-    <!-- Debug Logger -->
-    <script src="debug-logger.js"></script>
-
     <!-- Audio Elements -->
     <audio id="backgroundMusic" loop preload="auto">
       <source src="data/audio/background.mp3" type="audio/mpeg" />
@@ -1160,8 +1157,26 @@
       };
       const COLLISION_COOLDOWN = 1000; // 1 second between any hits
 
-      // Debug Logging System (using external logger)
+      // Debug Logging System
+      let debugLog = [];
       const MAX_DEBUG_ENTRIES = 15;
+
+      function addDebugLog(message, type = "info") {
+        const timestamp = new Date().toLocaleTimeString();
+        const entry = {
+          time: timestamp,
+          message: message,
+          type: type,
+        };
+
+        debugLog.unshift(entry); // Add to beginning
+        if (debugLog.length > MAX_DEBUG_ENTRIES) {
+          debugLog.pop(); // Remove oldest
+        }
+
+        updateDebugPanel();
+        console.log(`[${timestamp}] ${message}`);
+      }
 
       function updateDebugPanel() {
         const logContainer = document.getElementById("debugLog");
@@ -1189,11 +1204,8 @@
         }
         `;
 
-        // Get recent logs from external logger
-        const recentLogs = gameLogger.getRecentLogs(MAX_DEBUG_ENTRIES);
-
-        // Update log display
-        logContainer.innerHTML = recentLogs
+        // Update log
+        logContainer.innerHTML = debugLog
           .map((entry) => {
             let className = "debug-log-entry";
             if (entry.type === "treasure") className += " log-treasure";
@@ -2416,15 +2428,14 @@
           const oldScore = p1Score;
           p1Score += pointsEarned;
 
-          logTreasure(
-            player1Name,
-            treasure.dataset.type,
-            points,
-            multiplier,
-            oldScore,
-            p1Score
+          addDebugLog(
+            `${player1Name} collected ${
+              treasure.dataset.type
+            } (${points} × ${multiplier}) = +${pointsEarned.toFixed(
+              1
+            )} pts. Total: ${oldScore.toFixed(1)} → ${p1Score.toFixed(1)}`,
+            "treasure"
           );
-          updateDebugPanel();
 
           placeTreasure();
           randomObstacleRespawn(); // Trigger random obstacle respawn
@@ -2452,15 +2463,14 @@
             const oldScore = p2Score;
             p2Score += pointsEarned;
 
-            logTreasure(
-              player2Name,
-              treasure.dataset.type,
-              points,
-              multiplier,
-              oldScore,
-              p2Score
+            addDebugLog(
+              `${player2Name} collected ${
+                treasure.dataset.type
+              } (${points} × ${multiplier}) = +${pointsEarned.toFixed(
+                1
+              )} pts. Total: ${oldScore.toFixed(1)} → ${p2Score.toFixed(1)}`,
+              "treasure"
             );
-            updateDebugPanel();
 
             placeTreasure();
             randomObstacleRespawn(); // Trigger random obstacle respawn
@@ -2525,13 +2535,20 @@
             playAudio(obstacleSound); // Hit sound
             showMessage(`💥 ${player1Name} hit obstacle! Lives: ${p1Lives}`);
 
-            logCollision(player1Name, p1Lives, p1Lives <= 0);
-            updateDebugPanel();
+            addDebugLog(
+              `💥 ${player1Name} HIT! Lives: 3 → ${p1Lives}${
+                p1Lives <= 0 ? " [GAME OVER]" : ""
+              }`,
+              "collision"
+            );
 
             // Only end game if lives reach 0
             if (p1Lives <= 0) {
               if (mode === 1 || p2Lives <= 0) {
-                logGameOver(mode === 1 ? "Player 1 out of lives" : "Both players out of lives");
+                addDebugLog(
+                  "🚫 GAME OVER - Player 1 out of lives",
+                  "collision"
+                );
                 endGame();
               }
             }
@@ -2553,12 +2570,19 @@
               playAudio(obstacleSound);
               showMessage(`💥 ${player2Name} hit obstacle! Lives: ${p2Lives}`);
 
-              logCollision(player2Name, p2Lives, p2Lives <= 0 && p1Lives <= 0);
-              updateDebugPanel();
+              addDebugLog(
+                `💥 ${player2Name} HIT! Lives: 3 → ${p2Lives}${
+                  p2Lives <= 0 ? " [OUT]" : ""
+                }`,
+                "collision"
+              );
 
               // Only end game if both players are out of lives
               if (p2Lives <= 0 && p1Lives <= 0) {
-                logGameOver("Both players out of lives");
+                addDebugLog(
+                  "🚫 GAME OVER - Both players out of lives",
+                  "collision"
+                );
                 endGame();
               }
             }
@@ -2618,19 +2642,28 @@
         const targetLevel = Math.floor(maxScore / 5) + 1;
         const oldLevel = level;
 
-        logLevelCheck(maxScore, level, targetLevel);
+        addDebugLog(
+          `📊 Level Check: MaxScore=${maxScore.toFixed(
+            1
+          )}, Current Level=${level}, Target Level=${targetLevel} (${maxScore.toFixed(
+            1
+          )}/5 = ${(maxScore / 5).toFixed(2)})`,
+          "level"
+        );
 
         if (targetLevel > level) {
           level = targetLevel;
           timeLeft += 10;
 
-          logLevelUp(oldLevel, level, obstacles.length);
-          updateDebugPanel();
+          addDebugLog(
+            `🎊 LEVEL UP! ${oldLevel} → ${level} (+10 seconds). Obstacles: ${obstacles.length}`,
+            "level"
+          );
 
           if (level === 6) {
             p1Lives++;
             if (mode === 2) p2Lives++;
-            gameLogger.addLog("💖 Bonus Life granted at Level 6!", "level");
+            addDebugLog("💖 Bonus Life granted at Level 6!", "level");
             showMessage("💖 Bonus Life! +1 life added!");
           }
 
@@ -2643,8 +2676,12 @@
             setTimeout(createPowerUp, 1000);
           }
         } else {
-          logNoLevelUp(targetLevel);
-          updateDebugPanel();
+          addDebugLog(
+            `✓ No level up. Need ${(targetLevel * 5).toFixed(
+              1
+            )} pts for Level ${targetLevel}`,
+            "level"
+          );
         }
       }
 
@@ -2688,11 +2725,19 @@
         p2Lives = 2;
         timeLeft = 40;
         level = 1;
-        
+
         // Clear debug log and start fresh
-        gameLogger.clearSessionLogs();
-        logGameStart(mode, player1Name, player2Name, p1Lives);
-        updateDebugPanel();
+        debugLog = [];
+        addDebugLog(
+          `🎮 GAME START - Mode: ${
+            mode === 1 ? "Single Player" : "Two Player"
+          }`,
+          "info"
+        );
+        addDebugLog(`👤 ${player1Name} starts with ${p1Lives} lives`, "info");
+        if (mode === 2) {
+          addDebugLog(`👤 ${player2Name} starts with ${p2Lives} lives`, "info");
+        }
         p1X = 100;
         p1Y = 100;
         p2X = 200;

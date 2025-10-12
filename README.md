@@ -151,6 +151,69 @@ http://localhost:8000/play_index.html
 - ✅ **Progressive Level Check**: New `checkLevelProgress()` function for accurate leveling
 - ✅ **State Management**: Proper collision tracking reset on new game initialization
 
+### 🐛 **Phase 11: Advanced Debugging & Activity Monitoring (October 12, 2024)**
+
+**Modular Debug System & Real-Time Activity Dashboard**
+
+- ✅ **Modular Logging Architecture**: Separated debug system into standalone `debug-logger.js`
+  - Clean separation of concerns for improved maintainability
+  - Reusable logger class (`GameActivityLogger`) with comprehensive API
+  - Helper functions for common log types (treasure, collision, level progression)
+  - Exported module structure for future extensibility
+- ✅ **Standalone Activity Monitor**: New `activity.html` page for gameplay analytics
+  - Real-time dashboard accessible at `http://localhost:8000/activity.html`
+  - Auto-refreshing display (2-second intervals, toggleable)
+  - Matrix-style green-on-black design matching game aesthetics
+  - Complete gameplay transparency for testing and verification
+- ✅ **Persistent Log Storage**: localStorage-based activity tracking across sessions
+  - Stores up to 50 events with automatic old entry cleanup
+  - Session-based filtering for current game analysis
+  - Survives page refreshes and browser restarts
+  - JSON export functionality for detailed analysis
+- ✅ **Comprehensive Event Tracking**: Logs all critical game activities
+  - 🎮 **Game Start**: Player names, mode, starting lives
+  - 💰 **Treasure Collection**: Type, points, multipliers, score transitions (e.g., "5.0 → 5.5")
+  - 🎊 **Level Progression**: Score thresholds, level ups, calculations shown as formulas
+  - 💥 **Collisions**: Player hits, lives remaining, game over conditions
+  - ⚡ **Power-ups**: Type, duration, affected player
+- ✅ **Live Statistics Dashboard**: Real-time session analytics
+  - Total events counter
+  - Treasure collection count
+  - Collision tracking
+  - Level-up achievements
+  - Session duration timer
+- ✅ **In-Game Debug Panel**: Retains original in-game debug overlay
+  - Quick toggle button (bottom-left "🐛 DEBUG")
+  - Shows last 15 events in scrollable panel
+  - Current stats display (scores, lives, level, time, obstacles)
+  - Now powered by external logger for consistency
+- ✅ **Enhanced Log Formatting**: Color-coded entries by type
+  - 🟡 Gold for treasure collection
+  - 🟠 Orange for level events
+  - 🔴 Red for collisions
+  - 🟣 Purple for power-ups
+  - 🔵 Cyan for info messages
+- ✅ **Activity Monitor Features**:
+  - 🔄 Manual refresh button
+  - ⏸ Pause/resume auto-refresh toggle
+  - 📥 Export logs as JSON file
+  - 🗑️ Clear logs with confirmation
+  - 🎮 Quick link back to game
+- ✅ **Developer-Friendly Tools**: Perfect for testing and debugging
+  - Verify level progression calculations (shows "5.5/5 = 1.10" math)
+  - Track point accumulation with decimal precision
+  - Monitor collision cooldowns in action
+  - Confirm treasure point values applied correctly
+  - Review complete gameplay flow chronologically
+
+**Technical Architecture**
+
+- ✅ **Clean Code Organization**: Modular structure improves project maintainability
+- ✅ **Separation of Concerns**: Game logic, UI, and debugging now properly decoupled
+- ✅ **Scalable Logging System**: Easy to add new log types or features
+- ✅ **Cross-Page Communication**: localStorage enables multi-page monitoring
+- ✅ **Professional Development Workflow**: Activity monitor doubles as QA tool
+
 ---
 
 ## 🎮 **CURRENT GAME FEATURES**
@@ -216,7 +279,7 @@ http://localhost:8000/play_index.html
 - **🌟 Gold Treasure**: 1.5 points each (10% spawn rate) - Precious discoveries
 - **💎 Rare Gems**: 2 points each (5% spawn rate) - Ultimate treasures
 
-*Point values carefully balanced to ensure smooth level progression without jumps*
+_Point values carefully balanced to ensure smooth level progression without jumps_
 
 ### ⚡ **Advanced Power-Up System** (Level 3+)
 
@@ -247,6 +310,7 @@ http://localhost:8000/play_index.html
 ## 🎯 **LEVEL PROGRESSION SYSTEM** (Rebalanced October 2024)
 
 ### **Game Balance Philosophy**
+
 - **Starting Lives**: 2 (down from 3) for increased challenge and skill requirement
 - **Level Progression**: 5 points per level (Level 1→2 at 5pts, 2→3 at 10pts, etc.)
 - **Fractional Points**: Support for decimal point values (0.5, 1.5) for fine-tuned balance
@@ -472,6 +536,8 @@ http://localhost:8000/play_index.html
 ```
 Ama-Treasure-Adventure/
 ├── play_index.html          # Main game file (single comprehensive file)
+├── activity.html            # Real-time activity monitor dashboard
+├── debug-logger.js          # Modular debug logging system
 ├── data/
 │   ├── mermaid-background-1.png  # High-quality underwater background
 │   └── audio/               # Professional MP3 audio library
@@ -482,6 +548,7 @@ Ama-Treasure-Adventure/
 └── README.md               # This comprehensive documentation
 
 Note: Obsolete index.html removed October 12, 2024 - play_index.html is the single main file
+Activity monitoring system added October 12, 2024 - access at http://localhost:8000/activity.html
 ```
 
 ### **🎮 Ready-to-Play Features**

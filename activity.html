@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ama Treasure Adventure - Activity Monitor</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Courier New", monospace;
+        background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%);
+        color: #00ff00;
+        padding: 20px;
+        min-height: 100vh;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+
+      header {
+        text-align: center;
+        margin-bottom: 30px;
+        padding: 20px;
+        background: rgba(0, 255, 0, 0.05);
+        border: 2px solid #00ff00;
+        border-radius: 10px;
+      }
+
+      h1 {
+        color: #00ff00;
+        font-size: 2.5em;
+        margin-bottom: 10px;
+        text-shadow: 0 0 20px #00ff00;
+      }
+
+      .subtitle {
+        color: #ffff00;
+        font-size: 1.2em;
+      }
+
+      .controls {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        margin-bottom: 30px;
+        flex-wrap: wrap;
+      }
+
+      .btn {
+        padding: 12px 24px;
+        background: rgba(0, 255, 0, 0.2);
+        border: 2px solid #00ff00;
+        color: #00ff00;
+        border-radius: 6px;
+        cursor: pointer;
+        font-family: "Courier New", monospace;
+        font-size: 14px;
+        font-weight: bold;
+        transition: all 0.3s ease;
+      }
+
+      .btn:hover {
+        background: rgba(0, 255, 0, 0.4);
+        box-shadow: 0 0 15px rgba(0, 255, 0, 0.5);
+        transform: translateY(-2px);
+      }
+
+      .btn-danger {
+        background: rgba(255, 0, 0, 0.2);
+        border-color: #ff0000;
+        color: #ff0000;
+      }
+
+      .btn-danger:hover {
+        background: rgba(255, 0, 0, 0.4);
+        box-shadow: 0 0 15px rgba(255, 0, 0, 0.5);
+      }
+
+      .btn-info {
+        background: rgba(0, 191, 255, 0.2);
+        border-color: #00bfff;
+        color: #00bfff;
+      }
+
+      .btn-info:hover {
+        background: rgba(0, 191, 255, 0.4);
+        box-shadow: 0 0 15px rgba(0, 191, 255, 0.5);
+      }
+
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+        margin-bottom: 30px;
+      }
+
+      .stat-card {
+        background: rgba(0, 255, 0, 0.05);
+        border: 2px solid #00ff00;
+        border-radius: 8px;
+        padding: 20px;
+        text-align: center;
+      }
+
+      .stat-value {
+        font-size: 2em;
+        color: #00ff00;
+        font-weight: bold;
+        margin-bottom: 5px;
+      }
+
+      .stat-label {
+        color: #ffff00;
+        font-size: 0.9em;
+      }
+
+      .log-container {
+        background: rgba(0, 0, 0, 0.8);
+        border: 2px solid #00ff00;
+        border-radius: 10px;
+        padding: 20px;
+        max-height: 600px;
+        overflow-y: auto;
+      }
+
+      .log-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #00ff00;
+      }
+
+      .log-title {
+        color: #ffff00;
+        font-size: 1.5em;
+        font-weight: bold;
+      }
+
+      .refresh-status {
+        color: #00ff00;
+        font-size: 0.9em;
+      }
+
+      .log-entry {
+        padding: 10px;
+        margin-bottom: 8px;
+        border-left: 4px solid #00ff00;
+        background: rgba(0, 255, 0, 0.03);
+        border-radius: 4px;
+        transition: all 0.3s ease;
+      }
+
+      .log-entry:hover {
+        background: rgba(0, 255, 0, 0.1);
+        transform: translateX(5px);
+      }
+
+      .log-time {
+        color: #888;
+        margin-right: 10px;
+        font-weight: bold;
+      }
+
+      .log-message {
+        color: #00ff00;
+      }
+
+      .log-details {
+        margin-top: 5px;
+        padding-left: 20px;
+        color: #666;
+        font-size: 0.85em;
+      }
+
+      /* Different colors for different log types */
+      .log-treasure {
+        border-left-color: #ffd700;
+      }
+
+      .log-treasure .log-message {
+        color: #ffd700;
+      }
+
+      .log-level {
+        border-left-color: #ff6b35;
+      }
+
+      .log-level .log-message {
+        color: #ff6b35;
+      }
+
+      .log-collision {
+        border-left-color: #ff4444;
+      }
+
+      .log-collision .log-message {
+        color: #ff4444;
+      }
+
+      .log-power {
+        border-left-color: #9b59b6;
+      }
+
+      .log-power .log-message {
+        color: #9b59b6;
+      }
+
+      .log-info {
+        border-left-color: #00ddff;
+      }
+
+      .log-info .log-message {
+        color: #00ddff;
+      }
+
+      .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        color: #666;
+        font-size: 1.2em;
+      }
+
+      .empty-state-icon {
+        font-size: 3em;
+        margin-bottom: 20px;
+      }
+
+      /* Scrollbar styling */
+      .log-container::-webkit-scrollbar {
+        width: 10px;
+      }
+
+      .log-container::-webkit-scrollbar-track {
+        background: rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+      }
+
+      .log-container::-webkit-scrollbar-thumb {
+        background: #00ff00;
+        border-radius: 5px;
+      }
+
+      .log-container::-webkit-scrollbar-thumb:hover {
+        background: #00dd00;
+      }
+
+      /* Animation for new entries */
+      @keyframes slideIn {
+        from {
+          opacity: 0;
+          transform: translateX(-20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateX(0);
+        }
+      }
+
+      .log-entry.new {
+        animation: slideIn 0.5s ease-out;
+      }
+
+      /* Link to game */
+      .game-link {
+        text-align: center;
+        margin-top: 20px;
+        padding: 15px;
+        background: rgba(0, 191, 255, 0.1);
+        border: 2px solid #00bfff;
+        border-radius: 8px;
+      }
+
+      .game-link a {
+        color: #00bfff;
+        text-decoration: none;
+        font-size: 1.2em;
+        font-weight: bold;
+      }
+
+      .game-link a:hover {
+        text-decoration: underline;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <h1>🐛 GAME ACTIVITY MONITOR</h1>
+        <p class="subtitle">Real-time Gameplay Analytics Dashboard</p>
+      </header>
+
+      <div class="controls">
+        <button class="btn" id="refreshBtn" onclick="refreshLogs()">
+          🔄 Refresh Now
+        </button>
+        <button class="btn" id="autoRefreshBtn" onclick="toggleAutoRefresh()">
+          ⏸ Pause Auto-Refresh
+        </button>
+        <button class="btn btn-info" id="exportBtn" onclick="exportLogs()">
+          📥 Export Logs
+        </button>
+        <button class="btn btn-danger" id="clearBtn" onclick="confirmClear()">
+          🗑️ Clear Logs
+        </button>
+      </div>
+
+      <div class="stats-grid" id="statsGrid">
+        <div class="stat-card">
+          <div class="stat-value" id="totalEvents">0</div>
+          <div class="stat-label">Total Events</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="treasureCount">0</div>
+          <div class="stat-label">💰 Treasures</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="collisionCount">0</div>
+          <div class="stat-label">💥 Collisions</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="levelUpCount">0</div>
+          <div class="stat-label">🎊 Level Ups</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="sessionDuration">0s</div>
+          <div class="stat-label">⏱️ Session Time</div>
+        </div>
+      </div>
+
+      <div class="log-container">
+        <div class="log-header">
+          <div class="log-title">📜 Activity Log</div>
+          <div class="refresh-status" id="refreshStatus">
+            Auto-refresh: <span id="refreshInterval">2s</span>
+          </div>
+        </div>
+        <div id="logEntries">
+          <div class="empty-state">
+            <div class="empty-state-icon">🎮</div>
+            <div>No game activity yet.</div>
+            <div style="margin-top: 10px; font-size: 0.9em">
+              Start playing to see logs appear here!
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="game-link">
+        <a href="play_index.html">🎮 Return to Game →</a>
+      </div>
+    </div>
+
+    <script src="debug-logger.js"></script>
+    <script>
+      let autoRefreshEnabled = true;
+      let refreshIntervalId = null;
+      const REFRESH_INTERVAL = 2000; // 2 seconds
+
+      function refreshLogs() {
+        const logs = gameLogger.getAllLogs();
+        const stats = gameLogger.getSessionStats();
+
+        // Update stats
+        document.getElementById("totalEvents").textContent = stats.totalEvents;
+        document.getElementById("treasureCount").textContent = stats.treasures;
+        document.getElementById("collisionCount").textContent = stats.collisions;
+        document.getElementById("levelUpCount").textContent = stats.levelUps;
+        document.getElementById("sessionDuration").textContent =
+          stats.sessionDuration + "s";
+
+        // Update logs
+        const logContainer = document.getElementById("logEntries");
+
+        if (logs.length === 0) {
+          logContainer.innerHTML = `
+            <div class="empty-state">
+              <div class="empty-state-icon">🎮</div>
+              <div>No game activity yet.</div>
+              <div style="margin-top: 10px; font-size: 0.9em">
+                Start playing to see logs appear here!
+              </div>
+            </div>
+          `;
+        } else {
+          logContainer.innerHTML = logs
+            .map((log) => {
+              return `
+              <div class="log-entry log-${log.type}">
+                <span class="log-time">[${log.time}]</span>
+                <span class="log-message">${log.message}</span>
+              </div>
+            `;
+            })
+            .join("");
+        }
+
+        // Update refresh status
+        const now = new Date();
+        document.getElementById(
+          "refreshStatus"
+        ).innerHTML = `Last refresh: ${now.toLocaleTimeString()} | Auto: <span id="refreshInterval">${
+          autoRefreshEnabled ? "ON" : "OFF"
+        }</span>`;
+      }
+
+      function toggleAutoRefresh() {
+        autoRefreshEnabled = !autoRefreshEnabled;
+        const btn = document.getElementById("autoRefreshBtn");
+
+        if (autoRefreshEnabled) {
+          btn.innerHTML = "⏸ Pause Auto-Refresh";
+          btn.classList.remove("btn-info");
+          startAutoRefresh();
+        } else {
+          btn.innerHTML = "▶ Resume Auto-Refresh";
+          btn.classList.add("btn-info");
+          stopAutoRefresh();
+        }
+      }
+
+      function startAutoRefresh() {
+        if (refreshIntervalId) return;
+        refreshIntervalId = setInterval(refreshLogs, REFRESH_INTERVAL);
+      }
+
+      function stopAutoRefresh() {
+        if (refreshIntervalId) {
+          clearInterval(refreshIntervalId);
+          refreshIntervalId = null;
+        }
+      }
+
+      function exportLogs() {
+        gameLogger.exportLogs();
+        alert("✅ Logs exported successfully!");
+      }
+
+      function confirmClear() {
+        if (
+          confirm(
+            "Are you sure you want to clear all activity logs? This cannot be undone."
+          )
+        ) {
+          gameLogger.clearLogs();
+          refreshLogs();
+          alert("✅ Logs cleared successfully!");
+        }
+      }
+
+      // Initialize
+      document.addEventListener("DOMContentLoaded", () => {
+        refreshLogs();
+        startAutoRefresh();
+      });
+
+      // Refresh on page visibility change
+      document.addEventListener("visibilitychange", () => {
+        if (!document.hidden && autoRefreshEnabled) {
+          refreshLogs();
+        }
+      });
+    </script>
+  </body>
+</html>
+

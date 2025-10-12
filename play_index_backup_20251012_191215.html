@@ -31,38 +31,32 @@
         left: 20px;
         z-index: 1000;
         color: white;
-        font-size: 16px;
+        font-size: 18px;
         display: flex;
-        gap: 15px;
+        gap: 20px;
         flex-wrap: wrap;
-        max-width: 55%;
-        line-height: 1.4;
-      }
-
-      .game-stats > div {
-        white-space: nowrap;
       }
 
       .game-header-buttons {
         position: fixed;
         top: 20px;
-        right: 80px;
+        left: 50%;
+        transform: translateX(-50%);
         display: flex;
-        gap: 8px;
+        gap: 10px;
         z-index: 1000;
       }
 
       .game-header-button {
-        padding: 8px 16px;
+        padding: 10px 20px;
         background: rgba(0, 0, 0, 0.8);
         color: white;
-        border-radius: 6px;
+        border-radius: 8px;
         cursor: pointer;
-        font-size: 13px;
+        font-size: 16px;
         transition: all 0.2s;
         border: none;
         font-weight: bold;
-        white-space: nowrap;
       }
 
       .game-header-button:hover {
@@ -85,37 +79,6 @@
 
       .pause-button:hover {
         background: rgba(255, 193, 7, 0.9);
-      }
-
-      /* Responsive adjustments for smaller screens */
-      @media (max-width: 768px) {
-        .game-stats {
-          font-size: 14px;
-          gap: 10px;
-          max-width: 50%;
-        }
-
-        .game-header-button {
-          padding: 6px 12px;
-          font-size: 12px;
-        }
-      }
-
-      @media (max-width: 480px) {
-        .game-stats {
-          font-size: 12px;
-          gap: 8px;
-          max-width: 45%;
-        }
-
-        .game-header-button {
-          padding: 5px 10px;
-          font-size: 11px;
-        }
-
-        .game-header-buttons {
-          right: 65px;
-        }
       }
 
       #startscreen {
@@ -227,9 +190,9 @@
 
       #achievement {
         position: fixed;
-        top: 60px;
+        top: 20px;
         left: 50%;
-        transform: translateX(-50%);
+        transform: translateX(-50%) translateX(120px);
         background: rgba(0, 150, 0, 0.9);
         color: white;
         padding: 12px 20px;
@@ -241,7 +204,7 @@
         font-weight: bold;
         box-shadow: 0 4px 15px rgba(0, 150, 0, 0.3);
         animation: slideInTop 0.3s ease-out;
-        max-width: 350px;
+        max-width: 300px;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -249,11 +212,11 @@
 
       @keyframes slideInTop {
         from {
-          transform: translateX(-50%) translateY(-20px);
+          transform: translateX(-50%) translateX(120px) translateY(-20px);
           opacity: 0;
         }
         to {
-          transform: translateX(-50%) translateY(0);
+          transform: translateX(-50%) translateX(120px) translateY(0);
           opacity: 1;
         }
       }
@@ -332,8 +295,6 @@
         padding: 25px;
         margin: 20px auto;
         max-width: 600px;
-        max-height: 80vh;
-        overflow-y: auto;
         border: 2px solid #ffd700;
         box-shadow: 0 8px 32px rgba(255, 215, 0, 0.3);
       }
@@ -630,111 +591,6 @@
         }
       }
 
-      /* Debug Panel Styles */
-      .debug-toggle {
-        position: fixed;
-        bottom: 20px;
-        left: 20px;
-        background: rgba(0, 0, 0, 0.8);
-        color: #00ff00;
-        border: 2px solid #00ff00;
-        padding: 8px 12px;
-        border-radius: 6px;
-        cursor: pointer;
-        font-size: 12px;
-        font-weight: bold;
-        z-index: 1002;
-        font-family: monospace;
-      }
-
-      .debug-toggle:hover {
-        background: rgba(0, 0, 0, 0.9);
-        box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
-      }
-
-      .debug-panel {
-        position: fixed;
-        bottom: 60px;
-        left: 20px;
-        width: 450px;
-        max-height: 400px;
-        background: rgba(0, 0, 0, 0.95);
-        border: 2px solid #00ff00;
-        border-radius: 8px;
-        padding: 15px;
-        z-index: 1001;
-        display: none;
-        overflow-y: auto;
-        font-family: monospace;
-        font-size: 11px;
-        color: #00ff00;
-      }
-
-      .debug-panel.visible {
-        display: block;
-      }
-
-      .debug-panel h3 {
-        margin: 0 0 10px 0;
-        color: #ffff00;
-        font-size: 14px;
-        text-align: center;
-        border-bottom: 1px solid #00ff00;
-        padding-bottom: 5px;
-      }
-
-      .debug-section {
-        margin-bottom: 10px;
-        padding: 8px;
-        background: rgba(0, 255, 0, 0.05);
-        border-radius: 4px;
-      }
-
-      .debug-section h4 {
-        margin: 0 0 5px 0;
-        color: #00ddff;
-        font-size: 12px;
-      }
-
-      .debug-log {
-        max-height: 150px;
-        overflow-y: auto;
-        background: rgba(0, 0, 0, 0.5);
-        padding: 8px;
-        border-radius: 4px;
-        margin-top: 5px;
-      }
-
-      .debug-log-entry {
-        padding: 2px 0;
-        border-bottom: 1px solid rgba(0, 255, 0, 0.2);
-      }
-
-      .debug-log-entry:last-child {
-        border-bottom: none;
-      }
-
-      .log-time {
-        color: #888;
-        margin-right: 5px;
-      }
-
-      .log-treasure {
-        color: #ffd700;
-      }
-
-      .log-level {
-        color: #ff6b35;
-      }
-
-      .log-collision {
-        color: #ff4444;
-      }
-
-      .log-power {
-        color: #9b59b6;
-      }
-
       .audio-controls {
         position: fixed;
         top: 80px;
@@ -934,22 +790,6 @@
         </button>
       </div>
 
-      <!-- Debug Panel -->
-      <button class="debug-toggle" id="debugToggle">🐛 DEBUG</button>
-      <div class="debug-panel" id="debugPanel">
-        <h3>🐛 GAME ACTIVITY LOG</h3>
-
-        <div class="debug-section">
-          <h4>📊 Current Stats</h4>
-          <div id="debugStats">Loading...</div>
-        </div>
-
-        <div class="debug-section">
-          <h4>📜 Recent Activity (Last 15 events)</h4>
-          <div class="debug-log" id="debugLog"></div>
-        </div>
-      </div>
-
       <div id="game">
         <div id="player1" class="sprite">🧜‍♀️</div>
         <div id="player2" class="sprite" style="display: none">🧑‍🚀</div>
@@ -1095,9 +935,6 @@
       <div class="game-title">AMA TREASURE ADVENTURE</div>
     </div>
 
-    <!-- Debug Logger -->
-    <script src="debug-logger.js"></script>
-
     <!-- Audio Elements -->
     <audio id="backgroundMusic" loop preload="auto">
       <source src="data/audio/background.mp3" type="audio/mpeg" />
@@ -1141,8 +978,8 @@
       let player2Name = "Player 2";
       let p1Score = 0,
         p2Score = 0;
-      let p1Lives = 2,
-        p2Lives = 2;
+      let p1Lives = 3,
+        p2Lives = 3;
       let timeLeft = 40;
       let level = 1;
       let timer;
@@ -1152,65 +989,6 @@
         p2Y = 200;
       const moveStep = 20;
       let highScore = localStorage.getItem("treasureHighScore") || 0;
-
-      // Collision tracking to prevent multiple hits within short time
-      let lastCollisionTime = {
-        player1: { global: 0 },
-        player2: { global: 0 },
-      };
-      const COLLISION_COOLDOWN = 1000; // 1 second between any hits
-
-      // Debug Logging System (using external logger)
-      const MAX_DEBUG_ENTRIES = 15;
-
-      function updateDebugPanel() {
-        const logContainer = document.getElementById("debugLog");
-        const statsContainer = document.getElementById("debugStats");
-
-        if (!logContainer || !statsContainer) return;
-
-        // Update stats
-        const maxScore = Math.max(p1Score, mode === 2 ? p2Score : 0);
-        const pointsToNextLevel = (Math.floor(maxScore / 5) + 1) * 5 - maxScore;
-        statsContainer.innerHTML = `
-          <strong>P1:</strong> ${p1Score.toFixed(1)} pts, ${p1Lives} lives<br>
-          ${
-            mode === 2
-              ? `<strong>P2:</strong> ${p2Score.toFixed(
-                  1
-                )} pts, ${p2Lives} lives<br>`
-              : ""
-          }
-          <strong>Level:</strong> ${level} | <strong>Next:</strong> ${pointsToNextLevel.toFixed(
-          1
-        )} pts away<br>
-          <strong>Time:</strong> ${timeLeft}s | <strong>Obstacles:</strong> ${
-          obstacles.length
-        }
-        `;
-
-        // Get recent logs from external logger
-        const recentLogs = gameLogger.getRecentLogs(MAX_DEBUG_ENTRIES);
-
-        // Update log display
-        logContainer.innerHTML = recentLogs
-          .map((entry) => {
-            let className = "debug-log-entry";
-            if (entry.type === "treasure") className += " log-treasure";
-            else if (entry.type === "level") className += " log-level";
-            else if (entry.type === "collision") className += " log-collision";
-            else if (entry.type === "power") className += " log-power";
-
-            return `<div class="${className}"><span class="log-time">[${entry.time}]</span> ${entry.message}</div>`;
-          })
-          .join("");
-      }
-
-      // Toggle debug panel
-      function toggleDebugPanel() {
-        const panel = document.getElementById("debugPanel");
-        panel.classList.toggle("visible");
-      }
 
       // Leaderboard System
       class LeaderboardManager {
@@ -1326,10 +1104,10 @@
       };
 
       const treasureTypes = {
-        COIN: { emoji: "💰", points: 0.5, rarity: 0.6 },
-        SILVER: { emoji: "⚪", points: 1, rarity: 0.25 },
-        GOLD: { emoji: "🌟", points: 1.5, rarity: 0.1 },
-        GEM: { emoji: "💎", points: 2, rarity: 0.05 },
+        COIN: { emoji: "💰", points: 1, rarity: 0.6 },
+        SILVER: { emoji: "⚪", points: 3, rarity: 0.25 },
+        GOLD: { emoji: "🌟", points: 5, rarity: 0.1 },
+        GEM: { emoji: "💎", points: 10, rarity: 0.05 },
       };
 
       const powerUpTypes = {
@@ -2407,72 +2185,50 @@
 
         // Check treasure collision for player 1
         if (isOverlapping(p1Rect, treasureRect)) {
-          const points = parseFloat(treasure.dataset.points) || 0.5;
+          const points = parseInt(treasure.dataset.points) || 1;
           const multiplier =
             activePowerUps.player1 && activePowerUps.player1.type === "POINTS"
               ? 2
               : 1;
-          const pointsEarned = points * multiplier;
-          const oldScore = p1Score;
-          p1Score += pointsEarned;
-
-          logTreasure(
-            player1Name,
-            treasure.dataset.type,
-            points,
-            multiplier,
-            oldScore,
-            p1Score
-          );
-          updateDebugPanel();
+          p1Score += points * multiplier;
 
           placeTreasure();
           randomObstacleRespawn(); // Trigger random obstacle respawn
           playAudio(treasureSound); // Treasure sound
           showMessage(
-            `💰 ${player1Name} collected ${
-              treasure.dataset.type
-            }! +${pointsEarned.toFixed(1)} points`
+            `💰 ${player1Name} collected ${treasure.dataset.type}! +${
+              points * multiplier
+            } points`
           );
 
-          // Check for level progression
-          checkLevelProgress();
+          if (p1Score >= level * 5) {
+            levelUp();
+          }
         }
 
         // Check treasure collision for player 2
         if (mode === 2) {
           const p2Rect = player2.getBoundingClientRect();
           if (isOverlapping(p2Rect, treasureRect)) {
-            const points = parseFloat(treasure.dataset.points) || 0.5;
+            const points = parseInt(treasure.dataset.points) || 1;
             const multiplier =
               activePowerUps.player2 && activePowerUps.player2.type === "POINTS"
                 ? 2
                 : 1;
-            const pointsEarned = points * multiplier;
-            const oldScore = p2Score;
-            p2Score += pointsEarned;
-
-            logTreasure(
-              player2Name,
-              treasure.dataset.type,
-              points,
-              multiplier,
-              oldScore,
-              p2Score
-            );
-            updateDebugPanel();
+            p2Score += points * multiplier;
 
             placeTreasure();
             randomObstacleRespawn(); // Trigger random obstacle respawn
             playAudio(treasureSound);
             showMessage(
-              `💰 ${player2Name} collected ${
-                treasure.dataset.type
-              }! +${pointsEarned.toFixed(1)} points`
+              `💰 ${player2Name} collected ${treasure.dataset.type}! +${
+                points * multiplier
+              } points`
             );
 
-            // Check for level progression
-            checkLevelProgress();
+            if (p2Score >= level * 5) {
+              levelUp();
+            }
           }
         }
 
@@ -2495,50 +2251,25 @@
         });
 
         // Check obstacle collisions
-        const currentTime = Date.now();
-        let p1Hit = false;
-        let p2Hit = false;
-
-        // Check if player can take damage (not in cooldown)
-        const p1CanTakeDamage =
-          !lastCollisionTime.player1.global ||
-          currentTime - lastCollisionTime.player1.global >= COLLISION_COOLDOWN;
-        const p2CanTakeDamage =
-          !lastCollisionTime.player2.global ||
-          currentTime - lastCollisionTime.player2.global >= COLLISION_COOLDOWN;
-
-        obstacles.forEach((obs, obsIndex) => {
+        obstacles.forEach((obs) => {
           const obsRect = obs.getBoundingClientRect();
 
-          // Player 1 collision - only process if not already hit this cycle and can take damage
           if (
-            !p1Hit &&
-            p1CanTakeDamage &&
             isOverlapping(p1Rect, obsRect) &&
             !(
               activePowerUps.player1 && activePowerUps.player1.type === "SHIELD"
             )
           ) {
             p1Lives--;
-            p1Hit = true;
-            lastCollisionTime.player1.global = currentTime;
             playAudio(obstacleSound); // Hit sound
             showMessage(`💥 ${player1Name} hit obstacle! Lives: ${p1Lives}`);
 
-            logCollision(player1Name, p1Lives, p1Lives <= 0);
-            updateDebugPanel();
-
-            // Only end game if lives reach 0
-            if (p1Lives <= 0) {
-              if (mode === 1 || p2Lives <= 0) {
-                logGameOver(mode === 1 ? "Player 1 out of lives" : "Both players out of lives");
-                endGame();
-              }
+            if (p1Lives <= 0 && (mode === 1 || p2Lives <= 0)) {
+              endGame();
             }
           }
 
-          // Player 2 collision - only process if not already hit this cycle and can take damage
-          if (mode === 2 && !p2Hit && p2CanTakeDamage) {
+          if (mode === 2) {
             const p2Rect = player2.getBoundingClientRect();
             if (
               isOverlapping(p2Rect, obsRect) &&
@@ -2548,17 +2279,10 @@
               )
             ) {
               p2Lives--;
-              p2Hit = true;
-              lastCollisionTime.player2.global = currentTime;
               playAudio(obstacleSound);
               showMessage(`💥 ${player2Name} hit obstacle! Lives: ${p2Lives}`);
 
-              logCollision(player2Name, p2Lives, p2Lives <= 0 && p1Lives <= 0);
-              updateDebugPanel();
-
-              // Only end game if both players are out of lives
               if (p2Lives <= 0 && p1Lives <= 0) {
-                logGameOver("Both players out of lives");
                 endGame();
               }
             }
@@ -2613,41 +2337,6 @@
         }
       }
 
-      function checkLevelProgress() {
-        const maxScore = Math.max(p1Score, mode === 2 ? p2Score : 0);
-        const targetLevel = Math.floor(maxScore / 5) + 1;
-        const oldLevel = level;
-
-        logLevelCheck(maxScore, level, targetLevel);
-
-        if (targetLevel > level) {
-          level = targetLevel;
-          timeLeft += 10;
-
-          logLevelUp(oldLevel, level, obstacles.length);
-          updateDebugPanel();
-
-          if (level === 6) {
-            p1Lives++;
-            if (mode === 2) p2Lives++;
-            gameLogger.addLog("💖 Bonus Life granted at Level 6!", "level");
-            showMessage("💖 Bonus Life! +1 life added!");
-          }
-
-          createObstacles();
-          playAudio(achievementSound);
-          showMessage(`🎉 Level ${level}! +10 seconds!`);
-
-          // Chance to spawn power-up on level up
-          if (level >= 3 && Math.random() < 0.7) {
-            setTimeout(createPowerUp, 1000);
-          }
-        } else {
-          logNoLevelUp(targetLevel);
-          updateDebugPanel();
-        }
-      }
-
       function gameTick() {
         if (timeLeft > 0 && (p1Lives > 0 || (mode === 2 && p2Lives > 0))) {
           timeLeft--;
@@ -2684,15 +2373,10 @@
         // Reset game state
         p1Score = 0;
         p2Score = 0;
-        p1Lives = 2;
-        p2Lives = 2;
+        p1Lives = 3;
+        p2Lives = 3;
         timeLeft = 40;
         level = 1;
-        
-        // Clear debug log and start fresh
-        gameLogger.clearSessionLogs();
-        logGameStart(mode, player1Name, player2Name, p1Lives);
-        updateDebugPanel();
         p1X = 100;
         p1Y = 100;
         p2X = 200;
@@ -2702,9 +2386,6 @@
         activePowerUps = { player1: null, player2: null };
         powerUps.forEach((p) => p.remove());
         powerUps = [];
-
-        // Reset collision tracking
-        lastCollisionTime = { player1: { global: 0 }, player2: { global: 0 } };
 
         // Show game elements
         startscreen.style.display = "none";
@@ -3151,11 +2832,6 @@
           pauseBtn.style.background = "rgba(255, 193, 7, 0.8)";
           showMessage("▶ Game Resumed");
         }
-      });
-
-      // Debug toggle button
-      document.getElementById("debugToggle").addEventListener("click", () => {
-        toggleDebugPanel();
       });
 
       // Initialize when page loads
