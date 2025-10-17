@@ -984,29 +984,32 @@
         letter-spacing: 2px;
       }
 
-      .loading-countdown {
-        font-size: 32px;
+      .loading-countdown-main {
+        font-size: 120px;
         color: #ff6b6b;
         font-weight: bold;
-        text-shadow: 0 0 15px rgba(255, 107, 107, 0.6);
-        letter-spacing: 1px;
-        min-width: 60px;
-        animation: countdownPulse 1s ease-in-out infinite;
+        text-shadow: 0 0 30px rgba(255, 107, 107, 0.8), 0 0 50px rgba(255, 107, 107, 0.5);
+        letter-spacing: 2px;
+        animation: countdownPulseMain 1s ease-in-out infinite;
+        margin-bottom: 20px;
       }
 
       #countdownTimer {
         display: inline-block;
-        min-width: 30px;
+        min-width: 100px;
         text-align: center;
+        line-height: 1;
       }
 
-      @keyframes countdownPulse {
+      @keyframes countdownPulseMain {
         0%,
         100% {
           transform: scale(1);
+          text-shadow: 0 0 30px rgba(255, 107, 107, 0.8), 0 0 50px rgba(255, 107, 107, 0.5);
         }
         50% {
-          transform: scale(1.1);
+          transform: scale(1.15);
+          text-shadow: 0 0 40px rgba(255, 107, 107, 1), 0 0 70px rgba(255, 107, 107, 0.7);
         }
       }
 
@@ -1103,12 +1106,13 @@
     <div id="game-container">
       <!-- Loading Screen -->
       <div id="loadingScreen">
+        <div class="loading-countdown-main">
+          <span id="countdownTimer">10</span>
+        </div>
+
         <div>
           <div class="loading-text">
             Loading Game<span class="loading-dots"></span>
-          </div>
-          <div class="loading-countdown">
-            <span id="countdownTimer">10</span>s
           </div>
         </div>
         <div class="loading-characters">
