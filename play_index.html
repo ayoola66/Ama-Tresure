@@ -1386,43 +1386,57 @@
         const loadingScreen = document.getElementById("loadingScreen");
         const countdownTimer = document.getElementById("countdownTimer");
         let remainingTime = LOADING_DURATION / 1000; // 10 seconds
-        
+
         console.log("🎬 [LOADING SCREEN] Initializing loading screen...");
-        
+
         // Set up loading screen close functionality
         const closeLoading = () => {
-          if (loadingComplete || Date.now() - loadingStartTime >= LOADING_DURATION) {
+          if (
+            loadingComplete ||
+            Date.now() - loadingStartTime >= LOADING_DURATION
+          ) {
             console.log("🎬 [LOADING SCREEN] Closing loading screen...");
             loadingScreen.classList.add("hidden");
           }
         };
-        
+
         // Close on click - INITIALIZE AUDIO HERE
         loadingScreen.addEventListener("click", () => {
-          console.log("🖱️  [LOADING SCREEN] Click detected - initializing audio context");
-          
+          console.log(
+            "🖱️  [LOADING SCREEN] Click detected - initializing audio context"
+          );
+
           // Initialize audio context on first user interaction
           try {
             const audioElements = document.querySelectorAll("audio");
             audioElements.forEach((audio, index) => {
-              console.log(`🔊 [CLICK INIT] Attempting audio context init for: ${audio.id}`);
+              console.log(
+                `🔊 [CLICK INIT] Attempting audio context init for: ${audio.id}`
+              );
               const playPromise = audio.play();
               if (playPromise !== undefined) {
                 playPromise
                   .then(() => {
-                    console.log(`✅ [CLICK INIT] Audio context initialized for: ${audio.id}`);
+                    console.log(
+                      `✅ [CLICK INIT] Audio context initialized for: ${audio.id}`
+                    );
                     audio.pause();
                     audio.currentTime = 0;
                   })
                   .catch((error) => {
-                    console.log(`⚠️  [CLICK INIT] Audio context init failed for ${audio.id}: ${error.message}`);
+                    console.log(
+                      `⚠️  [CLICK INIT] Audio context init failed for ${audio.id}: ${error.message}`
+                    );
                   });
               }
             });
           } catch (e) {
-            console.log(`❌ [CLICK INIT] Error initializing audio context:`, e.message);
+            console.log(
+              `❌ [CLICK INIT] Error initializing audio context:`,
+              e.message
+            );
           }
-          
+
           closeLoading();
         });
 
@@ -1462,28 +1476,42 @@
         
         audioElements.forEach((audio, index) => {
           audio.preload = "auto";
-          audio.volume = 0.7; // Set default volume
-          audio.load();
-          console.log(`🎵 [AUDIO ${index}] Preloading: ${audio.id} (volume: 0.7)`);
+          audio.volume = 0.7;
+          console.log(`🎵 [AUDIO ${index}] Setting up: ${audio.id}`);
           
-          // Try to play silently to initialize audio context
-          try {
-            console.log(`🔊 [AUDIO ${index}] Attempting silent play for: ${audio.id}`);
-            const playPromise = audio.play();
-            if (playPromise !== undefined) {
-              playPromise.catch((error) => {
-                console.log(`⚠️  [AUDIO ${index}] Silent play blocked by browser: ${error.message}`);
-              });
-            }
-            // Immediately pause to keep audio ready
-            setTimeout(() => {
-              audio.pause();
-              audio.currentTime = 0;
-              console.log(`✅ [AUDIO ${index}] Paused and reset: ${audio.id}`);
-            }, 10);
-          } catch (e) {
-            console.log(`❌ [AUDIO ${index}] Preload error for ${audio.id}:`, e.message);
-          }
+          // Add event listeners to monitor loading state
+          audio.addEventListener("canplay", () => {
+            console.log(`✅ [AUDIO ${index}] CANPLAY event: ${audio.id} (readyState: ${audio.readyState})`);
+          });
+          
+          audio.addEventListener("canplaythrough", () => {
+            console.log(`✅ [AUDIO ${index}] CANPLAYTHROUGH event: ${audio.id} (readyState: ${audio.readyState})`);
+          });
+          
+          audio.addEventListener("loadstart", () => {
+            console.log(`🔄 [AUDIO ${index}] LOADSTART: ${audio.id}`);
+          });
+          
+          audio.addEventListener("progress", () => {
+            console.log(`📥 [AUDIO ${index}] PROGRESS: ${audio.id} (buffered: ${audio.buffered.length})`);
+          });
+          
+          audio.addEventListener("loadeddata", () => {
+            console.log(`📦 [AUDIO ${index}] LOADEDDATA: ${audio.id} (readyState: ${audio.readyState})`);
+          });
+          
+          audio.addEventListener("loadedmetadata", () => {
+            console.log(`📋 [AUDIO ${index}] LOADEDMETADATA: ${audio.id} (duration: ${audio.duration})`);
+          });
+          
+          audio.addEventListener("error", (e) => {
+            console.log(`❌ [AUDIO ${index}] ERROR: ${audio.id} - ${audio.error.code}`);
+          });
+          
+          // Force load
+          console.log(`🔄 [AUDIO ${index}] Calling load() on: ${audio.id}`);
+          audio.load();
+          console.log(`✅ [AUDIO ${index}] load() called on: ${audio.id} (readyState: ${audio.readyState} after load)`);
         });
 
         // Preload background images
@@ -1817,14 +1845,8 @@
 
         try {
           console.log(`🎵 [PLAY AUDIO] Playing: ${audioElement.id}`);
-          console.log(`🎵 [PLAY AUDIO] Current state - readyState: ${audioElement.readyState}, paused: ${audioElement.paused}`);
+          console.log(`🎵 [PLAY AUDIO] Current state - readyState: ${audioElement.readyState}, networkState: ${audioElement.networkState}, paused: ${audioElement.paused}`);
           
-          // Ensure audio is loaded
-          if (audioElement.readyState < 2) {
-            console.log(`🎵 [PLAY AUDIO] Audio not ready, loading: ${audioElement.id}`);
-            audioElement.load();
-          }
-
           // Set volume based on FX settings
           const fxVolume = document.getElementById("fxVolume")
             ? document.getElementById("fxVolume").value / 100
@@ -1835,21 +1857,64 @@
           console.log(`🎵 [PLAY AUDIO] Volume set to ${audioElement.volume} (fxVolume: ${fxVolume}, isMuted: ${isMuted})`);
           
           audioElement.currentTime = 0; // Reset to start
+          
+          // Check if audio needs loading
+          if (audioElement.readyState < 2) {
+            console.log(`🎵 [PLAY AUDIO] Audio not ready (readyState ${audioElement.readyState}), checking networkState: ${audioElement.networkState}`);
+            
+            // Only call load if not already loading (networkState != 2)
+            if (audioElement.networkState !== 2) {
+              console.log(`🎵 [PLAY AUDIO] Calling load() to start loading: ${audioElement.id}`);
+              audioElement.load();
+            } else {
+              console.log(`🎵 [PLAY AUDIO] Audio already loading, waiting for canplay event: ${audioElement.id}`);
+            }
+          }
 
-          // Force play the audio
-          const playPromise = audioElement.play();
-          console.log(`🎵 [PLAY AUDIO] Play promise: ${playPromise ? "exists" : "undefined"}`);
+          // Wait for audio to be ready if it's not
+          const playWhenReady = () => {
+            if (audioElement.readyState >= 2) {
+              // Audio is ready to play (HAVE_CURRENT_DATA or better)
+              console.log(`✅ [PLAY AUDIO] Audio ready to play: ${audioElement.id} (readyState: ${audioElement.readyState})`);
+              
+              const playPromise = audioElement.play();
+              console.log(`🎵 [PLAY AUDIO] Play promise: ${playPromise ? "exists" : "undefined"}`);
 
-          if (playPromise !== undefined) {
-            playPromise
-              .then(() => {
-                console.log(`✅ [PLAY AUDIO] Successfully played: ${audioElement.id}`);
-              })
-              .catch((e) => {
-                console.log(`❌ [PLAY AUDIO] Failed to play ${audioElement.id}: ${e.message}`);
-                // Fallback to procedural sound
-                fallbackProceduralSound(audioElement.id || "default");
-              });
+              if (playPromise !== undefined) {
+                playPromise
+                  .then(() => {
+                    console.log(`✅ [PLAY AUDIO] Successfully played: ${audioElement.id}`);
+                    // Remove listener once playing
+                    audioElement.removeEventListener("canplay", playWhenReady);
+                  })
+                  .catch((e) => {
+                    console.log(`❌ [PLAY AUDIO] Failed to play ${audioElement.id}: ${e.message}`);
+                    // Fallback to procedural sound
+                    fallbackProceduralSound(audioElement.id || "default");
+                    audioElement.removeEventListener("canplay", playWhenReady);
+                  });
+              }
+            } else {
+              console.log(`⏳ [PLAY AUDIO] Still waiting for canplay event: ${audioElement.id} (readyState: ${audioElement.readyState})`);
+            }
+          };
+
+          // If already ready, play immediately
+          if (audioElement.readyState >= 2) {
+            playWhenReady();
+          } else {
+            // Otherwise wait for canplay event
+            console.log(`⏳ [PLAY AUDIO] Adding canplay listener for: ${audioElement.id}`);
+            audioElement.addEventListener("canplay", playWhenReady, { once: true });
+            
+            // Timeout fallback after 3 seconds
+            setTimeout(() => {
+              if (audioElement.paused) {
+                console.log(`⚠️ [PLAY AUDIO] Timeout waiting for canplay: ${audioElement.id} (readyState: ${audioElement.readyState})`);
+                audioElement.removeEventListener("canplay", playWhenReady);
+                playWhenReady(); // Try anyway
+              }
+            }, 3000);
           }
         } catch (e) {
           console.log(`❌ [PLAY AUDIO] Exception for ${audioElement.id}:`, e.message);
