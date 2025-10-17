@@ -1469,15 +1469,19 @@
       // Preload all audio and images
       function preloadGameAssets() {
         console.log("🎮 [PRELOAD START] Initializing game asset preload...");
-        
+
         // Preload audio elements
         const audioElements = document.querySelectorAll("audio");
-        console.log(`🎵 [AUDIO] Found ${audioElements.length} audio elements to preload`);
-        
+        console.log(
+          `🎵 [AUDIO] Found ${audioElements.length} audio elements to preload`
+        );
+
         audioElements.forEach((audio, index) => {
           audio.preload = "auto";
           audio.volume = 0.7;
-          console.log(`🎵 [AUDIO ${index}] Setting up: ${audio.id} (src: ${audio.src})`);
+          console.log(
+            `🎵 [AUDIO ${index}] Setting up: ${audio.id} (src: ${audio.src})`
+          );
         });
 
         // Preload background images
@@ -1490,14 +1494,18 @@
           "data/background/surfing-background-1.png",
         ];
 
-        console.log(`🖼️  [IMAGES] Preloading ${backgroundImages.length} background images`);
+        console.log(
+          `🖼️  [IMAGES] Preloading ${backgroundImages.length} background images`
+        );
         backgroundImages.forEach((src, index) => {
           const img = new Image();
           img.src = src;
           console.log(`🖼️  [IMAGE ${index}] Preloading: ${src}`);
         });
 
-        console.log("✅ [PRELOAD COMPLETE] Game assets preloading initiated...");
+        console.log(
+          "✅ [PRELOAD COMPLETE] Game assets preloading initiated..."
+        );
       }
 
       // Game Elements
@@ -1700,31 +1708,37 @@
           emoji: "🧜‍♀️",
           name: "Mermaid",
           background: "data/background/mermaid-background-1.png",
+          needsFlip: false,
         },
         RUNNER: {
           emoji: "🏃‍♂️",
           name: "Runner",
           background: "data/background/runMan-background-1.png",
+          needsFlip: true,
         },
         FISH: {
           emoji: "🐟",
           name: "Fish",
           background: "data/background/fish-background-1.png",
+          needsFlip: true,
         },
         CAR: {
           emoji: "🚗",
           name: "Car",
           background: "data/background/redCar-background-1.png",
+          needsFlip: false,
         },
         HORSE: {
           emoji: "🐎",
           name: "Horse",
           background: "data/background/horse-background-1.png",
+          needsFlip: true,
         },
         SURFER: {
           emoji: "🏄‍♂️",
           name: "Surfer",
           background: "data/background/surfing-background-1.png",
+          needsFlip: false,
         },
       };
 
@@ -1812,8 +1826,10 @@
         try {
           console.log(`🎵 [PLAY AUDIO] Attempting to play: ${audioElement.id}`);
           console.log(`🎵 [PLAY AUDIO] Element src: ${audioElement.src}`);
-          console.log(`🎵 [PLAY AUDIO] Current state - readyState: ${audioElement.readyState}, networkState: ${audioElement.networkState}`);
-          
+          console.log(
+            `🎵 [PLAY AUDIO] Current state - readyState: ${audioElement.readyState}, networkState: ${audioElement.networkState}`
+          );
+
           // Set volume based on FX settings
           const fxVolume = document.getElementById("fxVolume")
             ? document.getElementById("fxVolume").value / 100
@@ -1821,7 +1837,7 @@
 
           audioElement.volume = isMuted ? 0 : fxVolume;
           console.log(`🎵 [PLAY AUDIO] Volume set to ${audioElement.volume}`);
-          
+
           audioElement.currentTime = 0;
 
           // Direct play attempt - let browser handle loading
@@ -1831,32 +1847,46 @@
           if (playPromise !== undefined) {
             playPromise
               .then(() => {
-                console.log(`✅ [PLAY AUDIO] Successfully played: ${audioElement.id}`);
+                console.log(
+                  `✅ [PLAY AUDIO] Successfully played: ${audioElement.id}`
+                );
               })
               .catch((e) => {
-                console.log(`❌ [PLAY AUDIO] Play failed: ${e.name} - ${e.message}`);
+                console.log(
+                  `❌ [PLAY AUDIO] Play failed: ${e.name} - ${e.message}`
+                );
                 // Try loading and playing again
-                if (e.name === "NotSupportedError" || audioElement.readyState < 2) {
+                if (
+                  e.name === "NotSupportedError" ||
+                  audioElement.readyState < 2
+                ) {
                   console.log(`🔄 [PLAY AUDIO] Attempting to load first...`);
                   audioElement.load();
-                  
+
                   // Wait for canplay then try again
                   const retryPlay = () => {
                     console.log(`🔄 [PLAY AUDIO] Retrying play after load...`);
-                    audioElement.play()
+                    audioElement
+                      .play()
                       .then(() => {
-                        console.log(`✅ [PLAY AUDIO] Retry successful: ${audioElement.id}`);
+                        console.log(
+                          `✅ [PLAY AUDIO] Retry successful: ${audioElement.id}`
+                        );
                         audioElement.removeEventListener("canplay", retryPlay);
                       })
                       .catch((e2) => {
-                        console.log(`❌ [PLAY AUDIO] Retry failed: ${e2.message}`);
+                        console.log(
+                          `❌ [PLAY AUDIO] Retry failed: ${e2.message}`
+                        );
                         fallbackProceduralSound(audioElement.id || "default");
                         audioElement.removeEventListener("canplay", retryPlay);
                       });
                   };
-                  
-                  audioElement.addEventListener("canplay", retryPlay, { once: true });
-                  
+
+                  audioElement.addEventListener("canplay", retryPlay, {
+                    once: true,
+                  });
+
                   // Timeout after 2 seconds
                   setTimeout(() => {
                     audioElement.removeEventListener("canplay", retryPlay);
@@ -2240,14 +2270,28 @@
         const p2Char = characterOptions[selectedP2Character];
 
         // Simple facing logic - just use the character emoji
-        // Most emojis naturally face LEFT, so we flip them when facing RIGHT
         player1.innerText = p1Char.emoji;
         player2.innerText = p2Char.emoji;
 
-        // Add visual indicator for facing direction with CSS transform
-        // INVERTED: Most emojis face left by default, so flip when facing RIGHT (facingLeft = false)
-        player1.style.transform = p1FacingLeft ? "scaleX(1)" : "scaleX(-1)";
-        player2.style.transform = p2FacingLeft ? "scaleX(1)" : "scaleX(-1)";
+        // Apply CSS transform based on emoji's natural facing direction
+        // For characters that need flip (face left by default):
+        //   - When facing left (p1FacingLeft=true): scaleX(1) - no flip
+        //   - When facing right (p1FacingLeft=false): scaleX(-1) - flip
+        // For characters that don't need flip (face right by default like Surfer):
+        //   - When facing left (p1FacingLeft=true): scaleX(-1) - flip
+        //   - When facing right (p1FacingLeft=false): scaleX(1) - no flip
+        
+        if (p1Char.needsFlip) {
+          player1.style.transform = p1FacingLeft ? "scaleX(1)" : "scaleX(-1)";
+        } else {
+          player1.style.transform = p1FacingLeft ? "scaleX(-1)" : "scaleX(1)";
+        }
+        
+        if (p2Char.needsFlip) {
+          player2.style.transform = p2FacingLeft ? "scaleX(1)" : "scaleX(-1)";
+        } else {
+          player2.style.transform = p2FacingLeft ? "scaleX(-1)" : "scaleX(1)";
+        }
       }
 
       // Initialize game
