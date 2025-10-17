@@ -1477,41 +1477,7 @@
         audioElements.forEach((audio, index) => {
           audio.preload = "auto";
           audio.volume = 0.7;
-          console.log(`🎵 [AUDIO ${index}] Setting up: ${audio.id}`);
-          
-          // Add event listeners to monitor loading state
-          audio.addEventListener("canplay", () => {
-            console.log(`✅ [AUDIO ${index}] CANPLAY event: ${audio.id} (readyState: ${audio.readyState})`);
-          });
-          
-          audio.addEventListener("canplaythrough", () => {
-            console.log(`✅ [AUDIO ${index}] CANPLAYTHROUGH event: ${audio.id} (readyState: ${audio.readyState})`);
-          });
-          
-          audio.addEventListener("loadstart", () => {
-            console.log(`🔄 [AUDIO ${index}] LOADSTART: ${audio.id}`);
-          });
-          
-          audio.addEventListener("progress", () => {
-            console.log(`📥 [AUDIO ${index}] PROGRESS: ${audio.id} (buffered: ${audio.buffered.length})`);
-          });
-          
-          audio.addEventListener("loadeddata", () => {
-            console.log(`📦 [AUDIO ${index}] LOADEDDATA: ${audio.id} (readyState: ${audio.readyState})`);
-          });
-          
-          audio.addEventListener("loadedmetadata", () => {
-            console.log(`📋 [AUDIO ${index}] LOADEDMETADATA: ${audio.id} (duration: ${audio.duration})`);
-          });
-          
-          audio.addEventListener("error", (e) => {
-            console.log(`❌ [AUDIO ${index}] ERROR: ${audio.id} - ${audio.error.code}`);
-          });
-          
-          // Force load
-          console.log(`🔄 [AUDIO ${index}] Calling load() on: ${audio.id}`);
-          audio.load();
-          console.log(`✅ [AUDIO ${index}] load() called on: ${audio.id} (readyState: ${audio.readyState} after load)`);
+          console.log(`🎵 [AUDIO ${index}] Setting up: ${audio.id} (src: ${audio.src})`);
         });
 
         // Preload background images
@@ -1844,80 +1810,64 @@
         }
 
         try {
-          console.log(`🎵 [PLAY AUDIO] Playing: ${audioElement.id}`);
-          console.log(`🎵 [PLAY AUDIO] Current state - readyState: ${audioElement.readyState}, networkState: ${audioElement.networkState}, paused: ${audioElement.paused}`);
+          console.log(`🎵 [PLAY AUDIO] Attempting to play: ${audioElement.id}`);
+          console.log(`🎵 [PLAY AUDIO] Element src: ${audioElement.src}`);
+          console.log(`🎵 [PLAY AUDIO] Current state - readyState: ${audioElement.readyState}, networkState: ${audioElement.networkState}`);
           
           // Set volume based on FX settings
           const fxVolume = document.getElementById("fxVolume")
             ? document.getElementById("fxVolume").value / 100
             : 0.7;
 
-          // Apply mute only to volume, don't prevent playing
           audioElement.volume = isMuted ? 0 : fxVolume;
-          console.log(`🎵 [PLAY AUDIO] Volume set to ${audioElement.volume} (fxVolume: ${fxVolume}, isMuted: ${isMuted})`);
+          console.log(`🎵 [PLAY AUDIO] Volume set to ${audioElement.volume}`);
           
-          audioElement.currentTime = 0; // Reset to start
-          
-          // Check if audio needs loading
-          if (audioElement.readyState < 2) {
-            console.log(`🎵 [PLAY AUDIO] Audio not ready (readyState ${audioElement.readyState}), checking networkState: ${audioElement.networkState}`);
-            
-            // Only call load if not already loading (networkState != 2)
-            if (audioElement.networkState !== 2) {
-              console.log(`🎵 [PLAY AUDIO] Calling load() to start loading: ${audioElement.id}`);
-              audioElement.load();
-            } else {
-              console.log(`🎵 [PLAY AUDIO] Audio already loading, waiting for canplay event: ${audioElement.id}`);
-            }
-          }
+          audioElement.currentTime = 0;
 
-          // Wait for audio to be ready if it's not
-          const playWhenReady = () => {
-            if (audioElement.readyState >= 2) {
-              // Audio is ready to play (HAVE_CURRENT_DATA or better)
-              console.log(`✅ [PLAY AUDIO] Audio ready to play: ${audioElement.id} (readyState: ${audioElement.readyState})`);
-              
-              const playPromise = audioElement.play();
-              console.log(`🎵 [PLAY AUDIO] Play promise: ${playPromise ? "exists" : "undefined"}`);
+          // Direct play attempt - let browser handle loading
+          console.log(`🎵 [PLAY AUDIO] Calling play() directly...`);
+          const playPromise = audioElement.play();
 
-              if (playPromise !== undefined) {
-                playPromise
-                  .then(() => {
-                    console.log(`✅ [PLAY AUDIO] Successfully played: ${audioElement.id}`);
-                    // Remove listener once playing
-                    audioElement.removeEventListener("canplay", playWhenReady);
-                  })
-                  .catch((e) => {
-                    console.log(`❌ [PLAY AUDIO] Failed to play ${audioElement.id}: ${e.message}`);
-                    // Fallback to procedural sound
-                    fallbackProceduralSound(audioElement.id || "default");
-                    audioElement.removeEventListener("canplay", playWhenReady);
-                  });
-              }
-            } else {
-              console.log(`⏳ [PLAY AUDIO] Still waiting for canplay event: ${audioElement.id} (readyState: ${audioElement.readyState})`);
-            }
-          };
-
-          // If already ready, play immediately
-          if (audioElement.readyState >= 2) {
-            playWhenReady();
-          } else {
-            // Otherwise wait for canplay event
-            console.log(`⏳ [PLAY AUDIO] Adding canplay listener for: ${audioElement.id}`);
-            audioElement.addEventListener("canplay", playWhenReady, { once: true });
-            
-            // Timeout fallback after 3 seconds
-            setTimeout(() => {
-              if (audioElement.paused) {
-                console.log(`⚠️ [PLAY AUDIO] Timeout waiting for canplay: ${audioElement.id} (readyState: ${audioElement.readyState})`);
-                audioElement.removeEventListener("canplay", playWhenReady);
-                playWhenReady(); // Try anyway
-              }
-            }, 3000);
+          if (playPromise !== undefined) {
+            playPromise
+              .then(() => {
+                console.log(`✅ [PLAY AUDIO] Successfully played: ${audioElement.id}`);
+              })
+              .catch((e) => {
+                console.log(`❌ [PLAY AUDIO] Play failed: ${e.name} - ${e.message}`);
+                // Try loading and playing again
+                if (e.name === "NotSupportedError" || audioElement.readyState < 2) {
+                  console.log(`🔄 [PLAY AUDIO] Attempting to load first...`);
+                  audioElement.load();
+                  
+                  // Wait for canplay then try again
+                  const retryPlay = () => {
+                    console.log(`🔄 [PLAY AUDIO] Retrying play after load...`);
+                    audioElement.play()
+                      .then(() => {
+                        console.log(`✅ [PLAY AUDIO] Retry successful: ${audioElement.id}`);
+                        audioElement.removeEventListener("canplay", retryPlay);
+                      })
+                      .catch((e2) => {
+                        console.log(`❌ [PLAY AUDIO] Retry failed: ${e2.message}`);
+                        fallbackProceduralSound(audioElement.id || "default");
+                        audioElement.removeEventListener("canplay", retryPlay);
+                      });
+                  };
+                  
+                  audioElement.addEventListener("canplay", retryPlay, { once: true });
+                  
+                  // Timeout after 2 seconds
+                  setTimeout(() => {
+                    audioElement.removeEventListener("canplay", retryPlay);
+                  }, 2000);
+                } else {
+                  fallbackProceduralSound(audioElement.id || "default");
+                }
+              });
           }
         } catch (e) {
-          console.log(`❌ [PLAY AUDIO] Exception for ${audioElement.id}:`, e.message);
+          console.log(`❌ [PLAY AUDIO] Exception: ${e.message}`);
           fallbackProceduralSound(audioElement.id || "default");
         }
       }
