@@ -988,7 +988,8 @@
         font-size: 120px;
         color: #ff6b6b;
         font-weight: bold;
-        text-shadow: 0 0 30px rgba(255, 107, 107, 0.8), 0 0 50px rgba(255, 107, 107, 0.5);
+        text-shadow: 0 0 30px rgba(255, 107, 107, 0.8),
+          0 0 50px rgba(255, 107, 107, 0.5);
         letter-spacing: 2px;
         animation: countdownPulseMain 1s ease-in-out infinite;
         margin-bottom: 20px;
@@ -1005,11 +1006,13 @@
         0%,
         100% {
           transform: scale(1);
-          text-shadow: 0 0 30px rgba(255, 107, 107, 0.8), 0 0 50px rgba(255, 107, 107, 0.5);
+          text-shadow: 0 0 30px rgba(255, 107, 107, 0.8),
+            0 0 50px rgba(255, 107, 107, 0.5);
         }
         50% {
           transform: scale(1.15);
-          text-shadow: 0 0 40px rgba(255, 107, 107, 1), 0 0 70px rgba(255, 107, 107, 0.7);
+          text-shadow: 0 0 40px rgba(255, 107, 107, 1),
+            0 0 70px rgba(255, 107, 107, 0.7);
         }
       }
 
@@ -1383,19 +1386,45 @@
         const loadingScreen = document.getElementById("loadingScreen");
         const countdownTimer = document.getElementById("countdownTimer");
         let remainingTime = LOADING_DURATION / 1000; // 10 seconds
-
+        
+        console.log("🎬 [LOADING SCREEN] Initializing loading screen...");
+        
         // Set up loading screen close functionality
         const closeLoading = () => {
-          if (
-            loadingComplete ||
-            Date.now() - loadingStartTime >= LOADING_DURATION
-          ) {
+          if (loadingComplete || Date.now() - loadingStartTime >= LOADING_DURATION) {
+            console.log("🎬 [LOADING SCREEN] Closing loading screen...");
             loadingScreen.classList.add("hidden");
           }
         };
-
-        // Close on click
-        loadingScreen.addEventListener("click", closeLoading);
+        
+        // Close on click - INITIALIZE AUDIO HERE
+        loadingScreen.addEventListener("click", () => {
+          console.log("🖱️  [LOADING SCREEN] Click detected - initializing audio context");
+          
+          // Initialize audio context on first user interaction
+          try {
+            const audioElements = document.querySelectorAll("audio");
+            audioElements.forEach((audio, index) => {
+              console.log(`🔊 [CLICK INIT] Attempting audio context init for: ${audio.id}`);
+              const playPromise = audio.play();
+              if (playPromise !== undefined) {
+                playPromise
+                  .then(() => {
+                    console.log(`✅ [CLICK INIT] Audio context initialized for: ${audio.id}`);
+                    audio.pause();
+                    audio.currentTime = 0;
+                  })
+                  .catch((error) => {
+                    console.log(`⚠️  [CLICK INIT] Audio context init failed for ${audio.id}: ${error.message}`);
+                  });
+              }
+            });
+          } catch (e) {
+            console.log(`❌ [CLICK INIT] Error initializing audio context:`, e.message);
+          }
+          
+          closeLoading();
+        });
 
         // Auto-close after 10 seconds
         loadingStartTime = Date.now();
@@ -1425,27 +1454,35 @@
 
       // Preload all audio and images
       function preloadGameAssets() {
+        console.log("🎮 [PRELOAD START] Initializing game asset preload...");
+        
         // Preload audio elements
         const audioElements = document.querySelectorAll("audio");
-        audioElements.forEach((audio) => {
+        console.log(`🎵 [AUDIO] Found ${audioElements.length} audio elements to preload`);
+        
+        audioElements.forEach((audio, index) => {
           audio.preload = "auto";
           audio.volume = 0.7; // Set default volume
           audio.load();
+          console.log(`🎵 [AUDIO ${index}] Preloading: ${audio.id} (volume: 0.7)`);
+          
           // Try to play silently to initialize audio context
           try {
+            console.log(`🔊 [AUDIO ${index}] Attempting silent play for: ${audio.id}`);
             const playPromise = audio.play();
             if (playPromise !== undefined) {
               playPromise.catch((error) => {
-                console.log("Audio preload play attempt:", error.message);
+                console.log(`⚠️  [AUDIO ${index}] Silent play blocked by browser: ${error.message}`);
               });
             }
             // Immediately pause to keep audio ready
             setTimeout(() => {
               audio.pause();
               audio.currentTime = 0;
+              console.log(`✅ [AUDIO ${index}] Paused and reset: ${audio.id}`);
             }, 10);
           } catch (e) {
-            console.log("Audio preload error:", e);
+            console.log(`❌ [AUDIO ${index}] Preload error for ${audio.id}:`, e.message);
           }
         });
 
@@ -1459,12 +1496,14 @@
           "data/background/surfing-background-1.png",
         ];
 
-        backgroundImages.forEach((src) => {
+        console.log(`🖼️  [IMAGES] Preloading ${backgroundImages.length} background images`);
+        backgroundImages.forEach((src, index) => {
           const img = new Image();
           img.src = src;
+          console.log(`🖼️  [IMAGE ${index}] Preloading: ${src}`);
         });
 
-        console.log("🎮 Game assets preloading initiated...");
+        console.log("✅ [PRELOAD COMPLETE] Game assets preloading initiated...");
       }
 
       // Game Elements
@@ -1771,11 +1810,18 @@
 
       // Play specific sound effect
       function playAudio(audioElement) {
-        if (!audioElement) return;
+        if (!audioElement) {
+          console.log("❌ [PLAY AUDIO] No audio element provided");
+          return;
+        }
 
         try {
+          console.log(`🎵 [PLAY AUDIO] Playing: ${audioElement.id}`);
+          console.log(`🎵 [PLAY AUDIO] Current state - readyState: ${audioElement.readyState}, paused: ${audioElement.paused}`);
+          
           // Ensure audio is loaded
           if (audioElement.readyState < 2) {
+            console.log(`🎵 [PLAY AUDIO] Audio not ready, loading: ${audioElement.id}`);
             audioElement.load();
           }
 
@@ -1786,27 +1832,27 @@
 
           // Apply mute only to volume, don't prevent playing
           audioElement.volume = isMuted ? 0 : fxVolume;
+          console.log(`🎵 [PLAY AUDIO] Volume set to ${audioElement.volume} (fxVolume: ${fxVolume}, isMuted: ${isMuted})`);
+          
           audioElement.currentTime = 0; // Reset to start
 
           // Force play the audio
           const playPromise = audioElement.play();
+          console.log(`🎵 [PLAY AUDIO] Play promise: ${playPromise ? "exists" : "undefined"}`);
 
           if (playPromise !== undefined) {
             playPromise
               .then(() => {
-                console.log(`✅ Audio played successfully: ${audioElement.id}`);
+                console.log(`✅ [PLAY AUDIO] Successfully played: ${audioElement.id}`);
               })
               .catch((e) => {
-                console.log(
-                  `❌ Audio play failed for ${audioElement.id}:`,
-                  e.message
-                );
+                console.log(`❌ [PLAY AUDIO] Failed to play ${audioElement.id}: ${e.message}`);
                 // Fallback to procedural sound
                 fallbackProceduralSound(audioElement.id || "default");
               });
           }
         } catch (e) {
-          console.log(`❌ Audio error for ${audioElement.id}:`, e);
+          console.log(`❌ [PLAY AUDIO] Exception for ${audioElement.id}:`, e.message);
           fallbackProceduralSound(audioElement.id || "default");
         }
       }
