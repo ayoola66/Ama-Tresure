@@ -955,10 +955,144 @@
         color: white;
         opacity: 0.8;
       }
+
+      /* Loading Screen Styles */
+      #loadingScreen {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+        gap: 30px;
+      }
+
+      #loadingScreen.hidden {
+        display: none;
+      }
+
+      .loading-text {
+        font-size: 24px;
+        color: #ffd700;
+        font-weight: bold;
+        text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        letter-spacing: 2px;
+      }
+
+      .loading-dots {
+        display: inline-block;
+        font-size: 24px;
+        color: #ffd700;
+        margin-left: 5px;
+      }
+
+      .loading-dots::after {
+        content: ".";
+        animation: dots 1.5s steps(4, end) infinite;
+      }
+
+      @keyframes dots {
+        0%,
+        20% {
+          content: ".";
+        }
+        40% {
+          content: "..";
+        }
+        60% {
+          content: "...";
+        }
+        80%,
+        100% {
+          content: "";
+        }
+      }
+
+      .loading-characters {
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        align-items: center;
+        flex-wrap: wrap;
+        max-width: 800px;
+      }
+
+      .loading-character {
+        font-size: 80px;
+        animation: pulsate 1.5s ease-in-out infinite;
+        filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.4));
+        transition: all 0.3s ease;
+      }
+
+      .loading-character:nth-child(1) {
+        animation-delay: 0s;
+      }
+
+      .loading-character:nth-child(2) {
+        animation-delay: 0.15s;
+      }
+
+      .loading-character:nth-child(3) {
+        animation-delay: 0.3s;
+      }
+
+      .loading-character:nth-child(4) {
+        animation-delay: 0.45s;
+      }
+
+      .loading-character:nth-child(5) {
+        animation-delay: 0.6s;
+      }
+
+      .loading-character:nth-child(6) {
+        animation-delay: 0.75s;
+      }
+
+      @keyframes pulsate {
+        0%,
+        100% {
+          transform: scale(1);
+          opacity: 1;
+        }
+        50% {
+          transform: scale(1.15);
+          opacity: 0.8;
+        }
+      }
+
+      .loading-hint {
+        font-size: 14px;
+        color: rgba(255, 255, 255, 0.6);
+        text-align: center;
+        max-width: 400px;
+      }
     </style>
   </head>
   <body>
     <div id="game-container">
+      <!-- Loading Screen -->
+      <div id="loadingScreen">
+        <div>
+          <div class="loading-text">
+            Loading Game<span class="loading-dots"></span>
+          </div>
+        </div>
+        <div class="loading-characters">
+          <div class="loading-character">🧜‍♀️</div>
+          <div class="loading-character">🏃‍♂️</div>
+          <div class="loading-character">🐟</div>
+          <div class="loading-character">🚗</div>
+          <div class="loading-character">🐎</div>
+          <div class="loading-character">🏄‍♂️</div>
+        </div>
+        <div class="loading-hint">Preloading all game assets...</div>
+      </div>
+
       <div class="game-stats">
         <div>⏳ Time: <span id="timeDisplay">40</span></div>
         <div>🏆 Level: <span id="levelDisplay">1</span></div>
@@ -1205,6 +1339,66 @@
     </audio>
 
     <script>
+      // ====================================
+      // LOADING SCREEN INITIALIZATION
+      // ====================================
+      const LOADING_DURATION = 10000; // 10 seconds
+      let loadingComplete = false;
+
+      // Initialize loading screen
+      function initializeLoadingScreen() {
+        const loadingScreen = document.getElementById("loadingScreen");
+        
+        // Set up loading screen close functionality
+        const closeLoading = () => {
+          if (loadingComplete || Date.now() - loadingStartTime >= LOADING_DURATION) {
+            loadingScreen.classList.add("hidden");
+          }
+        };
+        
+        // Close on click
+        loadingScreen.addEventListener("click", closeLoading);
+        
+        // Auto-close after 10 seconds
+        loadingStartTime = Date.now();
+        const autoCloseTimer = setInterval(() => {
+          if (Date.now() - loadingStartTime >= LOADING_DURATION) {
+            clearInterval(autoCloseTimer);
+            loadingComplete = true;
+            closeLoading();
+          }
+        }, 100);
+      }
+
+      let loadingStartTime = Date.now();
+
+      // Preload all audio and images
+      function preloadGameAssets() {
+        // Preload audio elements
+        const audioElements = document.querySelectorAll("audio");
+        audioElements.forEach((audio) => {
+          audio.preload = "auto";
+          audio.load();
+        });
+
+        // Preload background images
+        const backgroundImages = [
+          "data/background/mermaid-background-1.png",
+          "data/background/runMan-background-1.png",
+          "data/background/fish-background-1.png",
+          "data/background/redCar-background-1.png",
+          "data/background/horse-background-1.png",
+          "data/background/surfing-background-1.png",
+        ];
+
+        backgroundImages.forEach((src) => {
+          const img = new Image();
+          img.src = src;
+        });
+
+        console.log("🎮 Game assets preloading initiated...");
+      }
+
       // Game Elements
       const player1 = document.getElementById("player1");
       const player2 = document.getElementById("player2");
@@ -1931,6 +2125,10 @@
       function init() {
         console.log("Initializing game...");
 
+        // Initialize loading screen and preload all assets
+        preloadGameAssets();
+        initializeLoadingScreen();
+
         // Show start screen
         startscreen.style.display = "block";
         player1.style.display = "none";
@@ -2413,7 +2611,7 @@
 
         // Handle special horizontal-moving crocodiles
         moveSpecialCrocodiles();
-        
+
         // Remove special crocodiles if not at milestone level
         if (!shouldSpawnSpecialCrocodile(level)) {
           removeSpecialCrocodiles();
@@ -2469,13 +2667,13 @@
         const specialCrocs = obstacles.filter(
           (obs) => obs.dataset.special === "horizontal"
         );
-        
+
         specialCrocs.forEach((croc) => {
           croc.remove();
           const index = obstacles.indexOf(croc);
           if (index > -1) obstacles.splice(index, 1);
         });
-        
+
         if (specialCrocs.length > 0) {
           gameLogger.addLog(
             `🐊 Special horizontal crocodile removed (not a milestone level)`,
