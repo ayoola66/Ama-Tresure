@@ -6,8 +6,8 @@
 class GameActivityLogger {
   constructor() {
     this.storageKey = "amaGameActivityLog";
-    this.maxEntries = 50; // Store more in localStorage
-    this.displayLimit = 15; // Show fewer in game panel
+    this.maxEntries = 100; // Store more in localStorage for better history
+    this.displayLimit = 50; // Increased to show more gameplay progression
     this.sessionId = Date.now();
     this.sessionStartTime = new Date();
   }

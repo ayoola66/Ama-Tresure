@@ -329,44 +329,53 @@
       .leaderboard-container {
         background: rgba(0, 0, 0, 0.95);
         border-radius: 15px;
-        padding: 25px;
-        margin: 20px auto;
-        max-width: 600px;
-        max-height: 80vh;
+        padding: 15px;
+        margin: 10px auto;
+        max-width: 90vw;
+        width: 500px;
+        max-height: 70vh;
         overflow-y: auto;
         border: 2px solid #ffd700;
         box-shadow: 0 8px 32px rgba(255, 215, 0, 0.3);
+        display: flex;
+        flex-direction: column;
       }
 
       .leaderboard-title {
         text-align: center;
         color: #ffd700;
-        font-size: 28px;
+        font-size: 20px;
         font-weight: bold;
-        margin-bottom: 20px;
+        margin-bottom: 12px;
         text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+        flex-shrink: 0;
       }
 
       .leaderboard-table {
         width: 100%;
         border-collapse: collapse;
         background: rgba(255, 255, 255, 0.05);
-        border-radius: 10px;
+        border-radius: 8px;
         overflow: hidden;
+        flex-shrink: 1;
+        min-height: 0;
       }
 
       .leaderboard-header {
         background: linear-gradient(135deg, #ffd700, #ffa500);
         color: #000;
         font-weight: bold;
+        position: sticky;
+        top: 0;
+        z-index: 10;
       }
 
       .leaderboard-header th {
-        padding: 15px 10px;
+        padding: 10px 5px;
         text-align: center;
-        font-size: 14px;
+        font-size: 11px;
         text-transform: uppercase;
-        letter-spacing: 1px;
+        letter-spacing: 0.5px;
       }
 
       .leaderboard-row {
@@ -379,34 +388,38 @@
       }
 
       .leaderboard-row td {
-        padding: 12px 10px;
+        padding: 8px 5px;
         text-align: center;
         color: #fff;
-        font-size: 14px;
+        font-size: 12px;
       }
 
       .leaderboard-position {
         font-weight: bold;
         color: #ffd700;
-        font-size: 16px;
+        font-size: 14px;
+        width: 15%;
       }
 
       .leaderboard-name {
         font-weight: bold;
-        max-width: 150px;
+        max-width: 100px;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
+        width: 35%;
       }
 
       .leaderboard-score {
         font-weight: bold;
         color: #00ff00;
+        width: 25%;
       }
 
       .leaderboard-date {
         color: #ccc;
-        font-size: 12px;
+        font-size: 10px;
+        width: 25%;
       }
 
       /* Special styling for top 3 positions */
@@ -474,24 +487,27 @@
       /* Leaderboard buttons */
       .leaderboard-buttons {
         text-align: center;
-        margin-top: 20px;
+        margin-top: 12px;
         display: flex;
-        gap: 15px;
+        gap: 10px;
         justify-content: center;
+        flex-shrink: 0;
+        flex-wrap: wrap;
       }
 
       .leaderboard-button {
-        padding: 12px 24px;
+        padding: 10px 20px;
         background: linear-gradient(135deg, #4caf50, #45a049);
         color: white;
         border: none;
         border-radius: 8px;
         cursor: pointer;
-        font-size: 16px;
+        font-size: 14px;
         font-weight: bold;
         transition: all 0.3s ease;
         text-transform: uppercase;
-        letter-spacing: 1px;
+        letter-spacing: 0.5px;
+        white-space: nowrap;
       }
 
       .leaderboard-button:hover {
@@ -505,6 +521,61 @@
 
       .leaderboard-button.secondary:hover {
         box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
+      }
+
+      /* Responsive adjustments for leaderboard */
+      @media (max-width: 600px) {
+        .leaderboard-container {
+          padding: 12px;
+          max-height: 75vh;
+        }
+
+        .leaderboard-title {
+          font-size: 18px;
+          margin-bottom: 10px;
+        }
+
+        .leaderboard-header th {
+          padding: 8px 3px;
+          font-size: 10px;
+        }
+
+        .leaderboard-row td {
+          padding: 6px 3px;
+          font-size: 11px;
+        }
+
+        .leaderboard-position {
+          font-size: 12px;
+        }
+
+        .leaderboard-date {
+          font-size: 9px;
+        }
+
+        .leaderboard-button {
+          padding: 8px 16px;
+          font-size: 12px;
+        }
+      }
+
+      @media (max-width: 400px) {
+        .leaderboard-container {
+          padding: 10px;
+          max-height: 80vh;
+        }
+
+        .leaderboard-title {
+          font-size: 16px;
+        }
+
+        .leaderboard-date {
+          display: none; /* Hide date on very small screens */
+        }
+
+        .leaderboard-name {
+          max-width: 80px;
+        }
       }
 
       input {
@@ -1083,10 +1154,18 @@
             - Play/pause music and mute all sounds
           </p>
           <p>
-            <strong>🎁 Bonuses:</strong><br />
-            - Level up every 5 points (+10 seconds)<br />
-            - Time bonus at 15+ points (+5 seconds per 5 points)<br />
-            - Bonus life at Level 6
+            <strong>📊 Level Progression:</strong><br />
+            - Level 2 at 10 points, Level 3 at 30 pts, Level 4 at 60 pts<br />
+            - Each level requires +10 more points than previous (+10, +20, +30, +40...)<br />
+            - +10 seconds time bonus each level up<br />
+            - Bonus life awarded at Level 6
+          </p>
+          <p>
+            <strong>🎯 Obstacle Behavior:</strong><br />
+            - Level 1: Static obstacles<br />
+            - Level 2: Obstacles start bouncing<br />
+            - Level 3+: Obstacles track players<br />
+            - Level 5, 10, 15, 20...: Special horizontal crocodile appears!
           </p>
         </details>
 
@@ -1162,7 +1241,7 @@
       const COLLISION_COOLDOWN = 1000; // 1 second between any hits
 
       // Debug Logging System (using external logger)
-      const MAX_DEBUG_ENTRIES = 15;
+      const MAX_DEBUG_ENTRIES = 50; // Increased from 15 to show more gameplay history
 
       function updateDebugPanel() {
         const logContainer = document.getElementById("debugLog");
@@ -1172,7 +1251,8 @@
 
         // Update stats
         const maxScore = Math.max(p1Score, mode === 2 ? p2Score : 0);
-        const pointsToNextLevel = (Math.floor(maxScore / 5) + 1) * 5 - maxScore;
+        const nextLevelPoints = getPointsForLevel(level + 1);
+        const pointsToNextLevel = nextLevelPoints - maxScore;
         statsContainer.innerHTML = `
           <strong>P1:</strong> ${p1Score.toFixed(1)} pts, ${p1Lives} lives<br>
           ${
@@ -1182,9 +1262,9 @@
                 )} pts, ${p2Lives} lives<br>`
               : ""
           }
-          <strong>Level:</strong> ${level} | <strong>Next:</strong> ${pointsToNextLevel.toFixed(
+          <strong>Level:</strong> ${level} | <strong>Next Level:</strong> ${nextLevelPoints} pts (${pointsToNextLevel.toFixed(
           1
-        )} pts away<br>
+        )} away)<br>
           <strong>Time:</strong> ${timeLeft}s | <strong>Obstacles:</strong> ${
           obstacles.length
         }
@@ -2205,35 +2285,32 @@
       }
 
       function moveObstacles() {
-        // Only move obstacles from Level 7 onwards
-        if (level < 7) return;
+        // Obstacles start oscillating from Level 2, tracking from Level 3
+        if (level < 2) return;
 
         obstacles.forEach((obs) => {
+          // Skip special horizontal-moving crocodiles
+          if (obs.dataset.special === "horizontal") return;
           let currentLeft = parseFloat(obs.style.left);
           let currentTop = parseFloat(obs.style.top);
           let dx = parseFloat(obs.dataset.dx);
           let dy = parseFloat(obs.dataset.dy);
           let oldDx = dx; // Store original dx to check for direction change
 
-          // Level 7-9: Random movement in any direction
-          if (level >= 7 && level < 10) {
-            // Random movement - change direction occasionally
-            if (Math.random() < 0.05) {
-              // 5% chance to change direction
-              dx = (Math.random() - 0.5) * 4; // Random horizontal speed
-              dy = (Math.random() - 0.5) * 4; // Random vertical speed
+          // Level 2: Simple oscillating/bouncing movement
+          if (level >= 2 && level < 3) {
+            // Just bounce around randomly
+            if (Math.random() < 0.03) {
+              // 3% chance to change direction
+              dx = (Math.random() - 0.5) * 3;
+              dy = (Math.random() - 0.5) * 3;
               obs.dataset.dx = dx;
               obs.dataset.dy = dy;
-              console.log(
-                `🎲 Obstacle random movement: dx=${dx.toFixed(
-                  2
-                )}, dy=${dy.toFixed(2)}`
-              );
             }
           }
 
-          // Level 10+: Player-driven movement towards nearest character
-          if (level >= 10) {
+          // Level 3+: Player-tracking movement towards nearest character
+          if (level >= 3) {
             // Find nearest player
             let nearestPlayer = player1;
             let nearestDistance = Infinity;
@@ -2266,7 +2343,9 @@
             // Move towards nearest player with increasing intensity based on level
             const playerRect = nearestPlayer.getBoundingClientRect();
             const trackingRange = 300; // Always track within this range
-            const trackingStrength = 0.3 + (level - 10) * 0.05; // Increase with level
+            // Level 3: Slower tracking, Level 4+: Faster tracking
+            const baseTracking = level === 3 ? 0.2 : 0.3;
+            const trackingStrength = baseTracking + (level - 3) * 0.05; // Increase with level starting from level 3
 
             if (nearestDistance < trackingRange) {
               const directionX = playerRect.left > obsRect.left ? 1 : -1;
@@ -2276,7 +2355,7 @@
               dy += directionY * trackingStrength;
 
               // Cap the speed to prevent obstacles from becoming too fast
-              const maxSpeed = 3 + (level - 10) * 0.2;
+              const maxSpeed = 3 + (level - 3) * 0.15; // Adjusted for level 3 start
               dx = Math.max(-maxSpeed, Math.min(maxSpeed, dx));
               dy = Math.max(-maxSpeed, Math.min(maxSpeed, dy));
 
@@ -2329,6 +2408,76 @@
           obs.style.left = currentLeft + "px";
           obs.style.top = currentTop + "px";
         });
+
+        // Handle special horizontal-moving crocodiles
+        moveSpecialCrocodiles();
+      }
+
+      // Special horizontal-moving crocodile that appears at levels 5, 10, 15, 20, etc.
+      function moveSpecialCrocodiles() {
+        const specialCrocs = obstacles.filter(obs => obs.dataset.special === "horizontal");
+        
+        specialCrocs.forEach(croc => {
+          let currentLeft = parseFloat(croc.style.left);
+          const speed = parseFloat(croc.dataset.speed) || 3;
+          const direction = parseFloat(croc.dataset.direction) || 1;
+          
+          // Move horizontally
+          currentLeft += speed * direction;
+          
+          // Remove if off screen and recreate on opposite side
+          if ((direction > 0 && currentLeft > gameContainer.clientWidth) || 
+              (direction < 0 && currentLeft < -60)) {
+            // Remove this croc
+            croc.remove();
+            const index = obstacles.indexOf(croc);
+            if (index > -1) obstacles.splice(index, 1);
+            
+            // Create new one on opposite side if still at milestone level
+            if (level % 5 === 0 && level >= 5) {
+              createSpecialCrocodile();
+            }
+          } else {
+            croc.style.left = currentLeft + "px";
+          }
+        });
+      }
+
+      // Create special horizontal-moving crocodile
+      function createSpecialCrocodile() {
+        const game = document.getElementById("game");
+        const croc = document.createElement("div");
+        croc.className = "obstacle sprite";
+        croc.innerText = "🐊";
+        croc.dataset.type = "crocodile";
+        croc.dataset.faceable = "true";
+        croc.dataset.special = "horizontal";
+        
+        // Random vertical position (different sections of screen)
+        const sections = 3;
+        const section = Math.floor(Math.random() * sections);
+        const yPos = (game.clientHeight / sections) * section + Math.random() * (game.clientHeight / sections - 60);
+        
+        // Random direction: left-to-right or right-to-left
+        const direction = Math.random() > 0.5 ? 1 : -1;
+        const speed = 2 + Math.random(); // Random speed between 2-3
+        
+        // Start position based on direction
+        const xPos = direction > 0 ? -60 : game.clientWidth;
+        
+        croc.style.left = xPos + "px";
+        croc.style.top = yPos + "px";
+        croc.dataset.speed = speed;
+        croc.dataset.direction = direction;
+        
+        // Set facing direction
+        croc.dataset.facingLeft = direction < 0 ? "true" : "false";
+        croc.style.transform = direction < 0 ? "scaleX(-1)" : "scaleX(1)";
+        
+        gameContainer.appendChild(croc);
+        obstacles.push(croc);
+        
+        gameLogger.addLog(`🐊 Special horizontal crocodile spawned at level ${level}`, "info");
       }
 
       function applyMagnetEffect(player) {
@@ -2665,18 +2814,40 @@
         }
       }
 
+      // Calculate points required for next level based on new progression system
+      // Level 1→2: 10 pts, Level 2→3: 30 pts (10+20), Level 3→4: 60 pts (30+30), Level 4→5: 100 pts (60+40), etc.
+      function getPointsForLevel(level) {
+        if (level === 1) return 0;
+        let total = 0;
+        for (let i = 1; i < level; i++) {
+          total += i * 10;
+        }
+        return total;
+      }
+
       function checkLevelProgress() {
         const maxScore = Math.max(p1Score, mode === 2 ? p2Score : 0);
-        const targetLevel = Math.floor(maxScore / 5) + 1;
         const oldLevel = level;
+        
+        // Calculate what level the player should be at based on score
+        let newLevel = 1;
+        while (maxScore >= getPointsForLevel(newLevel + 1)) {
+          newLevel++;
+        }
+        
+        const currentLevelThreshold = getPointsForLevel(level);
+        const nextLevelThreshold = getPointsForLevel(level + 1);
+        const pointsToNext = nextLevelThreshold - maxScore;
+        
+        logLevelCheck(maxScore, level, newLevel);
+        gameLogger.addLog(`📊 Score: ${maxScore.toFixed(1)} | Current Level ${level} threshold: ${currentLevelThreshold} | Next Level ${level + 1} at: ${nextLevelThreshold} | Points needed: ${pointsToNext.toFixed(1)}`, "level");
 
-        logLevelCheck(maxScore, level, targetLevel);
-
-        if (targetLevel > level) {
-          level = targetLevel;
+        if (newLevel > level) {
+          level = newLevel;
           timeLeft += 10;
 
           logLevelUp(oldLevel, level, obstacles.length);
+          gameLogger.addLog(`🎊 LEVEL UP! ${oldLevel} → ${level} | Score: ${maxScore.toFixed(1)} | Next level at ${getPointsForLevel(level + 1)} points`, "level");
           updateDebugPanel();
 
           if (level === 6) {
@@ -2687,6 +2858,12 @@
           }
 
           createObstacles();
+          
+          // Add special horizontal-moving crocodile at levels 5, 10, 15, 20, etc.
+          if (level % 5 === 0 && level >= 5) {
+            setTimeout(createSpecialCrocodile, 500);
+          }
+          
           playAudio(achievementSound);
           showMessage(`🎉 Level ${level}! +10 seconds!`);
 
@@ -2695,7 +2872,7 @@
             setTimeout(createPowerUp, 1000);
           }
         } else {
-          logNoLevelUp(targetLevel);
+          logNoLevelUp(newLevel);
           updateDebugPanel();
         }
       }
