@@ -1,6 +1,6 @@
 # Ama Treasure Adventure 🧜‍♀️🎮
 
-A feature-rich, underwater treasure hunting adventure built with HTML, CSS, and JavaScript. Navigate through a stunning mermaid-themed underwater world, collect treasures, and survive increasingly challenging obstacles in both single-player and competitive two-player modes.
+A feature-rich treasure hunting adventure built with HTML, CSS, and JavaScript. Navigate through 6 unique themed environments, each matching your chosen character. Collect treasures, activate power-ups, and survive increasingly challenging obstacles in both single-player and competitive two-player modes. Each character brings their own immersive world to life!
 
 ## 🚀 Quick Start
 
@@ -214,26 +214,68 @@ http://localhost:8000/play_index.html
 - ✅ **Cross-Page Communication**: localStorage enables multi-page monitoring
 - ✅ **Professional Development Workflow**: Activity monitor doubles as QA tool
 
+### 🎨 **Phase 12: Dynamic Themed Backgrounds & Character Fixes (October 17, 2025)**
+
+**Immersive Character-Based Environments & Critical Direction Fix**
+
+- ✅ **Dynamic Background System**: Each character now has its own unique themed environment
+  - 🧜‍♀️ **Mermaid**: Stunning underwater ocean scene with coral and sea life
+  - 🏃‍♂️ **Runner**: Dynamic running track environment
+  - 🐟 **Fish**: Vibrant aquatic ecosystem theme
+  - 🚗 **Car**: Racing road and cityscape backdrop
+  - 🐎 **Horse**: Scenic countryside and meadow setting
+  - 🏄‍♂️ **Surfer**: Beach and ocean wave environment
+- ✅ **Real-Time Background Preview**: Background changes instantly when Player 1 selects character in menu
+- ✅ **Player 1 Controls Environment**: Background theme determined by Player 1's character choice in all modes
+- ✅ **Seamless Integration**: Background automatically updates when game starts and persists throughout gameplay
+- ✅ **Character Facing Direction Fix**: Fixed critical bug where characters faced wrong direction
+  - Resolved inverted transform logic - emojis naturally face LEFT
+  - Right arrow now correctly shows character facing right
+  - Left arrow now correctly shows character facing left
+  - Applies to both Player 1 and Player 2 in all character selections
+- ✅ **Enhanced Character Object Structure**: Added background property to each character definition
+- ✅ **Updated Documentation**: "How to Play" section now mentions themed backgrounds feature
+
+**Technical Implementation**
+
+- ✅ **Background Path Integration**: Each character object now includes background image path
+- ✅ **Dynamic CSS Updates**: JavaScript dynamically sets `backgroundImage` property based on selection
+- ✅ **Removed Hardcoded Background**: Eliminated fixed mermaid background from CSS for flexibility
+- ✅ **New Function: `updateBackgroundPreview()`**: Handles real-time background changes
+- ✅ **Character Selection Hook**: Background updates trigger on every Player 1 character click
+- ✅ **Game Start Validation**: Background consistency ensured when transitioning to gameplay
+- ✅ **Inverted Transform Logic**: Fixed `scaleX()` transform to properly flip characters right when moving right
+
+**User Experience Enhancement**
+
+- ✨ **Visual Variety**: 6 distinct themed environments for different gameplay moods
+- 🎭 **Character-Environment Harmony**: Each background matches character's natural habitat/theme
+- 👁️ **Instant Visual Feedback**: Players see their environment before starting the game
+- 🎮 **Immersive Gameplay**: Themed backgrounds enhance storytelling and player engagement
+- ✅ **Correct Directional Movement**: Characters now face the direction they're actually moving
+
 ---
 
 ## 🎮 **CURRENT GAME FEATURES**
 
-### 🌊 **Immersive Underwater Adventure**
+### 🌊 **Immersive Themed Adventures**
 
-- **🧜‍♀️ Stunning Mermaid Background**: High-quality underwater scene with detailed artwork
-- **🎵 Thematic Audio Experience**: MP3 background music with underwater ambiance
-- **🐟 Aquatic Character Roster**: 6 directional characters perfect for underwater theme
-- **🏊‍♂️ Fluid Movement System**: Smooth character navigation through aquatic environment
+- **🎨 Dynamic Themed Backgrounds**: 6 unique high-quality environments matching each character
+- **🎵 Thematic Audio Experience**: MP3 background music with immersive ambiance
+- **🎭 Diverse Character Roster**: 6 directional characters each with their own themed world
+- **🏃‍♂️ Fluid Movement System**: Smooth character navigation with correct directional facing
+- **👁️ Real-Time Environment Preview**: See your themed world before starting the game
 
 ### 🎯 **Advanced Gameplay Mechanics**
 
 #### **Character System Excellence**
 
 - **📝 Character Selection Interface**: 6 directional characters in professional 3x2 grid layout
-- **🔄 Crystal-Clear Directional Facing**: Perfect left/right orientation using CSS transforms
+- **🔄 Crystal-Clear Directional Facing**: Perfect left/right orientation using CSS transforms (fixed October 17, 2025)
 - **👥 Independent Player Choice**: Each player selects preferred character separately in sectioned UI
-- **🎨 Visual Distinction**: Easy identification in competitive two-player mode
-- **🌊 Thematic Coherence**: All characters fit underwater treasure hunting concept
+- **🎨 Dynamic Themed Backgrounds**: Player 1's character choice determines the game environment
+- **🌍 6 Unique Worlds**: Each character has their own immersive themed background
+- **👁️ Real-Time Preview**: Background changes instantly when selecting characters in menu
 - **✨ Enhanced Selection UX**: Improved visual feedback and organized player setup areas
 
 #### **Professional Movement & Controls**
@@ -514,12 +556,13 @@ _Point values carefully balanced to ensure smooth level progression without jump
 - **🎵 Audio Excellence**: High-quality sound design with smart control systems
 - **🔄 Smooth Performance**: Consistent 60fps gameplay with optimized resource usage
 
-### **🌊 Unique Underwater Adventure**
+### **🌍 Unique Multi-Environment Adventure**
 
-- **🧜‍♀️ Immersive Theme**: Complete underwater treasure hunting experience
-- **🎯 Visual Coherence**: All elements work together for unified experience
-- **🎵 Audio Immersion**: Thematic music and effects enhance underwater feel
+- **🎨 6 Themed Worlds**: Each character brings their own unique environment (added October 17, 2025)
+- **🎯 Visual Coherence**: All elements work together for unified themed experience
+- **🎵 Audio Immersion**: Thematic music and effects enhance gameplay atmosphere
 - **🎮 Gameplay Innovation**: Modern mechanics meet classic treasure hunting fun
+- **👁️ Environment Preview**: See your world before you play
 
 ---
 
@@ -531,7 +574,7 @@ _Point values carefully balanced to ensure smooth level progression without jump
 - **Latest Commit**: All enhancements and fixes included
 - **Instant Play**: Clone and play immediately - no additional setup required
 
-### **📁 Project Structure** (Updated October 2024)
+### **📁 Project Structure** (Updated October 17, 2025)
 
 ```
 Ama-Treasure-Adventure/
@@ -539,7 +582,13 @@ Ama-Treasure-Adventure/
 ├── activity.html            # Real-time activity monitor dashboard
 ├── debug-logger.js          # Modular debug logging system
 ├── data/
-│   ├── mermaid-background-1.png  # High-quality underwater background
+│   ├── background/          # Character-themed background images
+│   │   ├── mermaid-background-1.png   # Underwater ocean theme
+│   │   ├── runMan-background-1.png    # Running track theme
+│   │   ├── fish-background-1.png      # Aquatic ecosystem theme
+│   │   ├── redCar-background-1.png    # Racing road theme
+│   │   ├── horse-background-1.png     # Countryside meadow theme
+│   │   └── surfing-background-1.png   # Beach/ocean wave theme
 │   └── audio/               # Professional MP3 audio library
 │       ├── background.mp3   # Immersive background music
 │       ├── treasure.mp3     # Treasure collection sounds
@@ -549,6 +598,7 @@ Ama-Treasure-Adventure/
 
 Note: Obsolete index.html removed October 12, 2024 - play_index.html is the single main file
 Activity monitoring system added October 12, 2024 - access at http://localhost:8000/activity.html
+Dynamic themed backgrounds added October 17, 2025 - 6 unique character-based environments
 ```
 
 ### **🎮 Ready-to-Play Features**

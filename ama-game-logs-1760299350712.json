@@ -1,0 +1,613 @@
+[
+  {
+    "time": "21:02:19",
+    "fullTime": "2025-10-12T20:02:19.558Z",
+    "message": "🚫 GAME OVER - Player 1 out of lives",
+    "type": "collision",
+    "sessionId": 1760299284171,
+    "details": {
+      "reason": "Player 1 out of lives"
+    }
+  },
+  {
+    "time": "21:02:19",
+    "fullTime": "2025-10-12T20:02:19.558Z",
+    "message": "💥 Player 1 HIT! Lives: 3 → 0 [GAME OVER]",
+    "type": "collision",
+    "sessionId": 1760299284171,
+    "details": {
+      "playerName": "Player 1",
+      "livesAfter": 0,
+      "isGameOver": true
+    }
+  },
+  {
+    "time": "21:02:16",
+    "fullTime": "2025-10-12T20:02:16.259Z",
+    "message": "✓ No level up. Need 35.0 pts for Level 7",
+    "type": "level",
+    "sessionId": 1760299284171,
+    "details": {
+      "targetLevel": 7
+    }
+  },
+  {
+    "time": "21:02:16",
+    "fullTime": "2025-10-12T20:02:16.259Z",
+    "message": "📊 Level Check: MaxScore=31.5, Current Level=7, Target Level=7 (31.5/5 = 6.30)",
+    "type": "level",
+    "sessionId": 1760299284171,
+    "details": {
+      "maxScore": 31.5,
+      "currentLevel": 7,
+      "targetLevel": 7
+    }
+  },
+  {
+    "time": "21:02:16",
+    "fullTime": "2025-10-12T20:02:16.258Z",
+    "message": "Player 1 collected COIN (0.5 × 1) = +0.5 pts. Total: 31.0 → 31.5",
+    "type": "treasure",
+    "sessionId": 1760299284171,
+    "details": {
+      "playerName": "Player 1",
+      "treasureType": "COIN",
+      "points": 0.5,
+      "multiplier": 1,
+      "oldScore": 31,
+      "newScore": 31.5
+    }
+  },
+  {
+    "time": "21:02:16",
+    "fullTime": "2025-10-12T20:02:16.243Z",
+    "message": "✓ No level up. Need 35.0 pts for Level 7",
+    "type": "level",
+    "sessionId": 1760299284171,
+    "details": {
+      "targetLevel": 7
+    }
+  },
+  {
+    "time": "21:02:16",
+    "fullTime": "2025-10-12T20:02:16.243Z",
+    "message": "📊 Level Check: MaxScore=31.0, Current Level=7, Target Level=7 (31.0/5 = 6.20)",
+    "type": "level",
+    "sessionId": 1760299284171,
+    "details": {
+      "maxScore": 31,
+      "currentLevel": 7,
+      "targetLevel": 7
+    }
+  },
+  {
+    "time": "21:02:16",
+    "fullTime": "2025-10-12T20:02:16.242Z",
+    "message": "Player 1 collected COIN (0.5 × 1) = +0.5 pts. Total: 30.5 → 31.0",
+    "type": "treasure",
+    "sessionId": 1760299284171,
+    "details": {
+      "playerName": "Player 1",
+      "treasureType": "COIN",
+      "points": 0.5,
+      "multiplier": 1,
+      "oldScore": 30.5,
+      "newScore": 31
+    }
+  },
+  {
+    "time": "21:02:16",
+    "fullTime": "2025-10-12T20:02:16.228Z",
+    "message": "✓ No level up. Need 35.0 pts for Level 7",
+    "type": "level",
+    "sessionId": 1760299284171,
+    "details": {
+      "targetLevel": 7
+    }
+  },
+  {
+    "time": "21:02:16",
+    "fullTime": "2025-10-12T20:02:16.227Z",
+    "message": "📊 Level Check: MaxScore=30.5, Current Level=7, Target Level=7 (30.5/5 = 6.10)",
+    "type": "level",
+    "sessionId": 1760299284171,
+    "details": {
+      "maxScore": 30.5,
+      "currentLevel": 7,
+      "targetLevel": 7
+    }
+  },
+  {
+    "time": "21:02:16",
+    "fullTime": "2025-10-12T20:02:16.226Z",
+    "message": "Player 1 collected COIN (0.5 × 1) = +0.5 pts. Total: 30.0 → 30.5",
+    "type": "treasure",
+    "sessionId": 1760299284171,
+    "details": {
+      "playerName": "Player 1",
+      "treasureType": "COIN",
+      "points": 0.5,
+      "multiplier": 1,
+      "oldScore": 30,
+      "newScore": 30.5
+    }
+  },
+  {
+    "time": "21:02:16",
+    "fullTime": "2025-10-12T20:02:16.212Z",
+    "message": "🎊 LEVEL UP! 6 → 7 (+10 seconds). Obstacles: 5",
+    "type": "level",
+    "sessionId": 1760299284171,
+    "details": {
+      "oldLevel": 6,
+      "newLevel": 7,
+      "obstacleCount": 5
+    }
+  },
+  {
+    "time": "21:02:16",
+    "fullTime": "2025-10-12T20:02:16.212Z",
+    "message": "📊 Level Check: MaxScore=30.0, Current Level=6, Target Level=7 (30.0/5 = 6.00)",
+    "type": "level",
+    "sessionId": 1760299284171,
+    "details": {
+      "maxScore": 30,
+      "currentLevel": 6,
+      "targetLevel": 7
+    }
+  },
+  {
+    "time": "21:02:16",
+    "fullTime": "2025-10-12T20:02:16.211Z",
+    "message": "Player 1 collected SILVER (1 × 1) = +1.0 pts. Total: 29.0 → 30.0",
+    "type": "treasure",
+    "sessionId": 1760299284171,
+    "details": {
+      "playerName": "Player 1",
+      "treasureType": "SILVER",
+      "points": 1,
+      "multiplier": 1,
+      "oldScore": 29,
+      "newScore": 30
+    }
+  },
+  {
+    "time": "21:02:16",
+    "fullTime": "2025-10-12T20:02:16.196Z",
+    "message": "✓ No level up. Need 30.0 pts for Level 6",
+    "type": "level",
+    "sessionId": 1760299284171,
+    "details": {
+      "targetLevel": 6
+    }
+  },
+  {
+    "time": "21:02:16",
+    "fullTime": "2025-10-12T20:02:16.196Z",
+    "message": "📊 Level Check: MaxScore=29.0, Current Level=6, Target Level=6 (29.0/5 = 5.80)",
+    "type": "level",
+    "sessionId": 1760299284171,
+    "details": {
+      "maxScore": 29,
+      "currentLevel": 6,
+      "targetLevel": 6
+    }
+  },
+  {
+    "time": "21:02:16",
+    "fullTime": "2025-10-12T20:02:16.195Z",
+    "message": "Player 1 collected SILVER (1 × 1) = +1.0 pts. Total: 28.0 → 29.0",
+    "type": "treasure",
+    "sessionId": 1760299284171,
+    "details": {
+      "playerName": "Player 1",
+      "treasureType": "SILVER",
+      "points": 1,
+      "multiplier": 1,
+      "oldScore": 28,
+      "newScore": 29
+    }
+  },
+  {
+    "time": "21:02:16",
+    "fullTime": "2025-10-12T20:02:16.181Z",
+    "message": "✓ No level up. Need 30.0 pts for Level 6",
+    "type": "level",
+    "sessionId": 1760299284171,
+    "details": {
+      "targetLevel": 6
+    }
+  },
+  {
+    "time": "21:02:16",
+    "fullTime": "2025-10-12T20:02:16.181Z",
+    "message": "📊 Level Check: MaxScore=28.0, Current Level=6, Target Level=6 (28.0/5 = 5.60)",
+    "type": "level",
+    "sessionId": 1760299284171,
+    "details": {
+      "maxScore": 28,
+      "currentLevel": 6,
+      "targetLevel": 6
+    }
+  },
+  {
+    "time": "21:02:16",
+    "fullTime": "2025-10-12T20:02:16.179Z",
+    "message": "Player 1 collected COIN (0.5 × 1) = +0.5 pts. Total: 27.5 → 28.0",
+    "type": "treasure",
+    "sessionId": 1760299284171,
+    "details": {
+      "playerName": "Player 1",
+      "treasureType": "COIN",
+      "points": 0.5,
+      "multiplier": 1,
+      "oldScore": 27.5,
+      "newScore": 28
+    }
+  },
+  {
+    "time": "21:02:16",
+    "fullTime": "2025-10-12T20:02:16.164Z",
+    "message": "✓ No level up. Need 30.0 pts for Level 6",
+    "type": "level",
+    "sessionId": 1760299284171,
+    "details": {
+      "targetLevel": 6
+    }
+  },
+  {
+    "time": "21:02:16",
+    "fullTime": "2025-10-12T20:02:16.163Z",
+    "message": "📊 Level Check: MaxScore=27.5, Current Level=6, Target Level=6 (27.5/5 = 5.50)",
+    "type": "level",
+    "sessionId": 1760299284171,
+    "details": {
+      "maxScore": 27.5,
+      "currentLevel": 6,
+      "targetLevel": 6
+    }
+  },
+  {
+    "time": "21:02:16",
+    "fullTime": "2025-10-12T20:02:16.162Z",
+    "message": "Player 1 collected COIN (0.5 × 1) = +0.5 pts. Total: 27.0 → 27.5",
+    "type": "treasure",
+    "sessionId": 1760299284171,
+    "details": {
+      "playerName": "Player 1",
+      "treasureType": "COIN",
+      "points": 0.5,
+      "multiplier": 1,
+      "oldScore": 27,
+      "newScore": 27.5
+    }
+  },
+  {
+    "time": "21:02:10",
+    "fullTime": "2025-10-12T20:02:10.764Z",
+    "message": "💥 Player 1 HIT! Lives: 3 → 1",
+    "type": "collision",
+    "sessionId": 1760299284171,
+    "details": {
+      "playerName": "Player 1",
+      "livesAfter": 1,
+      "isGameOver": false
+    }
+  },
+  {
+    "time": "21:02:09",
+    "fullTime": "2025-10-12T20:02:09.958Z",
+    "message": "✓ No level up. Need 30.0 pts for Level 6",
+    "type": "level",
+    "sessionId": 1760299284171,
+    "details": {
+      "targetLevel": 6
+    }
+  },
+  {
+    "time": "21:02:09",
+    "fullTime": "2025-10-12T20:02:09.958Z",
+    "message": "📊 Level Check: MaxScore=27.0, Current Level=6, Target Level=6 (27.0/5 = 5.40)",
+    "type": "level",
+    "sessionId": 1760299284171,
+    "details": {
+      "maxScore": 27,
+      "currentLevel": 6,
+      "targetLevel": 6
+    }
+  },
+  {
+    "time": "21:02:09",
+    "fullTime": "2025-10-12T20:02:09.957Z",
+    "message": "Player 1 collected COIN (0.5 × 1) = +0.5 pts. Total: 26.5 → 27.0",
+    "type": "treasure",
+    "sessionId": 1760299284171,
+    "details": {
+      "playerName": "Player 1",
+      "treasureType": "COIN",
+      "points": 0.5,
+      "multiplier": 1,
+      "oldScore": 26.5,
+      "newScore": 27
+    }
+  },
+  {
+    "time": "21:02:09",
+    "fullTime": "2025-10-12T20:02:09.942Z",
+    "message": "✓ No level up. Need 30.0 pts for Level 6",
+    "type": "level",
+    "sessionId": 1760299284171,
+    "details": {
+      "targetLevel": 6
+    }
+  },
+  {
+    "time": "21:02:09",
+    "fullTime": "2025-10-12T20:02:09.942Z",
+    "message": "📊 Level Check: MaxScore=26.5, Current Level=6, Target Level=6 (26.5/5 = 5.30)",
+    "type": "level",
+    "sessionId": 1760299284171,
+    "details": {
+      "maxScore": 26.5,
+      "currentLevel": 6,
+      "targetLevel": 6
+    }
+  },
+  {
+    "time": "21:02:09",
+    "fullTime": "2025-10-12T20:02:09.941Z",
+    "message": "Player 1 collected COIN (0.5 × 1) = +0.5 pts. Total: 26.0 → 26.5",
+    "type": "treasure",
+    "sessionId": 1760299284171,
+    "details": {
+      "playerName": "Player 1",
+      "treasureType": "COIN",
+      "points": 0.5,
+      "multiplier": 1,
+      "oldScore": 26,
+      "newScore": 26.5
+    }
+  },
+  {
+    "time": "21:02:09",
+    "fullTime": "2025-10-12T20:02:09.927Z",
+    "message": "✓ No level up. Need 30.0 pts for Level 6",
+    "type": "level",
+    "sessionId": 1760299284171,
+    "details": {
+      "targetLevel": 6
+    }
+  },
+  {
+    "time": "21:02:09",
+    "fullTime": "2025-10-12T20:02:09.927Z",
+    "message": "📊 Level Check: MaxScore=26.0, Current Level=6, Target Level=6 (26.0/5 = 5.20)",
+    "type": "level",
+    "sessionId": 1760299284171,
+    "details": {
+      "maxScore": 26,
+      "currentLevel": 6,
+      "targetLevel": 6
+    }
+  },
+  {
+    "time": "21:02:09",
+    "fullTime": "2025-10-12T20:02:09.924Z",
+    "message": "Player 1 collected COIN (0.5 × 1) = +0.5 pts. Total: 25.5 → 26.0",
+    "type": "treasure",
+    "sessionId": 1760299284171,
+    "details": {
+      "playerName": "Player 1",
+      "treasureType": "COIN",
+      "points": 0.5,
+      "multiplier": 1,
+      "oldScore": 25.5,
+      "newScore": 26
+    }
+  },
+  {
+    "time": "21:02:09",
+    "fullTime": "2025-10-12T20:02:09.911Z",
+    "message": "✓ No level up. Need 30.0 pts for Level 6",
+    "type": "level",
+    "sessionId": 1760299284171,
+    "details": {
+      "targetLevel": 6
+    }
+  },
+  {
+    "time": "21:02:09",
+    "fullTime": "2025-10-12T20:02:09.911Z",
+    "message": "📊 Level Check: MaxScore=25.5, Current Level=6, Target Level=6 (25.5/5 = 5.10)",
+    "type": "level",
+    "sessionId": 1760299284171,
+    "details": {
+      "maxScore": 25.5,
+      "currentLevel": 6,
+      "targetLevel": 6
+    }
+  },
+  {
+    "time": "21:02:09",
+    "fullTime": "2025-10-12T20:02:09.910Z",
+    "message": "Player 1 collected COIN (0.5 × 1) = +0.5 pts. Total: 25.0 → 25.5",
+    "type": "treasure",
+    "sessionId": 1760299284171,
+    "details": {
+      "playerName": "Player 1",
+      "treasureType": "COIN",
+      "points": 0.5,
+      "multiplier": 1,
+      "oldScore": 25,
+      "newScore": 25.5
+    }
+  },
+  {
+    "time": "21:02:09",
+    "fullTime": "2025-10-12T20:02:09.894Z",
+    "message": "💖 Bonus Life granted at Level 6!",
+    "type": "level",
+    "sessionId": 1760299284171,
+    "details": {}
+  },
+  {
+    "time": "21:02:09",
+    "fullTime": "2025-10-12T20:02:09.894Z",
+    "message": "🎊 LEVEL UP! 5 → 6 (+10 seconds). Obstacles: 4",
+    "type": "level",
+    "sessionId": 1760299284171,
+    "details": {
+      "oldLevel": 5,
+      "newLevel": 6,
+      "obstacleCount": 4
+    }
+  },
+  {
+    "time": "21:02:09",
+    "fullTime": "2025-10-12T20:02:09.893Z",
+    "message": "📊 Level Check: MaxScore=25.0, Current Level=5, Target Level=6 (25.0/5 = 5.00)",
+    "type": "level",
+    "sessionId": 1760299284171,
+    "details": {
+      "maxScore": 25,
+      "currentLevel": 5,
+      "targetLevel": 6
+    }
+  },
+  {
+    "time": "21:02:09",
+    "fullTime": "2025-10-12T20:02:09.892Z",
+    "message": "Player 1 collected COIN (0.5 × 1) = +0.5 pts. Total: 24.5 → 25.0",
+    "type": "treasure",
+    "sessionId": 1760299284171,
+    "details": {
+      "playerName": "Player 1",
+      "treasureType": "COIN",
+      "points": 0.5,
+      "multiplier": 1,
+      "oldScore": 24.5,
+      "newScore": 25
+    }
+  },
+  {
+    "time": "21:02:06",
+    "fullTime": "2025-10-12T20:02:06.491Z",
+    "message": "✓ No level up. Need 25.0 pts for Level 5",
+    "type": "level",
+    "sessionId": 1760299284171,
+    "details": {
+      "targetLevel": 5
+    }
+  },
+  {
+    "time": "21:02:06",
+    "fullTime": "2025-10-12T20:02:06.490Z",
+    "message": "📊 Level Check: MaxScore=24.5, Current Level=5, Target Level=5 (24.5/5 = 4.90)",
+    "type": "level",
+    "sessionId": 1760299284171,
+    "details": {
+      "maxScore": 24.5,
+      "currentLevel": 5,
+      "targetLevel": 5
+    }
+  },
+  {
+    "time": "21:02:06",
+    "fullTime": "2025-10-12T20:02:06.489Z",
+    "message": "Player 1 collected SILVER (1 × 1) = +1.0 pts. Total: 23.5 → 24.5",
+    "type": "treasure",
+    "sessionId": 1760299284171,
+    "details": {
+      "playerName": "Player 1",
+      "treasureType": "SILVER",
+      "points": 1,
+      "multiplier": 1,
+      "oldScore": 23.5,
+      "newScore": 24.5
+    }
+  },
+  {
+    "time": "21:02:06",
+    "fullTime": "2025-10-12T20:02:06.475Z",
+    "message": "✓ No level up. Need 25.0 pts for Level 5",
+    "type": "level",
+    "sessionId": 1760299284171,
+    "details": {
+      "targetLevel": 5
+    }
+  },
+  {
+    "time": "21:02:06",
+    "fullTime": "2025-10-12T20:02:06.474Z",
+    "message": "📊 Level Check: MaxScore=23.5, Current Level=5, Target Level=5 (23.5/5 = 4.70)",
+    "type": "level",
+    "sessionId": 1760299284171,
+    "details": {
+      "maxScore": 23.5,
+      "currentLevel": 5,
+      "targetLevel": 5
+    }
+  },
+  {
+    "time": "21:02:06",
+    "fullTime": "2025-10-12T20:02:06.473Z",
+    "message": "Player 1 collected SILVER (1 × 1) = +1.0 pts. Total: 22.5 → 23.5",
+    "type": "treasure",
+    "sessionId": 1760299284171,
+    "details": {
+      "playerName": "Player 1",
+      "treasureType": "SILVER",
+      "points": 1,
+      "multiplier": 1,
+      "oldScore": 22.5,
+      "newScore": 23.5
+    }
+  },
+  {
+    "time": "21:02:06",
+    "fullTime": "2025-10-12T20:02:06.458Z",
+    "message": "✓ No level up. Need 25.0 pts for Level 5",
+    "type": "level",
+    "sessionId": 1760299284171,
+    "details": {
+      "targetLevel": 5
+    }
+  },
+  {
+    "time": "21:02:06",
+    "fullTime": "2025-10-12T20:02:06.458Z",
+    "message": "📊 Level Check: MaxScore=22.5, Current Level=5, Target Level=5 (22.5/5 = 4.50)",
+    "type": "level",
+    "sessionId": 1760299284171,
+    "details": {
+      "maxScore": 22.5,
+      "currentLevel": 5,
+      "targetLevel": 5
+    }
+  },
+  {
+    "time": "21:02:06",
+    "fullTime": "2025-10-12T20:02:06.457Z",
+    "message": "Player 1 collected COIN (0.5 × 1) = +0.5 pts. Total: 22.0 → 22.5",
+    "type": "treasure",
+    "sessionId": 1760299284171,
+    "details": {
+      "playerName": "Player 1",
+      "treasureType": "COIN",
+      "points": 0.5,
+      "multiplier": 1,
+      "oldScore": 22,
+      "newScore": 22.5
+    }
+  },
+  {
+    "time": "21:02:03",
+    "fullTime": "2025-10-12T20:02:03.731Z",
+    "message": "✓ No level up. Need 25.0 pts for Level 5",
+    "type": "level",
+    "sessionId": 1760299284171,
+    "details": {
+      "targetLevel": 5
+    }
+  }
+]

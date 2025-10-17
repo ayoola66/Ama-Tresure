@@ -143,7 +143,7 @@
         border-radius: 15px;
         overflow: hidden;
         box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
-        background-image: url("data/mermaid-background-1.png");
+        /* Dynamic background set by JavaScript based on Player 1's character choice */
         background-size: cover;
         background-position: center;
         background-repeat: no-repeat;
@@ -1050,9 +1050,10 @@
             - <strong>ESC Key:</strong> Pause/Resume game anytime
           </p>
           <p>
-            <strong>🎭 Characters:</strong><br />
-            Choose from Mermaid, Astronaut, Pirate, Ninja, Explorer, Diver,
-            Sailor, or Viking!<br />
+            <strong>🎭 Characters & Backgrounds:</strong><br />
+            Choose from 6 unique characters: Mermaid, Runner, Fish, Car, Horse,
+            or Surfer!<br />
+            Each character has its own themed background environment<br />
             Characters face the direction they move (left/right only)
           </p>
           <p>
@@ -1316,13 +1317,38 @@
       const menuClickSound = document.getElementById("menuClickSound");
 
       // Character options for players - Directional characters with clear left/right facing
+      // Each character now has its own themed background image
       const characterOptions = {
-        MERMAID: { emoji: "🧜‍♀️", name: "Mermaid" },
-        RUNNER: { emoji: "🏃‍♂️", name: "Runner" },
-        FISH: { emoji: "🐟", name: "Fish" },
-        CAR: { emoji: "🚗", name: "Car" },
-        HORSE: { emoji: "🐎", name: "Horse" },
-        SURFER: { emoji: "🏄‍♂️", name: "Surfer" },
+        MERMAID: {
+          emoji: "🧜‍♀️",
+          name: "Mermaid",
+          background: "data/background/mermaid-background-1.png",
+        },
+        RUNNER: {
+          emoji: "🏃‍♂️",
+          name: "Runner",
+          background: "data/background/runMan-background-1.png",
+        },
+        FISH: {
+          emoji: "🐟",
+          name: "Fish",
+          background: "data/background/fish-background-1.png",
+        },
+        CAR: {
+          emoji: "🚗",
+          name: "Car",
+          background: "data/background/redCar-background-1.png",
+        },
+        HORSE: {
+          emoji: "🐎",
+          name: "Horse",
+          background: "data/background/horse-background-1.png",
+        },
+        SURFER: {
+          emoji: "🏄‍♂️",
+          name: "Surfer",
+          background: "data/background/surfing-background-1.png",
+        },
       };
 
       const treasureTypes = {
@@ -1746,6 +1772,8 @@
             selectedP1Character = key;
             updateCharacterSelection("player1");
             playAudio(menuClickSound);
+            // Immediately update background when character is selected
+            updateBackgroundPreview(key);
           });
           p1Container.appendChild(p1Option);
 
@@ -1783,6 +1811,22 @@
               option.classList.remove("selected");
             }
           });
+
+        // Update background preview when Player 1 selects a character
+        if (player === "player1") {
+          updateBackgroundPreview(selectedChar);
+        }
+      }
+
+      // Update background preview based on Player 1's character selection
+      function updateBackgroundPreview(characterKey) {
+        const gameContainer = document.getElementById("game");
+        const selectedCharacter = characterOptions[characterKey];
+
+        if (selectedCharacter && selectedCharacter.background) {
+          gameContainer.style.backgroundImage = `url("${selectedCharacter.background}")`;
+          console.log(`Background changed to: ${selectedCharacter.name} theme`);
+        }
       }
 
       // Update player appearance based on selection and facing direction
@@ -1791,13 +1835,14 @@
         const p2Char = characterOptions[selectedP2Character];
 
         // Simple facing logic - just use the character emoji
-        // Most emojis don't have left/right variants, so we keep them as-is
+        // Most emojis naturally face LEFT, so we flip them when facing RIGHT
         player1.innerText = p1Char.emoji;
         player2.innerText = p2Char.emoji;
 
         // Add visual indicator for facing direction with CSS transform
-        player1.style.transform = p1FacingLeft ? "scaleX(-1)" : "scaleX(1)";
-        player2.style.transform = p2FacingLeft ? "scaleX(-1)" : "scaleX(1)";
+        // INVERTED: Most emojis face left by default, so flip when facing RIGHT (facingLeft = false)
+        player1.style.transform = p1FacingLeft ? "scaleX(1)" : "scaleX(-1)";
+        player2.style.transform = p2FacingLeft ? "scaleX(1)" : "scaleX(-1)";
       }
 
       // Initialize game
@@ -1817,6 +1862,9 @@
 
         // Initialize character selection
         initializeCharacterSelection();
+
+        // Set initial background based on default Player 1 character (Mermaid)
+        updateBackgroundPreview(selectedP1Character);
 
         // Mode selection
         document.querySelectorAll(".mode-button").forEach((button) => {
@@ -2747,6 +2795,9 @@
 
         // Update player appearances based on selection
         updatePlayerAppearance();
+
+        // Ensure background matches Player 1's character
+        updateBackgroundPreview(selectedP1Character);
 
         // Place treasure and obstacles
         placeTreasure();
