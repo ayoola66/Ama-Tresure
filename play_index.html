@@ -1778,11 +1778,28 @@
           menuClickSound,
         ];
 
+        console.log("🎵 [INIT AUDIO] Starting audio initialization...");
+
         // Force load all audio elements
         audioElements.forEach((audio) => {
           if (audio) {
-            audio.load();
+            console.log(`🎵 [INIT AUDIO] Initializing: ${audio.id}`);
             audio.preload = "auto";
+
+            // Set src from source tag if not already set
+            if (!audio.src) {
+              const sourceTag = audio.querySelector("source");
+              if (sourceTag) {
+                audio.src = sourceTag.src;
+                console.log(
+                  `🎵 [INIT AUDIO] Set src for ${audio.id}: ${sourceTag.src}`
+                );
+              }
+            }
+
+            // Load the audio
+            audio.load();
+            console.log(`🎵 [INIT AUDIO] Called load() on: ${audio.id}`);
           }
         });
 
@@ -1797,12 +1814,13 @@
           try {
             audioContext = new (window.AudioContext ||
               window.webkitAudioContext)();
+            console.log("✅ AudioContext initialized");
           } catch (e) {
-            console.log("AudioContext initialization failed:", e);
+            console.log("❌ AudioContext initialization failed:", e);
           }
         }
 
-        console.log("Audio system initialized with MP3 files");
+        console.log("✅ [INIT AUDIO] Audio system initialization complete");
       }
 
       // Update all audio volumes
@@ -1825,7 +1843,17 @@
 
         try {
           console.log(`🎵 [PLAY AUDIO] Attempting to play: ${audioElement.id}`);
-          console.log(`🎵 [PLAY AUDIO] Element src: ${audioElement.src}`);
+
+          // Get the actual src - either from src attribute or from first source tag
+          let src = audioElement.src;
+          if (!src) {
+            const sourceTag = audioElement.querySelector("source");
+            if (sourceTag) {
+              src = sourceTag.src;
+              console.log(`🎵 [PLAY AUDIO] Got src from source tag: ${src}`);
+            }
+          }
+          console.log(`🎵 [PLAY AUDIO] Element src: ${src}`);
           console.log(
             `🎵 [PLAY AUDIO] Current state - readyState: ${audioElement.readyState}, networkState: ${audioElement.networkState}`
           );
@@ -1840,7 +1868,15 @@
 
           audioElement.currentTime = 0;
 
-          // Direct play attempt - let browser handle loading
+          // First ensure audio is loaded
+          if (audioElement.readyState < 2) {
+            console.log(
+              `🎵 [PLAY AUDIO] Audio not ready (readyState ${audioElement.readyState}), calling load()...`
+            );
+            audioElement.load();
+          }
+
+          // Direct play attempt
           console.log(`🎵 [PLAY AUDIO] Calling play() directly...`);
           const playPromise = audioElement.play();
 
@@ -1855,45 +1891,23 @@
                 console.log(
                   `❌ [PLAY AUDIO] Play failed: ${e.name} - ${e.message}`
                 );
-                // Try loading and playing again
-                if (
-                  e.name === "NotSupportedError" ||
-                  audioElement.readyState < 2
-                ) {
-                  console.log(`🔄 [PLAY AUDIO] Attempting to load first...`);
-                  audioElement.load();
-
-                  // Wait for canplay then try again
-                  const retryPlay = () => {
-                    console.log(`🔄 [PLAY AUDIO] Retrying play after load...`);
-                    audioElement
-                      .play()
-                      .then(() => {
-                        console.log(
-                          `✅ [PLAY AUDIO] Retry successful: ${audioElement.id}`
-                        );
-                        audioElement.removeEventListener("canplay", retryPlay);
-                      })
-                      .catch((e2) => {
-                        console.log(
-                          `❌ [PLAY AUDIO] Retry failed: ${e2.message}`
-                        );
-                        fallbackProceduralSound(audioElement.id || "default");
-                        audioElement.removeEventListener("canplay", retryPlay);
-                      });
-                  };
-
-                  audioElement.addEventListener("canplay", retryPlay, {
-                    once: true,
-                  });
-
-                  // Timeout after 2 seconds
-                  setTimeout(() => {
-                    audioElement.removeEventListener("canplay", retryPlay);
-                  }, 2000);
-                } else {
-                  fallbackProceduralSound(audioElement.id || "default");
-                }
+                // Try again after a short delay
+                setTimeout(() => {
+                  console.log(`🔄 [PLAY AUDIO] Retrying play after delay...`);
+                  audioElement
+                    .play()
+                    .then(() => {
+                      console.log(
+                        `✅ [PLAY AUDIO] Retry successful: ${audioElement.id}`
+                      );
+                    })
+                    .catch((e2) => {
+                      console.log(
+                        `❌ [PLAY AUDIO] Retry failed: ${e2.message}`
+                      );
+                      fallbackProceduralSound(audioElement.id || "default");
+                    });
+                }, 100);
               });
           }
         } catch (e) {
@@ -2280,13 +2294,13 @@
         // For characters that don't need flip (face right by default like Surfer):
         //   - When facing left (p1FacingLeft=true): scaleX(-1) - flip
         //   - When facing right (p1FacingLeft=false): scaleX(1) - no flip
-        
+
         if (p1Char.needsFlip) {
           player1.style.transform = p1FacingLeft ? "scaleX(1)" : "scaleX(-1)";
         } else {
           player1.style.transform = p1FacingLeft ? "scaleX(-1)" : "scaleX(1)";
         }
-        
+
         if (p2Char.needsFlip) {
           player2.style.transform = p2FacingLeft ? "scaleX(1)" : "scaleX(-1)";
         } else {
