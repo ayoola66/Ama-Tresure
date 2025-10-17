@@ -984,6 +984,32 @@
         letter-spacing: 2px;
       }
 
+      .loading-countdown {
+        font-size: 32px;
+        color: #ff6b6b;
+        font-weight: bold;
+        text-shadow: 0 0 15px rgba(255, 107, 107, 0.6);
+        letter-spacing: 1px;
+        min-width: 60px;
+        animation: countdownPulse 1s ease-in-out infinite;
+      }
+
+      #countdownTimer {
+        display: inline-block;
+        min-width: 30px;
+        text-align: center;
+      }
+
+      @keyframes countdownPulse {
+        0%,
+        100% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.1);
+        }
+      }
+
       .loading-dots {
         display: inline-block;
         font-size: 24px;
@@ -1080,6 +1106,9 @@
         <div>
           <div class="loading-text">
             Loading Game<span class="loading-dots"></span>
+          </div>
+          <div class="loading-countdown">
+            <span id="countdownTimer">10</span>s
           </div>
         </div>
         <div class="loading-characters">
@@ -1348,22 +1377,40 @@
       // Initialize loading screen
       function initializeLoadingScreen() {
         const loadingScreen = document.getElementById("loadingScreen");
-        
+        const countdownTimer = document.getElementById("countdownTimer");
+        let remainingTime = LOADING_DURATION / 1000; // 10 seconds
+
         // Set up loading screen close functionality
         const closeLoading = () => {
-          if (loadingComplete || Date.now() - loadingStartTime >= LOADING_DURATION) {
+          if (
+            loadingComplete ||
+            Date.now() - loadingStartTime >= LOADING_DURATION
+          ) {
             loadingScreen.classList.add("hidden");
           }
         };
-        
+
         // Close on click
         loadingScreen.addEventListener("click", closeLoading);
-        
+
         // Auto-close after 10 seconds
         loadingStartTime = Date.now();
+        // Update countdown every second
+        const countdownInterval = setInterval(() => {
+          remainingTime--;
+          if (countdownTimer) {
+            countdownTimer.textContent = Math.max(0, remainingTime);
+          }
+
+          if (remainingTime <= 0) {
+            clearInterval(countdownInterval);
+          }
+        }, 1000);
+
         const autoCloseTimer = setInterval(() => {
           if (Date.now() - loadingStartTime >= LOADING_DURATION) {
             clearInterval(autoCloseTimer);
+            clearInterval(countdownInterval);
             loadingComplete = true;
             closeLoading();
           }
@@ -1378,7 +1425,24 @@
         const audioElements = document.querySelectorAll("audio");
         audioElements.forEach((audio) => {
           audio.preload = "auto";
+          audio.volume = 0.7; // Set default volume
           audio.load();
+          // Try to play silently to initialize audio context
+          try {
+            const playPromise = audio.play();
+            if (playPromise !== undefined) {
+              playPromise.catch((error) => {
+                console.log("Audio preload play attempt:", error.message);
+              });
+            }
+            // Immediately pause to keep audio ready
+            setTimeout(() => {
+              audio.pause();
+              audio.currentTime = 0;
+            }, 10);
+          } catch (e) {
+            console.log("Audio preload error:", e);
+          }
         });
 
         // Preload background images
