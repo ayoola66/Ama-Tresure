@@ -265,14 +265,17 @@ http://localhost:8000/play_index.html
   - **Level 4→5**: Reach 100 points total (60 + 40)
   - **Level 5→6**: Reach 150 points total (100 + 50)
   - **Pattern**: Each level requires +10 more points than previous increment
-  - **Formula**: Points for level N = (N-1) * N * 5
+  - **Formula**: Points for level N = (N-1) _ N _ 5
 - ✅ **Eliminated Level Jumping**: Proper threshold validation ensures smooth progression
 - ✅ **Enhanced Activity Logging**: Detailed level progression calculations visible
   - Shows current threshold, next threshold, and points needed
   - Full mathematical breakdown: "Score: 32.5 | Level 3 at 30 | Level 4 at 60 | 27.5 pts needed"
-- ✅ **Improved Debug Capacity**: Increased from 15 to 50 events in-game, 100 in localStorage
-  - Better visibility into level progression mechanics
-  - Longer gameplay history for analysis and debugging
+- ✅ **Massively Expanded Debug Capacity**: Supports long games up to level 20+
+  - **In-game debug panel**: Shows up to 200 recent events
+  - **localStorage**: Stores up to 500 events for comprehensive history
+  - **Auto-clear on new game**: All previous logs cleared when starting new game
+  - Better visibility into level progression mechanics throughout entire gameplay
+  - Complete gameplay history for analysis and debugging of long sessions
 
 **Strategic Obstacle Behavior System**
 
@@ -282,12 +285,14 @@ http://localhost:8000/play_index.html
   - **Level 3**: Obstacles begin tracking and moving toward players
   - **Level 4+**: Tracking speed and intelligence increases progressively
 - ✅ **Special Horizontal-Moving Crocodiles**: Milestone-based challenge mechanic
-  - Appears at levels **5, 10, 15, 20, 25, 30**, etc. (every 5th level)
+  - **Levels 5-25**: Appears at **5, 10, 15, 20, 25** (every 5th level)
+  - **Level 26+**: Appears **EVERY SINGLE LEVEL** for maximum challenge
+  - **Disappears**: When advancing to non-milestone levels (e.g., level 5→6, crocodile disappears)
   - Moves horizontally across screen at moderate speed
   - Spawns at random vertical sections (top/middle/bottom third)
   - Random direction (left-to-right or right-to-left)
   - Correctly faces movement direction
-  - Loops continuously while at milestone level
+  - Loops continuously (recreates on opposite side) while active
   - Adds dynamic horizontal threat pattern to vertical gameplay
 - ✅ **Smooth Difficulty Scaling**: Each level increases challenge without overwhelming players
 
@@ -310,7 +315,12 @@ http://localhost:8000/play_index.html
 - ✅ **Mathematical Level System**: `getPointsForLevel()` function calculates thresholds
 - ✅ **Level Validation Logic**: Prevents any level skipping with while-loop verification
 - ✅ **Enhanced Logging**: Every treasure collection shows next level math
-- ✅ **Special Obstacle Tracking**: Dedicated `moveSpecialCrocodiles()` function
+- ✅ **Special Obstacle System**: 
+  - `shouldSpawnSpecialCrocodile()`: Determines if croc should appear at current level
+  - `moveSpecialCrocodiles()`: Handles horizontal movement and respawning
+  - `removeSpecialCrocodiles()`: Clears crocs when advancing to non-milestone levels
+  - `createSpecialCrocodile()`: Spawns new horizontal-moving crocodile
+- ✅ **Log Management**: `clearAllLogs()` wipes previous game data on new game start
 - ✅ **Responsive CSS Grid**: Flexbox-based leaderboard with proper overflow handling
 - ✅ **Media Query System**: Comprehensive breakpoints for all device sizes
 
@@ -429,15 +439,15 @@ _Point values carefully balanced to ensure smooth level progression without jump
 ### **Level Thresholds & Requirements**
 
 | Level | Total Points Required | Points from Previous Level | Cumulative Increase |
-|-------|----------------------|---------------------------|-------------------|
-| 1→2   | 10 points           | +10 points                | +10               |
-| 2→3   | 30 points           | +20 points                | +30               |
-| 3→4   | 60 points           | +30 points                | +60               |
-| 4→5   | 100 points          | +40 points                | +100              |
-| 5→6   | 150 points          | +50 points                | +150              |
-| 6→7   | 210 points          | +60 points                | +210              |
-| 7→8   | 280 points          | +70 points                | +280              |
-| 8→9   | 360 points          | +80 points                | +360              |
+| ----- | --------------------- | -------------------------- | ------------------- |
+| 1→2   | 10 points             | +10 points                 | +10                 |
+| 2→3   | 30 points             | +20 points                 | +30                 |
+| 3→4   | 60 points             | +30 points                 | +60                 |
+| 4→5   | 100 points            | +40 points                 | +100                |
+| 5→6   | 150 points            | +50 points                 | +150                |
+| 6→7   | 210 points            | +60 points                 | +210                |
+| 7→8   | 280 points            | +70 points                 | +280                |
+| 8→9   | 360 points            | +80 points                 | +360                |
 
 ### **📊 Level 1: Foundation & Learning**
 
@@ -487,7 +497,7 @@ _Point values carefully balanced to ensure smooth level progression without jump
 - **+1 life awarded** to all players
 - Recognition of skill progression
 - 5 obstacles with coordinated movement
-- Special crocodile disappears (returns at level 10)
+- **Special crocodile disappears** (only appears at milestone levels 5, 10, 15, 20, 25)
 - **Reach 150 points to advance**
 
 ### **🔥 Levels 7-9: Mastery Required**
@@ -498,13 +508,22 @@ _Point values carefully balanced to ensure smooth level progression without jump
 - Advanced evasion techniques needed
 - **210, 280, 360 points respectively**
 
-### **🌟 Level 10+: Elite Challenge**
+### **🌟 Levels 10-25: Elite Milestone Challenges**
 
-- **Special crocodile returns** every 5 levels (10, 15, 20, 25...)
+- **Special crocodile returns** at levels 10, 15, 20, 25
 - 7-8+ obstacles with maximum intelligence
 - Coordinated obstacle movement patterns
-- Expert-level gameplay required
-- Professional-grade challenge for dedicated players
+- Expert-level gameplay required for survival
+- Milestone levels provide extra excitement and challenge
+
+### **🔥 Level 26+: EXTREME ENDURANCE MODE**
+
+- **Special horizontal crocodile appears EVERY SINGLE LEVEL!**
+- Permanent horizontal threat from level 26 onwards
+- 8-10+ standard obstacles with coordinated AI
+- Maximum difficulty - requires mastery of all mechanics
+- Ultimate endurance challenge for expert players
+- Professional-grade challenge testing reflexes, strategy, and stamina
 
 ---
 

@@ -1156,7 +1156,8 @@
           <p>
             <strong>📊 Level Progression:</strong><br />
             - Level 2 at 10 points, Level 3 at 30 pts, Level 4 at 60 pts<br />
-            - Each level requires +10 more points than previous (+10, +20, +30, +40...)<br />
+            - Each level requires +10 more points than previous (+10, +20, +30,
+            +40...)<br />
             - +10 seconds time bonus each level up<br />
             - Bonus life awarded at Level 6
           </p>
@@ -1165,7 +1166,8 @@
             - Level 1: Static obstacles<br />
             - Level 2: Obstacles start bouncing<br />
             - Level 3+: Obstacles track players<br />
-            - Level 5, 10, 15, 20...: Special horizontal crocodile appears!
+            - Level 5, 10, 15, 20, 25: Special horizontal crocodile appears!<br />
+            - Level 26+: Horizontal crocodile EVERY level (maximum challenge!)
           </p>
         </details>
 
@@ -1241,7 +1243,7 @@
       const COLLISION_COOLDOWN = 1000; // 1 second between any hits
 
       // Debug Logging System (using external logger)
-      const MAX_DEBUG_ENTRIES = 50; // Increased from 15 to show more gameplay history
+      const MAX_DEBUG_ENTRIES = 200; // Increased to track longer games up to level 20+
 
       function updateDebugPanel() {
         const logContainer = document.getElementById("debugLog");
@@ -2411,36 +2413,75 @@
 
         // Handle special horizontal-moving crocodiles
         moveSpecialCrocodiles();
+        
+        // Remove special crocodiles if not at milestone level
+        if (!shouldSpawnSpecialCrocodile(level)) {
+          removeSpecialCrocodiles();
+        }
       }
 
-      // Special horizontal-moving crocodile that appears at levels 5, 10, 15, 20, etc.
+      // Check if special crocodile should spawn at this level
+      function shouldSpawnSpecialCrocodile(currentLevel) {
+        // Up to level 25: appears at 5, 10, 15, 20, 25 (every 5th)
+        if (currentLevel <= 25) {
+          return currentLevel % 5 === 0 && currentLevel >= 5;
+        }
+        // After level 25: appears every single level (26, 27, 28, 29, 30...)
+        return currentLevel > 25;
+      }
+
+      // Special horizontal-moving crocodile that appears at milestone levels
       function moveSpecialCrocodiles() {
-        const specialCrocs = obstacles.filter(obs => obs.dataset.special === "horizontal");
-        
-        specialCrocs.forEach(croc => {
+        const specialCrocs = obstacles.filter(
+          (obs) => obs.dataset.special === "horizontal"
+        );
+
+        specialCrocs.forEach((croc) => {
           let currentLeft = parseFloat(croc.style.left);
           const speed = parseFloat(croc.dataset.speed) || 3;
           const direction = parseFloat(croc.dataset.direction) || 1;
-          
+
           // Move horizontally
           currentLeft += speed * direction;
-          
+
           // Remove if off screen and recreate on opposite side
-          if ((direction > 0 && currentLeft > gameContainer.clientWidth) || 
-              (direction < 0 && currentLeft < -60)) {
+          if (
+            (direction > 0 && currentLeft > gameContainer.clientWidth) ||
+            (direction < 0 && currentLeft < -60)
+          ) {
             // Remove this croc
             croc.remove();
             const index = obstacles.indexOf(croc);
             if (index > -1) obstacles.splice(index, 1);
-            
-            // Create new one on opposite side if still at milestone level
-            if (level % 5 === 0 && level >= 5) {
+
+            // Create new one on opposite side if still at appropriate level
+            if (shouldSpawnSpecialCrocodile(level)) {
               createSpecialCrocodile();
             }
           } else {
             croc.style.left = currentLeft + "px";
           }
         });
+      }
+
+      // Remove special crocodiles when level changes to non-milestone level
+      function removeSpecialCrocodiles() {
+        const specialCrocs = obstacles.filter(
+          (obs) => obs.dataset.special === "horizontal"
+        );
+        
+        specialCrocs.forEach((croc) => {
+          croc.remove();
+          const index = obstacles.indexOf(croc);
+          if (index > -1) obstacles.splice(index, 1);
+        });
+        
+        if (specialCrocs.length > 0) {
+          gameLogger.addLog(
+            `🐊 Special horizontal crocodile removed (not a milestone level)`,
+            "info"
+          );
+        }
       }
 
       // Create special horizontal-moving crocodile
@@ -2452,32 +2493,37 @@
         croc.dataset.type = "crocodile";
         croc.dataset.faceable = "true";
         croc.dataset.special = "horizontal";
-        
+
         // Random vertical position (different sections of screen)
         const sections = 3;
         const section = Math.floor(Math.random() * sections);
-        const yPos = (game.clientHeight / sections) * section + Math.random() * (game.clientHeight / sections - 60);
-        
+        const yPos =
+          (game.clientHeight / sections) * section +
+          Math.random() * (game.clientHeight / sections - 60);
+
         // Random direction: left-to-right or right-to-left
         const direction = Math.random() > 0.5 ? 1 : -1;
         const speed = 2 + Math.random(); // Random speed between 2-3
-        
+
         // Start position based on direction
         const xPos = direction > 0 ? -60 : game.clientWidth;
-        
+
         croc.style.left = xPos + "px";
         croc.style.top = yPos + "px";
         croc.dataset.speed = speed;
         croc.dataset.direction = direction;
-        
+
         // Set facing direction
         croc.dataset.facingLeft = direction < 0 ? "true" : "false";
         croc.style.transform = direction < 0 ? "scaleX(-1)" : "scaleX(1)";
-        
+
         gameContainer.appendChild(croc);
         obstacles.push(croc);
-        
-        gameLogger.addLog(`🐊 Special horizontal crocodile spawned at level ${level}`, "info");
+
+        gameLogger.addLog(
+          `🐊 Special horizontal crocodile spawned at level ${level}`,
+          "info"
+        );
       }
 
       function applyMagnetEffect(player) {
@@ -2828,26 +2874,40 @@
       function checkLevelProgress() {
         const maxScore = Math.max(p1Score, mode === 2 ? p2Score : 0);
         const oldLevel = level;
-        
+
         // Calculate what level the player should be at based on score
         let newLevel = 1;
         while (maxScore >= getPointsForLevel(newLevel + 1)) {
           newLevel++;
         }
-        
+
         const currentLevelThreshold = getPointsForLevel(level);
         const nextLevelThreshold = getPointsForLevel(level + 1);
         const pointsToNext = nextLevelThreshold - maxScore;
-        
+
         logLevelCheck(maxScore, level, newLevel);
-        gameLogger.addLog(`📊 Score: ${maxScore.toFixed(1)} | Current Level ${level} threshold: ${currentLevelThreshold} | Next Level ${level + 1} at: ${nextLevelThreshold} | Points needed: ${pointsToNext.toFixed(1)}`, "level");
+        gameLogger.addLog(
+          `📊 Score: ${maxScore.toFixed(
+            1
+          )} | Current Level ${level} threshold: ${currentLevelThreshold} | Next Level ${
+            level + 1
+          } at: ${nextLevelThreshold} | Points needed: ${pointsToNext.toFixed(
+            1
+          )}`,
+          "level"
+        );
 
         if (newLevel > level) {
           level = newLevel;
           timeLeft += 10;
 
           logLevelUp(oldLevel, level, obstacles.length);
-          gameLogger.addLog(`🎊 LEVEL UP! ${oldLevel} → ${level} | Score: ${maxScore.toFixed(1)} | Next level at ${getPointsForLevel(level + 1)} points`, "level");
+          gameLogger.addLog(
+            `🎊 LEVEL UP! ${oldLevel} → ${level} | Score: ${maxScore.toFixed(
+              1
+            )} | Next level at ${getPointsForLevel(level + 1)} points`,
+            "level"
+          );
           updateDebugPanel();
 
           if (level === 6) {
@@ -2858,12 +2918,14 @@
           }
 
           createObstacles();
-          
-          // Add special horizontal-moving crocodile at levels 5, 10, 15, 20, etc.
-          if (level % 5 === 0 && level >= 5) {
+
+          // Add special horizontal-moving crocodile
+          // Every 5th level up to 25 (5, 10, 15, 20, 25)
+          // After level 25, appears every single level (26, 27, 28, 29...)
+          if (shouldSpawnSpecialCrocodile(level)) {
             setTimeout(createSpecialCrocodile, 500);
           }
-          
+
           playAudio(achievementSound);
           showMessage(`🎉 Level ${level}! +10 seconds!`);
 
@@ -2918,8 +2980,9 @@
         timeLeft = 40;
         level = 1;
 
-        // Clear debug log and start fresh
-        gameLogger.clearSessionLogs();
+        // Clear ALL debug logs and start completely fresh for new game
+        gameLogger.clearAllLogs(); // Clear localStorage completely
+        gameLogger.clearSessionLogs(); // Clear session logs
         logGameStart(mode, player1Name, player2Name, p1Lives);
         updateDebugPanel();
         p1X = 100;

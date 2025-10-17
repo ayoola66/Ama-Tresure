@@ -6,8 +6,8 @@
 class GameActivityLogger {
   constructor() {
     this.storageKey = "amaGameActivityLog";
-    this.maxEntries = 100; // Store more in localStorage for better history
-    this.displayLimit = 50; // Increased to show more gameplay progression
+    this.maxEntries = 500; // Store many more entries for long games (to level 20+)
+    this.displayLimit = 200; // Show much more gameplay progression
     this.sessionId = Date.now();
     this.sessionStartTime = new Date();
   }
@@ -78,14 +78,22 @@ class GameActivityLogger {
   }
 
   /**
-   * Clear all logs
+   * Clear all logs completely (used when starting a new game)
    */
-  clearLogs() {
+  clearAllLogs() {
     try {
       localStorage.removeItem(this.storageKey);
+      console.log("All activity logs cleared for new game");
     } catch (e) {
-      console.warn("Failed to clear logs:", e);
+      console.warn("Failed to clear all logs:", e);
     }
+  }
+
+  /**
+   * Clear all logs (alias for backwards compatibility)
+   */
+  clearLogs() {
+    this.clearAllLogs();
   }
 
   /**
