@@ -326,11 +326,35 @@
       }
 
       /* Leaderboard Styles */
+      #leaderboardModal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(
+          0,
+          0,
+          0,
+          0.85
+        ); /* Dark overlay to block game elements */
+        z-index: 2000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+      }
+
       .leaderboard-container {
-        background: rgba(0, 0, 0, 0.95);
+        background: rgba(
+          0,
+          0,
+          0,
+          0.98
+        ); /* Almost completely opaque - only 2% transparent */
         border-radius: 15px;
         padding: 15px;
-        margin: 10px auto;
+        margin: 0 auto;
         max-width: 90vw;
         width: 500px;
         max-height: 70vh;
@@ -1528,6 +1552,8 @@
         p2Score = 0;
       let p1Lives = 2,
         p2Lives = 2;
+      let p1Alive = true, // Track if player 1 is still in the game
+        p2Alive = true; // Track if player 2 is still in the game
       let timeLeft = 40;
       let level = 1;
       let timer;
@@ -3338,8 +3364,9 @@
         const p1Rect = player1.getBoundingClientRect();
         const treasureRect = treasure.getBoundingClientRect();
 
-        // Check treasure collision for player 1 (using treasure buffer for easier collection)
+        // Check treasure collision for player 1 (only if alive)
         if (
+          p1Alive &&
           isOverlappingWithBuffer(
             p1Rect,
             treasureRect,
@@ -3378,8 +3405,8 @@
           checkLevelProgress();
         }
 
-        // Check treasure collision for player 2 (using treasure buffer for easier collection)
-        if (mode === 2) {
+        // Check treasure collision for player 2 (only if alive)
+        if (mode === 2 && p2Alive) {
           const p2Rect = player2.getBoundingClientRect();
           if (
             isOverlappingWithBuffer(
@@ -3421,11 +3448,12 @@
           }
         }
 
-        // Check power-up collisions (using powerup buffer for moderate difficulty)
+        // Check power-up collisions (only for alive players)
         powerUps.forEach((powerUp, index) => {
           const powerUpRect = powerUp.getBoundingClientRect();
 
           if (
+            p1Alive &&
             isOverlappingWithBuffer(
               p1Rect,
               powerUpRect,
@@ -3435,7 +3463,7 @@
             activatePowerUp(player1, powerUp.dataset.type);
             powerUp.remove();
             powerUps.splice(index, 1);
-          } else if (mode === 2) {
+          } else if (mode === 2 && p2Alive) {
             const p2Rect = player2.getBoundingClientRect();
             if (
               isOverlappingWithBuffer(
@@ -3467,9 +3495,10 @@
         obstacles.forEach((obs, obsIndex) => {
           const obsRect = obs.getBoundingClientRect();
 
-          // Player 1 collision - only process if not already hit this cycle and can take damage
+          // Player 1 collision - only process if alive, not already hit, and can take damage
           // Using obstacle buffer (22px) to require closer contact for fair gameplay
           if (
+            p1Alive &&
             !p1Hit &&
             p1CanTakeDamage &&
             isOverlappingWithBuffer(
@@ -3485,27 +3514,45 @@
             p1Hit = true;
             lastCollisionTime.player1.global = currentTime;
             playAudio(obstacleSound); // Hit sound
-            showMessage(`💥 ${player1Name} hit obstacle! Lives: ${p1Lives}`);
 
-            logCollision(player1Name, p1Lives, p1Lives <= 0);
-            updateDebugPanel();
-
-            // Only end game if lives reach 0
+            // Check if player 1 is knocked out
             if (p1Lives <= 0) {
-              if (mode === 1 || p2Lives <= 0) {
-                logGameOver(
-                  mode === 1
-                    ? "Player 1 out of lives"
-                    : "Both players out of lives"
-                );
+              p1Alive = false;
+              player1.style.opacity = "0.3"; // Dim the dead player
+              player1.style.filter = "grayscale(100%)"; // Make them grayscale
+
+              if (mode === 1) {
+                // Single player - game over
+                showMessage(`💀 ${player1Name} eliminated! Game Over!`);
+                logCollision(player1Name, p1Lives, true);
+                updateDebugPanel();
+                logGameOver("Player 1 out of lives");
                 endGame();
+              } else if (p2Lives <= 0) {
+                // Both players dead in multiplayer
+                showMessage(`💀 ${player1Name} eliminated! Both players down!`);
+                logCollision(player1Name, p1Lives, true);
+                updateDebugPanel();
+                logGameOver("Both players out of lives");
+                endGame();
+              } else {
+                // Player 2 still alive - continue game
+                showMessage(
+                  `💀 ${player1Name} eliminated! ${player2Name} continues...`
+                );
+                logCollision(player1Name, p1Lives, false);
+                updateDebugPanel();
               }
+            } else {
+              showMessage(`💥 ${player1Name} hit obstacle! Lives: ${p1Lives}`);
+              logCollision(player1Name, p1Lives, false);
+              updateDebugPanel();
             }
           }
 
-          // Player 2 collision - only process if not already hit this cycle and can take damage
+          // Player 2 collision - only process if alive, not already hit, and can take damage
           // Using obstacle buffer (22px) to require closer contact for fair gameplay
-          if (mode === 2 && !p2Hit && p2CanTakeDamage) {
+          if (mode === 2 && p2Alive && !p2Hit && p2CanTakeDamage) {
             const p2Rect = player2.getBoundingClientRect();
             if (
               isOverlappingWithBuffer(
@@ -3522,15 +3569,36 @@
               p2Hit = true;
               lastCollisionTime.player2.global = currentTime;
               playAudio(obstacleSound);
-              showMessage(`💥 ${player2Name} hit obstacle! Lives: ${p2Lives}`);
 
-              logCollision(player2Name, p2Lives, p2Lives <= 0 && p1Lives <= 0);
-              updateDebugPanel();
+              // Check if player 2 is knocked out
+              if (p2Lives <= 0) {
+                p2Alive = false;
+                player2.style.opacity = "0.3"; // Dim the dead player
+                player2.style.filter = "grayscale(100%)"; // Make them grayscale
 
-              // Only end game if both players are out of lives
-              if (p2Lives <= 0 && p1Lives <= 0) {
-                logGameOver("Both players out of lives");
-                endGame();
+                if (p1Lives <= 0) {
+                  // Both players dead
+                  showMessage(
+                    `💀 ${player2Name} eliminated! Both players down!`
+                  );
+                  logCollision(player2Name, p2Lives, true);
+                  updateDebugPanel();
+                  logGameOver("Both players out of lives");
+                  endGame();
+                } else {
+                  // Player 1 still alive - continue game
+                  showMessage(
+                    `💀 ${player2Name} eliminated! ${player1Name} continues...`
+                  );
+                  logCollision(player2Name, p2Lives, false);
+                  updateDebugPanel();
+                }
+              } else {
+                showMessage(
+                  `💥 ${player2Name} hit obstacle! Lives: ${p2Lives}`
+                );
+                logCollision(player2Name, p2Lives, false);
+                updateDebugPanel();
               }
             }
           }
@@ -3688,9 +3756,9 @@
           timeLeft--;
           moveObstacles();
 
-          // Apply magnet effects
-          applyMagnetEffect(player1);
-          if (mode === 2) applyMagnetEffect(player2);
+          // Apply magnet effects (only for alive players)
+          if (p1Alive) applyMagnetEffect(player1);
+          if (mode === 2 && p2Alive) applyMagnetEffect(player2);
 
           // Enforce separation between game elements
           enforceElementSeparation();
@@ -3724,8 +3792,16 @@
         p2Score = 0;
         p1Lives = 2;
         p2Lives = 2;
+        p1Alive = true; // Reset alive status
+        p2Alive = true;
         timeLeft = 40;
         level = 1;
+
+        // Reset player visual styling
+        player1.style.opacity = "1";
+        player1.style.filter = "none";
+        player2.style.opacity = "1";
+        player2.style.filter = "none";
 
         // Clear ALL debug logs and start completely fresh for new game
         gameLogger.clearAllLogs(); // Clear localStorage completely
@@ -3845,8 +3921,8 @@
         // Hide game over dialog
         gameover.style.display = "none";
 
-        // Show leaderboard
-        modal.style.display = "block";
+        // Show leaderboard with flex display for proper centering
+        modal.style.display = "flex";
 
         if (position > 0) {
           // Score made it to top 10 - show with animation
@@ -4053,28 +4129,30 @@
 
         let moved = false;
 
-        // Player 1 movement (Arrow Keys) - can process multiple simultaneously
-        if (keysPressed.has("arrowright")) {
-          p1X += moveStep * speedMultiplier;
-          p1FacingLeft = false;
-          moved = true;
-        }
-        if (keysPressed.has("arrowleft")) {
-          p1X -= moveStep * speedMultiplier;
-          p1FacingLeft = true;
-          moved = true;
-        }
-        if (keysPressed.has("arrowup")) {
-          p1Y -= moveStep * speedMultiplier;
-          moved = true;
-        }
-        if (keysPressed.has("arrowdown")) {
-          p1Y += moveStep * speedMultiplier;
-          moved = true;
+        // Player 1 movement (Arrow Keys) - only if alive
+        if (p1Alive) {
+          if (keysPressed.has("arrowright")) {
+            p1X += moveStep * speedMultiplier;
+            p1FacingLeft = false;
+            moved = true;
+          }
+          if (keysPressed.has("arrowleft")) {
+            p1X -= moveStep * speedMultiplier;
+            p1FacingLeft = true;
+            moved = true;
+          }
+          if (keysPressed.has("arrowup")) {
+            p1Y -= moveStep * speedMultiplier;
+            moved = true;
+          }
+          if (keysPressed.has("arrowdown")) {
+            p1Y += moveStep * speedMultiplier;
+            moved = true;
+          }
         }
 
-        // Player 2 movement (WASD Keys) - can process multiple simultaneously
-        if (mode === 2) {
+        // Player 2 movement (WASD Keys) - only if alive
+        if (mode === 2 && p2Alive) {
           if (keysPressed.has("d")) {
             p2X += moveStep * speedMultiplier2;
             p2FacingLeft = false;
