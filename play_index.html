@@ -1545,6 +1545,14 @@
       };
       const COLLISION_COOLDOWN = 1000; // 1 second between any hits
 
+      // Collision sensitivity settings - buffer reduces effective hitbox size
+      // Higher buffer = objects must be closer to register collision
+      const COLLISION_BUFFER = {
+        obstacle: 22, // Obstacles require 22px closer contact for fair gameplay
+        treasure: 10, // Treasures easier to collect (10px buffer)
+        powerup: 12, // Power-ups moderate difficulty
+      };
+
       // Debug Logging System (using external logger)
       const MAX_DEBUG_ENTRIES = 200; // Increased to track longer games up to level 20+
 
@@ -2362,84 +2370,144 @@
         return { x, y };
       }
 
-      // Check if a position overlaps with existing elements
-      function isPositionSafe(x, y, elementWidth = 60, excludeElement = null) {
+      // Minimum buffer distances between game elements (in pixels)
+      // Increased values to prevent dangerous clustering and overlapping
+      const BUFFER_DISTANCES = {
+        OBSTACLE_TO_CHARACTER: 150, // Obstacles must be 150px away from characters (increased for better gameplay)
+        OBSTACLE_TO_TREASURE: 200, // Obstacles must be 200px away from treasures (increased to ensure treasures are accessible)
+        OBSTACLE_TO_OBSTACLE: 100, // Obstacles must be 100px apart from each other (increased to prevent stacking)
+        TREASURE_TO_CHARACTER: 100, // Treasures must be 100px away from characters
+        POWERUP_TO_ANY: 80, // Power-ups must be 80px away from anything
+      };
+
+      // Check distance between two points
+      function getDistance(x1, y1, x2, y2) {
+        return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+      }
+
+      // Check if a position has sufficient buffer distance from all elements
+      function isPositionSafe(
+        x,
+        y,
+        elementWidth = 60,
+        excludeElement = null,
+        elementType = "default"
+      ) {
         const newRect = {
           left: x,
           top: y,
           right: x + elementWidth,
           bottom: y + elementWidth,
+          centerX: x + elementWidth / 2,
+          centerY: y + elementWidth / 2,
         };
 
-        // Check against players
-        const p1Rect = player1.getBoundingClientRect();
-        const p2Rect = player2.getBoundingClientRect();
+        // Check against players with appropriate buffer
+        const p1CenterX = parseFloat(player1.style.left) + 30;
+        const p1CenterY = parseFloat(player1.style.top) + 30;
 
-        if (
-          isRectOverlapping(newRect, {
-            left: parseFloat(player1.style.left),
-            top: parseFloat(player1.style.top),
-            right: parseFloat(player1.style.left) + 60,
-            bottom: parseFloat(player1.style.top) + 60,
-          })
-        )
+        let minDistanceToPlayer = BUFFER_DISTANCES.POWERUP_TO_ANY;
+        if (elementType === "obstacle") {
+          minDistanceToPlayer = BUFFER_DISTANCES.OBSTACLE_TO_CHARACTER;
+        } else if (elementType === "treasure") {
+          minDistanceToPlayer = BUFFER_DISTANCES.TREASURE_TO_CHARACTER;
+        }
+
+        const distanceToP1 = getDistance(
+          newRect.centerX,
+          newRect.centerY,
+          p1CenterX,
+          p1CenterY
+        );
+        if (distanceToP1 < minDistanceToPlayer) {
           return false;
+        }
 
-        if (
-          mode === 2 &&
-          isRectOverlapping(newRect, {
-            left: parseFloat(player2.style.left),
-            top: parseFloat(player2.style.top),
-            right: parseFloat(player2.style.left) + 60,
-            bottom: parseFloat(player2.style.top) + 60,
-          })
-        )
-          return false;
+        // Check against player 2 if in two-player mode
+        if (mode === 2) {
+          const p2CenterX = parseFloat(player2.style.left) + 30;
+          const p2CenterY = parseFloat(player2.style.top) + 30;
+          const distanceToP2 = getDistance(
+            newRect.centerX,
+            newRect.centerY,
+            p2CenterX,
+            p2CenterY
+          );
+          if (distanceToP2 < minDistanceToPlayer) {
+            return false;
+          }
+        }
 
-        // Check against obstacles
+        // Check against obstacles with appropriate buffer
         for (let obs of obstacles) {
           if (obs === excludeElement) continue;
 
-          const obsRect = {
-            left: parseFloat(obs.style.left),
-            top: parseFloat(obs.style.top),
-            right: parseFloat(obs.style.left) + 60,
-            bottom: parseFloat(obs.style.top) + 60,
-          };
+          const obsCenterX = parseFloat(obs.style.left) + 30;
+          const obsCenterY = parseFloat(obs.style.top) + 30;
+          const distanceToObs = getDistance(
+            newRect.centerX,
+            newRect.centerY,
+            obsCenterX,
+            obsCenterY
+          );
 
-          if (isRectOverlapping(newRect, obsRect)) return false;
+          let minDistanceToObstacle = BUFFER_DISTANCES.OBSTACLE_TO_OBSTACLE;
+          if (elementType === "treasure") {
+            minDistanceToObstacle = BUFFER_DISTANCES.OBSTACLE_TO_TREASURE;
+          } else if (elementType === "obstacle") {
+            minDistanceToObstacle = BUFFER_DISTANCES.OBSTACLE_TO_OBSTACLE;
+          } else {
+            minDistanceToObstacle = BUFFER_DISTANCES.POWERUP_TO_ANY;
+          }
+
+          if (distanceToObs < minDistanceToObstacle) {
+            return false;
+          }
         }
 
         // Check against treasure (if not excluding it)
         if (excludeElement !== treasure && treasure.style.display !== "none") {
-          const treasureRect = {
-            left: parseFloat(treasure.style.left),
-            top: parseFloat(treasure.style.top),
-            right: parseFloat(treasure.style.left) + 60,
-            bottom: parseFloat(treasure.style.top) + 60,
-          };
+          const treasureCenterX = parseFloat(treasure.style.left) + 30;
+          const treasureCenterY = parseFloat(treasure.style.top) + 30;
+          const distanceToTreasure = getDistance(
+            newRect.centerX,
+            newRect.centerY,
+            treasureCenterX,
+            treasureCenterY
+          );
 
-          if (isRectOverlapping(newRect, treasureRect)) return false;
+          let minDistanceToTreasure = BUFFER_DISTANCES.POWERUP_TO_ANY;
+          if (elementType === "obstacle") {
+            minDistanceToTreasure = BUFFER_DISTANCES.OBSTACLE_TO_TREASURE;
+          }
+
+          if (distanceToTreasure < minDistanceToTreasure) {
+            return false;
+          }
         }
 
         // Check against power-ups
         for (let powerUp of powerUps) {
           if (powerUp === excludeElement) continue;
 
-          const powerUpRect = {
-            left: parseFloat(powerUp.style.left),
-            top: parseFloat(powerUp.style.top),
-            right: parseFloat(powerUp.style.left) + 60,
-            bottom: parseFloat(powerUp.style.top) + 60,
-          };
+          const powerUpCenterX = parseFloat(powerUp.style.left) + 30;
+          const powerUpCenterY = parseFloat(powerUp.style.top) + 30;
+          const distanceToPowerUp = getDistance(
+            newRect.centerX,
+            newRect.centerY,
+            powerUpCenterX,
+            powerUpCenterY
+          );
 
-          if (isRectOverlapping(newRect, powerUpRect)) return false;
+          if (distanceToPowerUp < BUFFER_DISTANCES.POWERUP_TO_ANY) {
+            return false;
+          }
         }
 
         return true;
       }
 
-      // Check if two rectangles overlap
+      // Check if two rectangles overlap (legacy function for collision detection)
       function isRectOverlapping(rect1, rect2) {
         return !(
           rect1.right < rect2.left ||
@@ -2450,17 +2518,46 @@
       }
 
       // Get a safe random position that doesn't overlap with other elements
-      function getSafeRandomPosition(excludeElement = null, maxAttempts = 50) {
+      function getSafeRandomPosition(
+        excludeElement = null,
+        elementType = "default",
+        maxAttempts = 100
+      ) {
         for (let attempt = 0; attempt < maxAttempts; attempt++) {
           const pos = randomPosition();
-          if (isPositionSafe(pos.x, pos.y, 60, excludeElement)) {
+          if (isPositionSafe(pos.x, pos.y, 60, excludeElement, elementType)) {
             return pos;
           }
         }
 
-        // If we can't find a safe position after max attempts, return a random one
-        // This prevents infinite loops but is rare
-        console.warn("Could not find safe position, using random position");
+        // If we can't find a safe position after max attempts, try with reduced buffer
+        console.warn(
+          `Could not find safe position for ${elementType} after ${maxAttempts} attempts, trying with reduced buffer`
+        );
+
+        // Try 50 more times with half the buffer distances
+        const originalBuffers = { ...BUFFER_DISTANCES };
+        for (let key in BUFFER_DISTANCES) {
+          BUFFER_DISTANCES[key] = BUFFER_DISTANCES[key] * 0.6;
+        }
+
+        for (let attempt = 0; attempt < 50; attempt++) {
+          const pos = randomPosition();
+          if (isPositionSafe(pos.x, pos.y, 60, excludeElement, elementType)) {
+            // Restore original buffers
+            for (let key in originalBuffers) {
+              BUFFER_DISTANCES[key] = originalBuffers[key];
+            }
+            return pos;
+          }
+        }
+
+        // Restore original buffers
+        for (let key in originalBuffers) {
+          BUFFER_DISTANCES[key] = originalBuffers[key];
+        }
+
+        console.warn("Using fallback random position");
         return randomPosition();
       }
 
@@ -2484,49 +2581,254 @@
           (key) => treasureTypes[key] === selectedType
         );
 
-        // Use safe positioning to avoid overlaps
-        const pos = getSafeRandomPosition(treasure);
+        // Use safe positioning to avoid overlaps with proper treasure buffer
+        const pos = getSafeRandomPosition(treasure, "treasure");
         treasure.style.left = pos.x + "px";
         treasure.style.top = pos.y + "px";
 
-        // Check and resolve treasure-obstacle collisions
+        // Enforce separation from obstacles
         resolveTreasureObstacleCollisions();
+      }
+
+      // Continuously enforce minimum separation between all game elements during gameplay
+      function enforceElementSeparation() {
+        if (!gameRunning) return;
+
+        const game = document.getElementById("game");
+
+        // 1. Check treasure-obstacle separation
+        const treasureCenterX = parseFloat(treasure.style.left) + 30;
+        const treasureCenterY = parseFloat(treasure.style.top) + 30;
+
+        obstacles.forEach((obstacle) => {
+          // Skip special horizontal-moving crocodiles (they move across screen)
+          if (obstacle.dataset.special === "horizontal") return;
+
+          const obstacleCenterX = parseFloat(obstacle.style.left) + 30;
+          const obstacleCenterY = parseFloat(obstacle.style.top) + 30;
+          const distance = getDistance(
+            treasureCenterX,
+            treasureCenterY,
+            obstacleCenterX,
+            obstacleCenterY
+          );
+
+          // If obstacle gets too close to treasure during movement, nudge it away
+          if (distance < BUFFER_DISTANCES.OBSTACLE_TO_TREASURE) {
+            console.log(
+              `⚠️ Separating obstacle from treasure: ${Math.round(
+                distance
+              )}px → ${BUFFER_DISTANCES.OBSTACLE_TO_TREASURE}px`
+            );
+
+            // Calculate push direction (away from treasure)
+            const angle = Math.atan2(
+              obstacleCenterY - treasureCenterY,
+              obstacleCenterX - treasureCenterX
+            );
+            const pushDistance =
+              BUFFER_DISTANCES.OBSTACLE_TO_TREASURE - distance;
+
+            // Move obstacle away
+            const newX =
+              parseFloat(obstacle.style.left) + Math.cos(angle) * pushDistance;
+            const newY =
+              parseFloat(obstacle.style.top) + Math.sin(angle) * pushDistance;
+
+            // Keep within bounds
+            obstacle.style.left =
+              Math.max(0, Math.min(game.clientWidth - 60, newX)) + "px";
+            obstacle.style.top =
+              Math.max(0, Math.min(game.clientHeight - 60, newY)) + "px";
+          }
+        });
+
+        // 2. Check obstacle-to-obstacle separation to prevent stacking/clustering
+        for (let i = 0; i < obstacles.length; i++) {
+          const obs1 = obstacles[i];
+          // Skip special horizontal-moving crocodiles
+          if (obs1.dataset.special === "horizontal") continue;
+
+          const obs1CenterX = parseFloat(obs1.style.left) + 30;
+          const obs1CenterY = parseFloat(obs1.style.top) + 30;
+
+          for (let j = i + 1; j < obstacles.length; j++) {
+            const obs2 = obstacles[j];
+            // Skip special horizontal-moving crocodiles
+            if (obs2.dataset.special === "horizontal") continue;
+
+            const obs2CenterX = parseFloat(obs2.style.left) + 30;
+            const obs2CenterY = parseFloat(obs2.style.top) + 30;
+
+            const distance = getDistance(
+              obs1CenterX,
+              obs1CenterY,
+              obs2CenterX,
+              obs2CenterY
+            );
+
+            // If obstacles are too close to each other, push them apart
+            if (distance < BUFFER_DISTANCES.OBSTACLE_TO_OBSTACLE) {
+              console.log(
+                `⚠️ Separating obstacles: ${Math.round(distance)}px → ${
+                  BUFFER_DISTANCES.OBSTACLE_TO_OBSTACLE
+                }px (${obs1.dataset.type} vs ${obs2.dataset.type})`
+              );
+
+              // Calculate push direction (push both away from each other)
+              const angle = Math.atan2(
+                obs2CenterY - obs1CenterY,
+                obs2CenterX - obs1CenterX
+              );
+              const pushDistance =
+                (BUFFER_DISTANCES.OBSTACLE_TO_OBSTACLE - distance) / 2;
+
+              // Push obs1 backward
+              const newX1 =
+                parseFloat(obs1.style.left) - Math.cos(angle) * pushDistance;
+              const newY1 =
+                parseFloat(obs1.style.top) - Math.sin(angle) * pushDistance;
+              obs1.style.left =
+                Math.max(0, Math.min(game.clientWidth - 60, newX1)) + "px";
+              obs1.style.top =
+                Math.max(0, Math.min(game.clientHeight - 60, newY1)) + "px";
+
+              // Push obs2 forward
+              const newX2 =
+                parseFloat(obs2.style.left) + Math.cos(angle) * pushDistance;
+              const newY2 =
+                parseFloat(obs2.style.top) + Math.sin(angle) * pushDistance;
+              obs2.style.left =
+                Math.max(0, Math.min(game.clientWidth - 60, newX2)) + "px";
+              obs2.style.top =
+                Math.max(0, Math.min(game.clientHeight - 60, newY2)) + "px";
+            }
+          }
+        }
+
+        // 3. Check obstacle-to-character separation to prevent obstacles camping next to players
+        obstacles.forEach((obstacle) => {
+          // Skip special horizontal-moving crocodiles (they move across screen intentionally)
+          if (obstacle.dataset.special === "horizontal") return;
+
+          const obstacleCenterX = parseFloat(obstacle.style.left) + 30;
+          const obstacleCenterY = parseFloat(obstacle.style.top) + 30;
+
+          // Check distance to Player 1
+          const p1CenterX = parseFloat(player1.style.left) + 30;
+          const p1CenterY = parseFloat(player1.style.top) + 30;
+          const distanceToP1 = getDistance(
+            obstacleCenterX,
+            obstacleCenterY,
+            p1CenterX,
+            p1CenterY
+          );
+
+          // If obstacle is too close to player 1, push it away
+          if (distanceToP1 < BUFFER_DISTANCES.OBSTACLE_TO_CHARACTER) {
+            console.log(
+              `⚠️ Separating obstacle from Player 1: ${Math.round(
+                distanceToP1
+              )}px → ${BUFFER_DISTANCES.OBSTACLE_TO_CHARACTER}px`
+            );
+
+            // Calculate push direction (away from player)
+            const angle = Math.atan2(
+              obstacleCenterY - p1CenterY,
+              obstacleCenterX - p1CenterX
+            );
+            const pushDistance =
+              BUFFER_DISTANCES.OBSTACLE_TO_CHARACTER - distanceToP1;
+
+            // Move obstacle away from player
+            const newX =
+              parseFloat(obstacle.style.left) + Math.cos(angle) * pushDistance;
+            const newY =
+              parseFloat(obstacle.style.top) + Math.sin(angle) * pushDistance;
+
+            // Keep within bounds
+            obstacle.style.left =
+              Math.max(0, Math.min(game.clientWidth - 60, newX)) + "px";
+            obstacle.style.top =
+              Math.max(0, Math.min(game.clientHeight - 60, newY)) + "px";
+          }
+
+          // Check distance to Player 2 (if in 2-player mode)
+          if (mode === 2) {
+            const p2CenterX = parseFloat(player2.style.left) + 30;
+            const p2CenterY = parseFloat(player2.style.top) + 30;
+            const distanceToP2 = getDistance(
+              obstacleCenterX,
+              obstacleCenterY,
+              p2CenterX,
+              p2CenterY
+            );
+
+            // If obstacle is too close to player 2, push it away
+            if (distanceToP2 < BUFFER_DISTANCES.OBSTACLE_TO_CHARACTER) {
+              console.log(
+                `⚠️ Separating obstacle from Player 2: ${Math.round(
+                  distanceToP2
+                )}px → ${BUFFER_DISTANCES.OBSTACLE_TO_CHARACTER}px`
+              );
+
+              // Calculate push direction (away from player)
+              const angle = Math.atan2(
+                obstacleCenterY - p2CenterY,
+                obstacleCenterX - p2CenterX
+              );
+              const pushDistance =
+                BUFFER_DISTANCES.OBSTACLE_TO_CHARACTER - distanceToP2;
+
+              // Move obstacle away from player
+              const newX =
+                parseFloat(obstacle.style.left) +
+                Math.cos(angle) * pushDistance;
+              const newY =
+                parseFloat(obstacle.style.top) + Math.sin(angle) * pushDistance;
+
+              // Keep within bounds
+              obstacle.style.left =
+                Math.max(0, Math.min(game.clientWidth - 60, newX)) + "px";
+              obstacle.style.top =
+                Math.max(0, Math.min(game.clientHeight - 60, newY)) + "px";
+            }
+          }
+        });
       }
 
       // Check for treasure-obstacle collisions and relocate obstacles if needed
       function resolveTreasureObstacleCollisions() {
-        const treasureRect = {
-          left: parseFloat(treasure.style.left),
-          top: parseFloat(treasure.style.top),
-          right: parseFloat(treasure.style.left) + 60,
-          bottom: parseFloat(treasure.style.top) + 60,
-        };
+        const treasureCenterX = parseFloat(treasure.style.left) + 30;
+        const treasureCenterY = parseFloat(treasure.style.top) + 30;
 
         obstacles.forEach((obstacle) => {
-          const obstacleRect = {
-            left: parseFloat(obstacle.style.left),
-            top: parseFloat(obstacle.style.top),
-            right: parseFloat(obstacle.style.left) + 60,
-            bottom: parseFloat(obstacle.style.top) + 60,
-          };
+          const obstacleCenterX = parseFloat(obstacle.style.left) + 30;
+          const obstacleCenterY = parseFloat(obstacle.style.top) + 30;
 
-          // Check if treasure and obstacle are too close (within 80px)
-          const distance = Math.sqrt(
-            Math.pow(treasureRect.left - obstacleRect.left, 2) +
-              Math.pow(treasureRect.top - obstacleRect.top, 2)
+          // Check if treasure and obstacle are too close (using buffer distance)
+          const distance = getDistance(
+            treasureCenterX,
+            treasureCenterY,
+            obstacleCenterX,
+            obstacleCenterY
           );
 
-          if (distance < 80) {
+          if (distance < BUFFER_DISTANCES.OBSTACLE_TO_TREASURE) {
             console.log(
-              "🚫 Treasure-obstacle collision detected, relocating obstacle"
+              `🚫 Treasure-obstacle too close (${Math.round(distance)}px < ${
+                BUFFER_DISTANCES.OBSTACLE_TO_TREASURE
+              }px), relocating obstacle`
             );
 
             // Find a new safe position for the obstacle
-            const newPos = getSafeRandomPosition(obstacle);
+            const newPos = getSafeRandomPosition(obstacle, "obstacle");
             obstacle.style.left = newPos.x + "px";
             obstacle.style.top = newPos.y + "px";
 
-            console.log("✅ Obstacle relocated to avoid treasure collision");
+            console.log(
+              "✅ Obstacle relocated to maintain safe distance from treasure"
+            );
           }
         });
       }
@@ -2551,7 +2853,7 @@
         powerUp.innerText = powerUpType.emoji;
         powerUp.dataset.type = powerUpName;
 
-        const pos = getSafeRandomPosition(); // Use safe positioning
+        const pos = getSafeRandomPosition(powerUp, "powerup"); // Use safe positioning with powerup type
         powerUp.style.left = pos.x + "px";
         powerUp.style.top = pos.y + "px";
 
@@ -2595,7 +2897,7 @@
           obs.dataset.type = selectedObstacle.type;
           obs.dataset.faceable = selectedObstacle.faceable;
 
-          const pos = getSafeRandomPosition(); // Use safe positioning to avoid overlaps
+          const pos = getSafeRandomPosition(obs, "obstacle"); // Use safe positioning with obstacle type
           obs.style.left = pos.x + "px";
           obs.style.top = pos.y + "px";
 
@@ -2650,7 +2952,7 @@
           obs.dataset.type = selectedObstacle.type;
           obs.dataset.faceable = selectedObstacle.faceable;
 
-          const pos = randomPosition();
+          const pos = getSafeRandomPosition(obs, "obstacle"); // Use safe positioning with obstacle type
           obs.style.left = pos.x + "px";
           obs.style.top = pos.y + "px";
 
@@ -2803,6 +3105,9 @@
         if (!shouldSpawnSpecialCrocodile(level)) {
           removeSpecialCrocodiles();
         }
+
+        // Enforce element separation after obstacle movement
+        enforceElementSeparation();
       }
 
       // Check if special crocodile should spawn at this level
@@ -3033,8 +3338,14 @@
         const p1Rect = player1.getBoundingClientRect();
         const treasureRect = treasure.getBoundingClientRect();
 
-        // Check treasure collision for player 1
-        if (isOverlapping(p1Rect, treasureRect)) {
+        // Check treasure collision for player 1 (using treasure buffer for easier collection)
+        if (
+          isOverlappingWithBuffer(
+            p1Rect,
+            treasureRect,
+            COLLISION_BUFFER.treasure
+          )
+        ) {
           const points = parseFloat(treasure.dataset.points) || 0.5;
           const multiplier =
             activePowerUps.player1 && activePowerUps.player1.type === "POINTS"
@@ -3067,10 +3378,16 @@
           checkLevelProgress();
         }
 
-        // Check treasure collision for player 2
+        // Check treasure collision for player 2 (using treasure buffer for easier collection)
         if (mode === 2) {
           const p2Rect = player2.getBoundingClientRect();
-          if (isOverlapping(p2Rect, treasureRect)) {
+          if (
+            isOverlappingWithBuffer(
+              p2Rect,
+              treasureRect,
+              COLLISION_BUFFER.treasure
+            )
+          ) {
             const points = parseFloat(treasure.dataset.points) || 0.5;
             const multiplier =
               activePowerUps.player2 && activePowerUps.player2.type === "POINTS"
@@ -3104,17 +3421,29 @@
           }
         }
 
-        // Check power-up collisions
+        // Check power-up collisions (using powerup buffer for moderate difficulty)
         powerUps.forEach((powerUp, index) => {
           const powerUpRect = powerUp.getBoundingClientRect();
 
-          if (isOverlapping(p1Rect, powerUpRect)) {
+          if (
+            isOverlappingWithBuffer(
+              p1Rect,
+              powerUpRect,
+              COLLISION_BUFFER.powerup
+            )
+          ) {
             activatePowerUp(player1, powerUp.dataset.type);
             powerUp.remove();
             powerUps.splice(index, 1);
           } else if (mode === 2) {
             const p2Rect = player2.getBoundingClientRect();
-            if (isOverlapping(p2Rect, powerUpRect)) {
+            if (
+              isOverlappingWithBuffer(
+                p2Rect,
+                powerUpRect,
+                COLLISION_BUFFER.powerup
+              )
+            ) {
               activatePowerUp(player2, powerUp.dataset.type);
               powerUp.remove();
               powerUps.splice(index, 1);
@@ -3139,10 +3468,15 @@
           const obsRect = obs.getBoundingClientRect();
 
           // Player 1 collision - only process if not already hit this cycle and can take damage
+          // Using obstacle buffer (22px) to require closer contact for fair gameplay
           if (
             !p1Hit &&
             p1CanTakeDamage &&
-            isOverlapping(p1Rect, obsRect) &&
+            isOverlappingWithBuffer(
+              p1Rect,
+              obsRect,
+              COLLISION_BUFFER.obstacle
+            ) &&
             !(
               activePowerUps.player1 && activePowerUps.player1.type === "SHIELD"
             )
@@ -3170,10 +3504,15 @@
           }
 
           // Player 2 collision - only process if not already hit this cycle and can take damage
+          // Using obstacle buffer (22px) to require closer contact for fair gameplay
           if (mode === 2 && !p2Hit && p2CanTakeDamage) {
             const p2Rect = player2.getBoundingClientRect();
             if (
-              isOverlapping(p2Rect, obsRect) &&
+              isOverlappingWithBuffer(
+                p2Rect,
+                obsRect,
+                COLLISION_BUFFER.obstacle
+              ) &&
               !(
                 activePowerUps.player2 &&
                 activePowerUps.player2.type === "SHIELD"
@@ -3198,13 +3537,33 @@
         });
       }
 
-      function isOverlapping(rect1, rect2) {
+      // Helper: Get buffered rectangle (shrinks hitbox by buffer pixels on all sides)
+      function getBufferedRect(rect, buffer) {
+        return {
+          top: rect.top + buffer,
+          bottom: rect.bottom - buffer,
+          left: rect.left + buffer,
+          right: rect.right - buffer,
+        };
+      }
+
+      // Enhanced collision detection with buffer support for more precise hits
+      // Buffer shrinks the effective collision area, requiring objects to be closer
+      function isOverlappingWithBuffer(rect1, rect2, buffer = 0) {
+        const r1 = getBufferedRect(rect1, buffer);
+        const r2 = getBufferedRect(rect2, buffer);
+
         return !(
-          rect1.top > rect2.bottom ||
-          rect1.bottom < rect2.top ||
-          rect1.left > rect2.right ||
-          rect1.right < rect2.left
+          r1.top > r2.bottom ||
+          r1.bottom < r2.top ||
+          r1.left > r2.right ||
+          r1.right < r2.left
         );
+      }
+
+      // Keep original function for backward compatibility (zero buffer)
+      function isOverlapping(rect1, rect2) {
+        return isOverlappingWithBuffer(rect1, rect2, 0);
       }
 
       function updateDisplay() {
@@ -3332,6 +3691,9 @@
           // Apply magnet effects
           applyMagnetEffect(player1);
           if (mode === 2) applyMagnetEffect(player2);
+
+          // Enforce separation between game elements
+          enforceElementSeparation();
 
           updateDisplay();
 

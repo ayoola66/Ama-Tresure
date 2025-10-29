@@ -307,6 +307,85 @@ http://localhost:8000/play_index.html
 
 ---
 
+### 🎯 **Phase 15: Enhanced Collision Detection System (October 29, 2025)**
+
+**Buffer-Based Precision Collision for Natural Gameplay**
+
+- ✅ **Advanced Hitbox Buffer System**: Resolved issue where collisions triggered despite visual separation
+  - **Problem identified**: Simple bounding box collision too sensitive for emoji sprites with transparent padding
+  - **Visual issue**: Fish and fire showing ~10px gap but still registering hits
+  - **Root cause**: 50px player sprites and 60px obstacle sprites have invisible padding
+- ✅ **Configurable Collision Buffers**: Three-tier buffer system for balanced gameplay
+  - **Obstacles (22px buffer)**: Requires actual visual contact, prevents frustrating "near miss" deaths
+  - **Treasures (10px buffer)**: Easier collection while maintaining reasonable challenge
+  - **Power-ups (12px buffer)**: Moderate difficulty for special items
+- ✅ **Enhanced Collision Functions**: Professional implementation with utility helpers
+  - `getBufferedRect()`: Shrinks effective hitbox by buffer pixels on all sides
+  - `isOverlappingWithBuffer()`: Calculates collision with configurable precision
+  - Backward compatible: Original `isOverlapping()` retained with zero buffer
+- ✅ **Universal Application**: All collision checks updated consistently
+  - Player 1 and Player 2 treasure collection (10px buffer)
+  - Player 1 and Player 2 power-up collection (12px buffer)
+  - Player 1 and Player 2 obstacle collision (22px buffer)
+  - Shield power-up immunity preserved
+  - Collision cooldown system maintained
+- ✅ **Natural Gameplay Feel**: Collisions now match player expectations
+  - Objects must visually overlap before collision registers
+  - Eliminates false positives from invisible bounding box touches
+  - More forgiving gameplay without sacrificing challenge
+  - Players can navigate closer to obstacles with confidence
+
+**Technical Implementation**
+
+- ✅ **Buffer Constants**: `COLLISION_BUFFER` object with configurable values
+- ✅ **Geometry Calculations**: Each rectangle reduced by buffer pixels on all four sides
+- ✅ **Performance Optimised**: Minimal overhead with simple arithmetic operations
+- ✅ **Easy Fine-Tuning**: Buffer values can be adjusted for game balance testing
+- ✅ **Code Quality**: Comprehensive inline comments explaining buffer application
+
+**User Experience Improvements**
+
+- 🎮 **Fair Gameplay**: No more deaths from "invisible" collisions
+- ✨ **Visual Accuracy**: Hit detection matches what players see on screen
+- 🎯 **Skill-Based Challenge**: Players can dodge obstacles with precision
+- 💎 **Smoother Collection**: Treasures easier to grab without frustration
+
+**Anti-Clustering & Element Separation System**
+
+- ✅ **Real-Time Obstacle Separation**: Prevents obstacles from stacking on top of each other
+  - **Problem solved**: Coconuts and crocodiles appearing overlapped or clustered together
+  - **Continuous enforcement**: `enforceElementSeparation()` runs every game frame
+  - **Obstacle-to-obstacle push**: When obstacles get within 100px, they're automatically pushed apart
+  - **Bidirectional separation**: Both obstacles move away from each other equally
+- ✅ **Treasure Protection Zone**: Maintains safe distance between treasures and obstacles
+  - **180px minimum separation**: Treasures spawn far from obstacles
+  - **Dynamic enforcement**: If obstacles move too close, they're pushed away automatically
+  - **Critical for low lives**: Prevents dangerous treasure spawns when player has 1 life left
+- ✅ **Enhanced Buffer Distances**: Increased from original values for safer gameplay
+  - **Obstacle-to-treasure**: 150px → 180px (20% increase)
+  - **Obstacle-to-obstacle**: 80px → 100px (25% increase)
+  - **Obstacle-to-character**: 120px → 130px (safer spawning)
+- ✅ **Intelligent Safe Positioning**: Enhanced spawn system with fallback logic
+  - Up to 100 attempts to find safe position with full buffers
+  - Additional 50 attempts with reduced buffers (60% of original) if needed
+  - Element type awareness (obstacle, treasure, powerup) for appropriate spacing
+  - Prevents infinite loops while maximising safety
+- ✅ **Debug Logging**: Console warnings when elements are separated
+  - "⚠️ Separating obstacle from treasure: 145px → 180px"
+  - "⚠️ Separating obstacles: 75px → 100px (crocodile vs coconut)"
+  - Helps track and verify anti-clustering system is working
+
+**Technical Architecture**
+
+- ✅ **BUFFER_DISTANCES Constants**: Centralised configuration object
+- ✅ **getDistance()**: Euclidean distance calculator for precise measurements
+- ✅ **isPositionSafe()**: Comprehensive collision-free position validator
+- ✅ **getSafeRandomPosition()**: Smart positioning with retry and fallback logic
+- ✅ **enforceElementSeparation()**: Real-time separation enforcement during gameplay
+- ✅ **resolveTreasureObstacleCollisions()**: Initial spawn separation validator
+
+---
+
 ### ⚖️ **Phase 13: Major Gameplay Rebalancing & UX Improvements (October 17, 2025 - Afternoon)**
 
 **Revolutionary Level Progression System & Enhanced Challenge**
@@ -676,14 +755,20 @@ _Point values carefully balanced to ensure smooth level progression without jump
 - **🎵 Intelligent Audio System**: MP3 primary with procedural backup for compatibility
 - **🔧 Server Management Tools**: Professional development workflow with process cleanup
 
-### **🎯 Advanced Collision System (October 2024)**
+### **🎯 Advanced Collision System (October 2024 - Enhanced October 2025)**
 
+- **Buffer-Based Precision Collision**: Advanced hitbox reduction system for natural gameplay feel
+  - **22px buffer for obstacles**: Requires actual visual contact, not just invisible box touching
+  - **10px buffer for treasures**: Easier collection while maintaining challenge
+  - **12px buffer for power-ups**: Balanced difficulty for special item collection
+  - Eliminates false positives where sprites appear separated but trigger collisions
 - **Per-Obstacle Cooldown**: Individual 1-second cooldown for each obstacle per player
 - **Immediate Response**: Lives decrease from Level 1 (no delayed activation)
 - **Fair Hit Detection**: Prevents multiple rapid hits from single obstacle contact
 - **Smart State Tracking**: Collision timestamps reset properly on new game
 - **Fractional Point Support**: `parseFloat()` implementation for decimal treasure values
-- **Optimized Detection**: Collision checks run every frame for responsive gameplay
+- **Optimized Detection**: Collision checks run every frame with buffered rectangle calculations
+- **Configurable Sensitivity**: `COLLISION_BUFFER` constants allow easy fine-tuning of game balance
 
 ### **🛠️ Development & Debugging Tools**
 
