@@ -1134,7 +1134,7 @@
       <!-- Loading Screen -->
       <div id="loadingScreen">
         <div class="loading-countdown-main">
-          <span id="countdownTimer">10</span>
+          <span id="countdownTimer">3</span>
         </div>
 
         <div>
@@ -1402,14 +1402,14 @@
       // ====================================
       // LOADING SCREEN INITIALIZATION
       // ====================================
-      const LOADING_DURATION = 10000; // 10 seconds
+      const LOADING_DURATION = 3000; // 3 seconds (reduced for faster start)
       let loadingComplete = false;
 
       // Initialize loading screen
       function initializeLoadingScreen() {
         const loadingScreen = document.getElementById("loadingScreen");
         const countdownTimer = document.getElementById("countdownTimer");
-        let remainingTime = LOADING_DURATION / 1000; // 10 seconds
+        let remainingTime = LOADING_DURATION / 1000; // 3 seconds
 
         console.log("🎬 [LOADING SCREEN] Initializing loading screen...");
 
@@ -1464,8 +1464,10 @@
           closeLoading();
         });
 
-        // Auto-close after 10 seconds
+        // Auto-close after 3 seconds
         loadingStartTime = Date.now();
+        // Set initial countdown value
+        countdownTimer.textContent = remainingTime;
         // Update countdown every second
         const countdownInterval = setInterval(() => {
           remainingTime--;
@@ -1561,7 +1563,7 @@
         p1Y = 100;
       let p2X = 200,
         p2Y = 200;
-      const moveStep = 20;
+      const moveStep = 15; // Reduced from 20 to 15 for child-friendly gameplay (25% slower)
       let highScore = localStorage.getItem("treasureHighScore") || 0;
 
       // Collision tracking to prevent multiple hits within short time
@@ -1760,7 +1762,7 @@
           emoji: "🚗",
           name: "Car",
           background: "data/background/redCar-background-1.png",
-          needsFlip: false,
+          needsFlip: true, // Fixed: Car now flips left/right like other characters
         },
         HORSE: {
           emoji: "🐎",
@@ -3794,6 +3796,7 @@
         p2Lives = 2;
         p1Alive = true; // Reset alive status
         p2Alive = true;
+        isPaused = false; // Reset pause state
         timeLeft = 40;
         level = 1;
 
@@ -4054,6 +4057,7 @@
       // Key state tracking for simultaneous movement
       const keysPressed = new Set();
       let movementInterval = null;
+      let isPaused = false; // Track pause state
 
       // Track key press states
       document.addEventListener("keydown", (e) => {
@@ -4064,12 +4068,22 @@
           const pauseBtn = document.getElementById("pauseButton");
 
           if (timer) {
+            // PAUSE the game
+            isPaused = true;
             clearInterval(timer);
             timer = null;
+            // Stop movement interval to freeze player movement
+            if (movementInterval) {
+              clearInterval(movementInterval);
+              movementInterval = null;
+            }
+            keysPressed.clear(); // Clear all key presses
             pauseBtn.innerHTML = "▶ RESUME";
             pauseBtn.style.background = "rgba(40, 167, 69, 0.8)";
             showMessage("⏸ Game Paused - Press ESC to resume");
           } else {
+            // RESUME the game
+            isPaused = false;
             timer = setInterval(gameTick, 1000);
             pauseBtn.innerHTML = "⏸ PAUSE";
             pauseBtn.style.background = "rgba(255, 193, 7, 0.8)";
@@ -4078,8 +4092,8 @@
           return;
         }
 
-        // Start movement processing if not already running
-        if (!movementInterval) {
+        // Start movement processing if not already running and game is not paused
+        if (!isPaused && !movementInterval) {
           movementInterval = setInterval(processMovement, 16); // ~60fps
         }
       });
@@ -4110,6 +4124,11 @@
 
       // Process movement for both players simultaneously
       function processMovement() {
+        // Exit early if game is paused
+        if (isPaused) {
+          return;
+        }
+
         if ((p1Lives <= 0 && (mode === 1 || p2Lives <= 0)) || timeLeft <= 0) {
           if (movementInterval) {
             clearInterval(movementInterval);
@@ -4260,12 +4279,22 @@
         const pauseBtn = document.getElementById("pauseButton");
 
         if (timer) {
+          // PAUSE the game
+          isPaused = true;
           clearInterval(timer);
           timer = null;
+          // Stop movement interval to freeze player movement
+          if (movementInterval) {
+            clearInterval(movementInterval);
+            movementInterval = null;
+          }
+          keysPressed.clear(); // Clear all key presses
           pauseBtn.innerHTML = "▶ RESUME";
           pauseBtn.style.background = "rgba(40, 167, 69, 0.8)";
           showMessage("⏸ Game Paused");
         } else {
+          // RESUME the game
+          isPaused = false;
           timer = setInterval(gameTick, 1000);
           pauseBtn.innerHTML = "⏸ PAUSE";
           pauseBtn.style.background = "rgba(255, 193, 7, 0.8)";
