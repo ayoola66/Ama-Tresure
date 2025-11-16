@@ -130,6 +130,46 @@ body {
   border: 3px solid rgba(255, 165, 0, 0.4);
   box-shadow: 0 15px 50px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(10px);
+  box-sizing: border-box;
+}
+
+/* Responsive start screen */
+@media (max-width: 1024px) {
+  #startscreen {
+    max-width: 95%;
+    padding: 35px;
+  }
+}
+
+@media (max-width: 768px) {
+  #startscreen {
+    width: 95%;
+    max-width: 95%;
+    padding: 25px 20px;
+    border-radius: 20px;
+    max-height: 95vh;
+  }
+  
+  #startscreen h2 {
+    font-size: 1.5em;
+    margin: 0 0 20px 0;
+  }
+}
+
+@media (max-width: 480px) {
+  #startscreen {
+    width: 98%;
+    max-width: 98%;
+    padding: 20px 15px;
+    border-radius: 15px;
+    max-height: 98vh;
+    border-width: 2px;
+  }
+  
+  #startscreen h2 {
+    font-size: 1.2em;
+    margin: 0 0 15px 0;
+  }
 }
 
 #game {
@@ -647,6 +687,58 @@ input::placeholder {
   align-items: center;
   gap: 12px;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+  box-sizing: border-box;
+}
+
+/* Responsive mode buttons */
+@media (max-width: 768px) {
+  .mode-selection {
+    gap: 15px;
+    margin: 25px 0;
+  }
+  
+  .mode-button {
+    min-width: 180px;
+    max-width: calc(50% - 10px);
+    padding: 25px 20px;
+    font-size: 16px;
+  }
+  
+  .mode-button .icon {
+    font-size: 42px;
+  }
+  
+  .mode-button .label {
+    font-size: 1.1em;
+  }
+}
+
+@media (max-width: 480px) {
+  .mode-selection {
+    flex-direction: column;
+    gap: 12px;
+    margin: 20px 0;
+  }
+  
+  .mode-button {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    padding: 20px 15px;
+    font-size: 15px;
+  }
+  
+  .mode-button .icon {
+    font-size: 36px;
+  }
+  
+  .mode-button .label {
+    font-size: 1em;
+  }
+  
+  .mode-button .description {
+    font-size: 12px;
+  }
 }
 
 .mode-button:hover {
@@ -912,6 +1004,43 @@ input::placeholder {
   display: block;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
   box-shadow: 0 4px 15px rgba(255, 165, 0, 0.3);
+  box-sizing: border-box;
+  width: auto;
+  max-width: 100%;
+}
+
+/* Responsive buttons */
+@media (max-width: 768px) {
+  .how-to-play-btn {
+    padding: 10px 25px;
+    font-size: 16px;
+    margin: 15px auto;
+    border-radius: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .how-to-play-btn {
+    padding: 10px 20px;
+    font-size: 14px;
+    margin: 12px auto;
+    width: calc(100% - 20px);
+    border-radius: 18px;
+  }
+}
+
+/* Play Game button */
+button[onclick="startGame()"] {
+  box-sizing: border-box;
+  max-width: 100%;
+}
+
+@media (max-width: 480px) {
+  button[onclick="startGame()"] {
+    width: calc(100% - 20px);
+    padding: 12px 20px;
+    font-size: 16px;
+  }
 }
 
 .how-to-play-btn:hover {
@@ -1072,6 +1201,23 @@ input::placeholder {
   border-radius: 15px;
 }
 
+/* Responsive character selection */
+@media (max-width: 768px) {
+  .character-selection {
+    gap: 10px;
+    padding: 6px;
+    margin: 15px auto;
+  }
+}
+
+@media (max-width: 480px) {
+  .character-selection {
+    gap: 8px;
+    padding: 5px;
+    margin: 12px auto;
+  }
+}
+
 .character-option {
   padding: 12px 15px;
   font-size: 32px;
@@ -1090,6 +1236,36 @@ input::placeholder {
   width: 100%;
   box-sizing: border-box;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* Responsive character options */
+@media (max-width: 768px) {
+  .character-option {
+    padding: 10px 12px;
+    font-size: 28px;
+    min-width: 80px;
+    min-height: 80px;
+    gap: 5px;
+  }
+  
+  .character-option .name {
+    font-size: 11px;
+  }
+}
+
+@media (max-width: 480px) {
+  .character-option {
+    padding: 8px 10px;
+    font-size: 24px;
+    min-width: 70px;
+    min-height: 70px;
+    gap: 4px;
+    border-radius: 12px;
+  }
+  
+  .character-option .name {
+    font-size: 10px;
+  }
 }
 
 .character-option:hover {
@@ -1133,12 +1309,19 @@ input::placeholder {
 
 /* Responsive: Stack players vertically on smaller screens */
 @media (max-width: 768px) {
+  .players-container {
+    max-width: 100%;
+    gap: 15px;
+  }
+  
   .players-container.two-player {
     flex-direction: column;
+    gap: 15px;
   }
   
   .players-container.two-player .player-section {
     width: 100%;
+    max-width: 100%;
   }
   
   .how-to-play-content {
@@ -1149,6 +1332,40 @@ input::placeholder {
   .how-to-play-body {
     font-size: 14px;
     padding: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .players-container {
+    gap: 12px;
+    margin: 15px auto;
+  }
+  
+  .players-container.two-player {
+    gap: 12px;
+  }
+  
+  .how-to-play-content {
+    max-width: 98%;
+    max-height: 95vh;
+    border-radius: 15px;
+  }
+  
+  .how-to-play-header {
+    padding: 15px 20px;
+  }
+  
+  .how-to-play-header h2 {
+    font-size: 1.4em;
+  }
+  
+  .how-to-play-body {
+    font-size: 13px;
+    padding: 15px;
+  }
+  
+  .how-to-play-footer {
+    padding: 15px 20px;
   }
 }
 
@@ -1163,6 +1380,43 @@ input::placeholder {
   box-sizing: border-box;
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1);
   transition: all 0.3s ease;
+}
+
+/* Responsive player sections */
+@media (max-width: 768px) {
+  .player-section {
+    padding: 20px;
+    margin: 15px 0;
+    border-radius: 15px;
+  }
+  
+  .player-section h3 {
+    font-size: 1.2em;
+    margin: 0 0 15px 0;
+  }
+  
+  .player-section p {
+    font-size: 0.95em;
+    margin: 12px 0 8px 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .player-section {
+    padding: 15px;
+    margin: 12px 0;
+    border-radius: 12px;
+  }
+  
+  .player-section h3 {
+    font-size: 1em;
+    margin: 0 0 12px 0;
+  }
+  
+  .player-section p {
+    font-size: 0.9em;
+    margin: 10px 0 6px 0;
+  }
 }
 
 .player-section:hover {
@@ -1204,6 +1458,15 @@ input::placeholder {
   text-align: center;
   transition: all 0.3s ease;
   box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.3);
+  box-sizing: border-box;
+}
+
+@media (max-width: 480px) {
+  .player-section input {
+    padding: 10px 12px;
+    font-size: 14px;
+    margin: 8px auto 15px auto;
+  }
 }
 
 .player-section input:focus {
