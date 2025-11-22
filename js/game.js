@@ -14,10 +14,7 @@ function initializeLoadingScreen() {
 
   // Set up loading screen close functionality
   const closeLoading = () => {
-    if (
-      loadingComplete ||
-      Date.now() - loadingStartTime >= LOADING_DURATION
-    ) {
+    if (loadingComplete || Date.now() - loadingStartTime >= LOADING_DURATION) {
       console.log("🎬 [LOADING SCREEN] Closing loading screen...");
       loadingScreen.classList.add("hidden");
     }
@@ -128,9 +125,7 @@ function preloadGameAssets() {
     console.log(`🖼️  [IMAGE ${index}] Preloading: ${src}`);
   });
 
-  console.log(
-    "✅ [PRELOAD COMPLETE] Game assets preloading initiated..."
-  );
+  console.log("✅ [PRELOAD COMPLETE] Game assets preloading initiated...");
 }
 
 // Game Elements
@@ -237,20 +232,22 @@ function updateOrientationLock() {
   const portrait = orientationMediaQuery
     ? orientationMediaQuery.matches
     : window.innerHeight > window.innerWidth;
-  
+
   // Check if user has allowed portrait mode
-  const portraitAllowed = localStorage.getItem('portraitModeAllowed') === 'true';
+  const portraitAllowed =
+    localStorage.getItem("portraitModeAllowed") === "true";
   portraitModeAllowed = portraitAllowed;
-  
+
   // Add/remove class for CSS targeting
   if (portraitAllowed) {
     document.body.classList.add("portrait-mode-allowed");
   } else {
     document.body.classList.remove("portrait-mode-allowed");
   }
-  
+
   // Only show overlay if portrait, game active, touch device, AND portrait not allowed
-  const shouldShow = isTouchLayout() && portrait && isGameActive() && !portraitAllowed;
+  const shouldShow =
+    isTouchLayout() && portrait && isGameActive() && !portraitAllowed;
 
   if (shouldShow) {
     document.body.classList.add("portrait-lock");
@@ -298,42 +295,43 @@ if (continuePortraitBtn) {
   continuePortraitBtn.addEventListener("click", (e) => {
     e.preventDefault();
     e.stopPropagation();
-    
+
     // Allow portrait mode and dismiss overlay
-    localStorage.setItem('portraitModeAllowed', 'true');
+    localStorage.setItem("portraitModeAllowed", "true");
     portraitModeAllowed = true;
-    
+
     // Remove portrait lock and add allowed class
     document.body.classList.remove("portrait-lock");
     document.body.classList.add("portrait-mode-allowed");
-    
+
     // Force hide overlay immediately
     if (orientationOverlay) {
       orientationOverlay.style.display = "none";
       orientationOverlay.setAttribute("aria-hidden", "true");
       orientationOverlay.style.visibility = "hidden";
     }
-    
+
     // Ensure touch controls are visible
-    const touchControls = document.getElementById('touchControls');
+    const touchControls = document.getElementById("touchControls");
     if (touchControls) {
-      const isTouch = window.isTouchDevice || 
-                     ('ontouchstart' in window) || 
-                     (navigator.maxTouchPoints > 0);
+      const isTouch =
+        window.isTouchDevice ||
+        "ontouchstart" in window ||
+        navigator.maxTouchPoints > 0;
       if (isTouch) {
         window.isTouchDevice = true;
-        touchControls.style.display = 'block';
-        touchControls.style.opacity = '1';
-        touchControls.style.pointerEvents = 'auto';
-        touchControls.style.visibility = 'visible';
+        touchControls.style.display = "block";
+        touchControls.style.opacity = "1";
+        touchControls.style.pointerEvents = "auto";
+        touchControls.style.visibility = "visible";
       }
     }
-    
+
     // Update orientation lock to respect the new preference
     // This will prevent overlay from showing again
     updateOrientationLock();
-    
-    console.log('Portrait mode enabled - overlay dismissed');
+
+    console.log("Portrait mode enabled - overlay dismissed");
   });
 }
 
@@ -354,9 +352,7 @@ function updateDebugPanel() {
     <strong>P1:</strong> ${p1Score.toFixed(1)} pts, ${p1Lives} lives<br>
     ${
       mode === 2
-        ? `<strong>P2:</strong> ${p2Score.toFixed(
-            1
-          )} pts, ${p2Lives} lives<br>`
+        ? `<strong>P2:</strong> ${p2Score.toFixed(1)} pts, ${p2Lives} lives<br>`
         : ""
     }
     <strong>Level:</strong> ${level} | <strong>Next Level:</strong> ${nextLevelPoints} pts (${pointsToNextLevel.toFixed(
@@ -571,7 +567,7 @@ function initAudio() {
     achievementSound(),
     gameoverSound(),
     menuClickSound(),
-  ].filter(el => el !== null); // Filter out null elements
+  ].filter((el) => el !== null); // Filter out null elements
 
   console.log("🎵 [INIT AUDIO] Starting audio initialization...");
 
@@ -610,8 +606,7 @@ function initAudio() {
   // Initialize AudioContext for fallback sounds
   if (!audioContext) {
     try {
-      audioContext = new (window.AudioContext ||
-        window.webkitAudioContext)();
+      audioContext = new (window.AudioContext || window.webkitAudioContext)();
       console.log("✅ AudioContext initialized");
     } catch (e) {
       console.log("❌ AudioContext initialization failed:", e);
@@ -693,9 +688,7 @@ function playAudio(audioElement) {
           );
         })
         .catch((e) => {
-          console.log(
-            `❌ [PLAY AUDIO] Play failed: ${e.name} - ${e.message}`
-          );
+          console.log(`❌ [PLAY AUDIO] Play failed: ${e.name} - ${e.message}`);
           // Try again after a short delay
           setTimeout(() => {
             console.log(`🔄 [PLAY AUDIO] Retrying play after delay...`);
@@ -707,9 +700,7 @@ function playAudio(audioElement) {
                 );
               })
               .catch((e2) => {
-                console.log(
-                  `❌ [PLAY AUDIO] Retry failed: ${e2.message}`
-                );
+                console.log(`❌ [PLAY AUDIO] Retry failed: ${e2.message}`);
                 fallbackProceduralSound(audioElement.id || "default");
               });
           }, 100);
@@ -728,8 +719,7 @@ function fallbackProceduralSound(soundType) {
   // Initialize AudioContext if needed
   if (!audioContext) {
     try {
-      audioContext = new (window.AudioContext ||
-        window.webkitAudioContext)();
+      audioContext = new (window.AudioContext || window.webkitAudioContext)();
     } catch (e) {
       console.log("AudioContext not available");
       return;
@@ -752,10 +742,7 @@ function fallbackProceduralSound(soundType) {
     switch (soundType) {
       case "treasureSound":
         oscillator.frequency.value = 800;
-        gainNode.gain.setValueAtTime(
-          0.1 * fxVolume,
-          audioContext.currentTime
-        );
+        gainNode.gain.setValueAtTime(0.1 * fxVolume, audioContext.currentTime);
         gainNode.gain.exponentialRampToValueAtTime(
           0.01,
           audioContext.currentTime + 0.3
@@ -763,10 +750,7 @@ function fallbackProceduralSound(soundType) {
         break;
       case "powerupSound":
         oscillator.frequency.value = 600;
-        gainNode.gain.setValueAtTime(
-          0.15 * fxVolume,
-          audioContext.currentTime
-        );
+        gainNode.gain.setValueAtTime(0.15 * fxVolume, audioContext.currentTime);
         gainNode.gain.exponentialRampToValueAtTime(
           0.01,
           audioContext.currentTime + 0.5
@@ -774,10 +758,7 @@ function fallbackProceduralSound(soundType) {
         break;
       case "obstacleSound":
         oscillator.frequency.value = 200;
-        gainNode.gain.setValueAtTime(
-          0.1 * fxVolume,
-          audioContext.currentTime
-        );
+        gainNode.gain.setValueAtTime(0.1 * fxVolume, audioContext.currentTime);
         gainNode.gain.exponentialRampToValueAtTime(
           0.01,
           audioContext.currentTime + 0.2
@@ -785,10 +766,7 @@ function fallbackProceduralSound(soundType) {
         break;
       case "achievementSound":
         oscillator.frequency.value = 1000;
-        gainNode.gain.setValueAtTime(
-          0.1 * fxVolume,
-          audioContext.currentTime
-        );
+        gainNode.gain.setValueAtTime(0.1 * fxVolume, audioContext.currentTime);
         gainNode.gain.exponentialRampToValueAtTime(
           0.01,
           audioContext.currentTime + 0.8
@@ -796,10 +774,7 @@ function fallbackProceduralSound(soundType) {
         break;
       case "gameoverSound":
         oscillator.frequency.value = 150;
-        gainNode.gain.setValueAtTime(
-          0.15 * fxVolume,
-          audioContext.currentTime
-        );
+        gainNode.gain.setValueAtTime(0.15 * fxVolume, audioContext.currentTime);
         gainNode.gain.exponentialRampToValueAtTime(
           0.01,
           audioContext.currentTime + 1.0
@@ -807,10 +782,7 @@ function fallbackProceduralSound(soundType) {
         break;
       default:
         oscillator.frequency.value = 440;
-        gainNode.gain.setValueAtTime(
-          0.1 * fxVolume,
-          audioContext.currentTime
-        );
+        gainNode.gain.setValueAtTime(0.1 * fxVolume, audioContext.currentTime);
         gainNode.gain.exponentialRampToValueAtTime(
           0.01,
           audioContext.currentTime + 0.2
@@ -873,8 +845,7 @@ function fallbackToProceduralMusic() {
 
   if (!audioContext) {
     try {
-      audioContext = new (window.AudioContext ||
-        window.webkitAudioContext)();
+      audioContext = new (window.AudioContext || window.webkitAudioContext)();
     } catch (e) {
       console.log("Web Audio API not supported");
       return;
@@ -945,8 +916,7 @@ document.getElementById("musicVolume").addEventListener("input", (e) => {
 
 document.getElementById("fxVolume").addEventListener("input", (e) => {
   fxVolume = e.target.value / 100;
-  document.getElementById("fxVolumeValue").textContent =
-    e.target.value + "%";
+  document.getElementById("fxVolumeValue").textContent = e.target.value + "%";
   updateAudioVolumes();
 });
 
@@ -967,26 +937,24 @@ document.getElementById("muteBtn").addEventListener("click", () => {
 // Audio panel toggle functionality
 let audioControlsExpanded = false;
 
-document
-  .getElementById("audioToggleBtn")
-  .addEventListener("click", () => {
-    const audioControls = document.getElementById("audioControls");
-    const toggleBtn = document.getElementById("audioToggleBtn");
+document.getElementById("audioToggleBtn").addEventListener("click", () => {
+  const audioControls = document.getElementById("audioControls");
+  const toggleBtn = document.getElementById("audioToggleBtn");
 
-    audioControlsExpanded = !audioControlsExpanded;
+  audioControlsExpanded = !audioControlsExpanded;
 
-    if (audioControlsExpanded) {
-      audioControls.classList.add("expanded");
-      toggleBtn.classList.add("active");
-      toggleBtn.innerHTML = "🎶";
-    } else {
-      audioControls.classList.remove("expanded");
-      toggleBtn.classList.remove("active");
-      toggleBtn.innerHTML = "🎵";
-    }
+  if (audioControlsExpanded) {
+    audioControls.classList.add("expanded");
+    toggleBtn.classList.add("active");
+    toggleBtn.innerHTML = "🎶";
+  } else {
+    audioControls.classList.remove("expanded");
+    toggleBtn.classList.remove("active");
+    toggleBtn.innerHTML = "🎵";
+  }
 
-    playAudio(menuClickSound());
-  });
+  playAudio(menuClickSound());
+});
 
 // Close audio controls when clicking outside
 document.addEventListener("click", (e) => {
@@ -1057,16 +1025,14 @@ function updateCharacterSelection(player) {
   const selectedChar =
     player === "player1" ? selectedP1Character : selectedP2Character;
 
-  container
-    .querySelectorAll(".character-option")
-    .forEach((option, index) => {
-      const characterKey = Object.keys(characterOptions)[index];
-      if (characterKey === selectedChar) {
-        option.classList.add("selected");
-      } else {
-        option.classList.remove("selected");
-      }
-    });
+  container.querySelectorAll(".character-option").forEach((option, index) => {
+    const characterKey = Object.keys(characterOptions)[index];
+    if (characterKey === selectedChar) {
+      option.classList.add("selected");
+    } else {
+      option.classList.remove("selected");
+    }
+  });
 
   // Update background preview when Player 1 selects a character
   if (player === "player1") {
@@ -1131,16 +1097,16 @@ function init() {
   treasure.style.display = "none";
   document.querySelector(".game-header-buttons").style.display = "none";
   powerUpStatus.style.display = "none";
-  
+
   // Hide touch controls when on start screen
-  const touchControls = document.getElementById('touchControls');
-    if (touchControls) {
-      touchControls.style.display = 'none';
-    }
-    if (window.isTouchDevice) {
-      document.body.classList.remove("portrait-lock");
-      updateOrientationLock();
-    }
+  const touchControls = document.getElementById("touchControls");
+  if (touchControls) {
+    touchControls.style.display = "none";
+  }
+  if (window.isTouchDevice) {
+    document.body.classList.remove("portrait-lock");
+    updateOrientationLock();
+  }
 
   // Update high score display
   document.getElementById("highScoreDisplay").textContent = highScore;
@@ -1152,36 +1118,74 @@ function init() {
   updateBackgroundPreview(selectedP1Character);
 
   // Device detection for mobile/tablet (global variable)
+  // CRITICAL: Only return true for actual mobile/tablet devices, NEVER for desktop PC
   function isMobileOrTablet() {
-    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
-           (window.innerWidth <= 1024 && 'ontouchstart' in window);
+    // First check: User agent must indicate mobile/tablet
+    const isMobileUA =
+      /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+        navigator.userAgent
+      );
+
+    // Second check: Must have touch AND be small screen (exclude desktop touch screens)
+    const hasTouch = "ontouchstart" in window || navigator.maxTouchPoints > 0;
+    const isSmallScreen = window.innerWidth <= 1024;
+
+    // Third check: Exclude desktop browsers even if they have touch
+    // Desktop browsers on touch screens should NOT show mobile controls
+    const isDesktopBrowser =
+      /Windows|Macintosh|Linux/i.test(navigator.userAgent) &&
+      !/Android|iPad|iPhone/i.test(navigator.userAgent);
+
+    // Only return true if mobile UA OR (touch + small screen AND not desktop browser)
+    return isMobileUA || (hasTouch && isSmallScreen && !isDesktopBrowser);
   }
 
-    const isTouchDevice = isMobileOrTablet();
-    window.isTouchDevice = isTouchDevice; // Make globally accessible
-    updateOrientationLock();
-  
+  const isTouchDevice = isMobileOrTablet();
+  window.isTouchDevice = isTouchDevice; // Make globally accessible
+
+  // Set data attribute for CSS targeting
+  if (isTouchDevice) {
+    document.documentElement.setAttribute("data-mobile", "true");
+    document.body.setAttribute("data-mobile", "true");
+    document.body.classList.add("mobile-device");
+  } else {
+    document.documentElement.setAttribute("data-mobile", "false");
+    document.body.setAttribute("data-mobile", "false");
+    document.body.classList.remove("mobile-device");
+    // Explicitly hide touch controls on desktop
+    const touchControls = document.getElementById("touchControls");
+    if (touchControls) {
+      touchControls.style.display = "none";
+    }
+  }
+
+  updateOrientationLock();
+
   // Disable two-player mode on mobile/tablet
   const twoPlayerButton = document.querySelector('.mode-button[data-mode="2"]');
-  const twoPlayerDescription = twoPlayerButton?.querySelector('.description');
-  
+  const twoPlayerDescription = twoPlayerButton?.querySelector(".description");
+
   if (isTouchDevice && twoPlayerButton) {
-    twoPlayerButton.classList.add('disabled');
-    twoPlayerButton.style.opacity = '0.5';
-    twoPlayerButton.style.cursor = 'not-allowed';
+    twoPlayerButton.classList.add("disabled");
+    twoPlayerButton.style.opacity = "0.5";
+    twoPlayerButton.style.cursor = "not-allowed";
     if (twoPlayerDescription) {
-      twoPlayerDescription.textContent = 'Mobile/tablet screens are not wide enough for two players. Use on-screen arrows to play!';
-      twoPlayerDescription.style.fontSize = '0.85em';
-      twoPlayerDescription.style.color = 'rgba(255, 255, 255, 0.8)';
+      twoPlayerDescription.textContent =
+        "Mobile/tablet screens are not wide enough for two players. Use on-screen arrows to play!";
+      twoPlayerDescription.style.fontSize = "0.85em";
+      twoPlayerDescription.style.color = "rgba(255, 255, 255, 0.8)";
     }
-    
+
     // Prevent clicking two-player mode on mobile/tablet
-    twoPlayerButton.addEventListener('click', (e) => {
+    twoPlayerButton.addEventListener("click", (e) => {
       if (isTouchDevice) {
         e.preventDefault();
         e.stopPropagation();
         playAudio(menuClickSound());
-        showMessage('📱 Two-player mode is not available on mobile/tablet devices. Please use Single Player mode with on-screen controls!', 3000);
+        showMessage(
+          "📱 Two-player mode is not available on mobile/tablet devices. Please use Single Player mode with on-screen controls!",
+          3000
+        );
         return false;
       }
     });
@@ -1191,23 +1195,25 @@ function init() {
   document.querySelectorAll(".mode-button").forEach((button) => {
     button.addEventListener("click", () => {
       // Prevent selection if disabled (mobile/tablet two-player)
-      if (button.classList.contains('disabled') && isTouchDevice) {
+      if (button.classList.contains("disabled") && isTouchDevice) {
         return;
       }
-      
+
       document
         .querySelectorAll(".mode-button")
         .forEach((b) => b.classList.remove("selected"));
       button.classList.add("selected");
       mode = parseInt(button.dataset.mode);
-      
+
       // Force single-player mode on mobile/tablet
       if (isTouchDevice && mode === 2) {
         mode = 1;
-        document.querySelector('.mode-button[data-mode="1"]').classList.add("selected");
+        document
+          .querySelector('.mode-button[data-mode="1"]')
+          .classList.add("selected");
         button.classList.remove("selected");
       }
-      
+
       playAudio(menuClickSound()); // Click sound
 
       const player2Settings = document.getElementById("player2Settings");
@@ -1225,11 +1231,11 @@ function init() {
   // How to Play Modal handlers
   const howToPlayBtn = document.getElementById("howToPlayBtn");
   const howToPlayModal = document.getElementById("howToPlayModal");
-  
+
   if (howToPlayBtn) {
     howToPlayBtn.addEventListener("click", openHowToPlay);
   }
-  
+
   // Close modal when clicking outside
   if (howToPlayModal) {
     howToPlayModal.addEventListener("click", (e) => {
@@ -1237,13 +1243,15 @@ function init() {
         closeHowToPlay();
       }
     });
-    
+
     // Close modal on ESC key (only if modal is visible and game not running)
     document.addEventListener("keydown", (e) => {
-      if (e.key === "Escape" && 
-          howToPlayModal.style.display !== "none" && 
-          howToPlayModal.style.display !== "" &&
-          !timer) {
+      if (
+        e.key === "Escape" &&
+        howToPlayModal.style.display !== "none" &&
+        howToPlayModal.style.display !== "" &&
+        !timer
+      ) {
         closeHowToPlay();
       }
     });
@@ -1528,9 +1536,9 @@ function enforceElementSeparation() {
     // If obstacle gets too close to treasure during movement, nudge it away
     if (distance < BUFFER_DISTANCES.OBSTACLE_TO_TREASURE) {
       console.log(
-        `⚠️ Separating obstacle from treasure: ${Math.round(
-          distance
-        )}px → ${BUFFER_DISTANCES.OBSTACLE_TO_TREASURE}px`
+        `⚠️ Separating obstacle from treasure: ${Math.round(distance)}px → ${
+          BUFFER_DISTANCES.OBSTACLE_TO_TREASURE
+        }px`
       );
 
       // Calculate push direction (away from treasure)
@@ -1538,8 +1546,7 @@ function enforceElementSeparation() {
         obstacleCenterY - treasureCenterY,
         obstacleCenterX - treasureCenterX
       );
-      const pushDistance =
-        BUFFER_DISTANCES.OBSTACLE_TO_TREASURE - distance;
+      const pushDistance = BUFFER_DISTANCES.OBSTACLE_TO_TREASURE - distance;
 
       // Move obstacle away
       const newX =
@@ -1694,8 +1701,7 @@ function enforceElementSeparation() {
 
         // Move obstacle away from player
         const newX =
-          parseFloat(obstacle.style.left) +
-          Math.cos(angle) * pushDistance;
+          parseFloat(obstacle.style.left) + Math.cos(angle) * pushDistance;
         const newY =
           parseFloat(obstacle.style.top) + Math.sin(angle) * pushDistance;
 
@@ -1756,9 +1762,7 @@ function createPowerUp() {
   if (availablePowerUps.length === 0) return;
 
   const [powerUpName, powerUpType] =
-    availablePowerUps[
-      Math.floor(Math.random() * availablePowerUps.length)
-    ];
+    availablePowerUps[Math.floor(Math.random() * availablePowerUps.length)];
 
   const powerUp = document.createElement("div");
   powerUp.className = "power-up sprite";
@@ -1970,17 +1974,11 @@ function moveObstacles() {
     currentTop += dy;
 
     // Bounce off walls and update facing direction
-    if (
-      currentLeft <= 0 ||
-      currentLeft >= gameContainer.clientWidth - 60
-    ) {
+    if (currentLeft <= 0 || currentLeft >= gameContainer.clientWidth - 60) {
       dx = -dx;
       obs.dataset.dx = dx;
     }
-    if (
-      currentTop <= 0 ||
-      currentTop >= gameContainer.clientHeight - 60
-    ) {
+    if (currentTop <= 0 || currentTop >= gameContainer.clientHeight - 60) {
       dy = -dy;
       obs.dataset.dy = dy;
     }
@@ -2131,10 +2129,7 @@ function createSpecialCrocodile() {
 function applyMagnetEffect(player) {
   const playerKey = player === player1 ? "player1" : "player2";
 
-  if (
-    !activePowerUps[playerKey] ||
-    activePowerUps[playerKey].type !== "MAGNET"
-  )
+  if (!activePowerUps[playerKey] || activePowerUps[playerKey].type !== "MAGNET")
     return;
 
   const playerRect = player.getBoundingClientRect();
@@ -2147,9 +2142,7 @@ function applyMagnetEffect(player) {
   // Increased magnet range and effectiveness
   if (distance < 250) {
     console.log(
-      `🧲 Magnet active for ${playerKey}, distance: ${distance.toFixed(
-        2
-      )}px`
+      `🧲 Magnet active for ${playerKey}, distance: ${distance.toFixed(2)}px`
     );
 
     // Enhanced magnet speed based on distance (closer = faster)
@@ -2205,9 +2198,7 @@ function activatePowerUp(player, powerUpType) {
   };
 
   playAudio(powerupSound()); // Power-up sound
-  showMessage(
-    `⚡ ${playerName} got ${powerUpTypes[powerUpType].effect}!`
-  );
+  showMessage(`⚡ ${playerName} got ${powerUpTypes[powerUpType].effect}!`);
 
   // Update power-up status display
   updatePowerUpDisplay();
@@ -2229,15 +2220,15 @@ function updatePowerUpDisplay() {
     let statusText = "";
 
     if (p1PowerUp) {
-      statusText += `${player1Name}: ${
-        powerUpTypes[p1PowerUp.type].emoji
-      } ${powerUpTypes[p1PowerUp.type].effect}`;
+      statusText += `${player1Name}: ${powerUpTypes[p1PowerUp.type].emoji} ${
+        powerUpTypes[p1PowerUp.type].effect
+      }`;
     }
     if (p2PowerUp) {
       if (statusText) statusText += "<br>";
-      statusText += `${player2Name}: ${
-        powerUpTypes[p2PowerUp.type].emoji
-      } ${powerUpTypes[p2PowerUp.type].effect}`;
+      statusText += `${player2Name}: ${powerUpTypes[p2PowerUp.type].emoji} ${
+        powerUpTypes[p2PowerUp.type].effect
+      }`;
     }
 
     document.getElementById("powerUpName").innerHTML = statusText;
@@ -2263,12 +2254,17 @@ function checkCollisions() {
   if (mode === 2 && p2Alive) {
     cachedP2Rect = player2.getBoundingClientRect();
   }
-  
+
   const p1Rect = cachedP1Rect;
   const treasureRect = cachedTreasureRect;
 
   // Validate rects exist and have valid dimensions (works for all character sizes)
-  if (!p1Rect || !treasureRect || p1Rect.width === 0 || treasureRect.width === 0) {
+  if (
+    !p1Rect ||
+    !treasureRect ||
+    p1Rect.width === 0 ||
+    treasureRect.width === 0
+  ) {
     return; // Skip collision check if rects are invalid
   }
 
@@ -2284,27 +2280,25 @@ function checkCollisions() {
   if (
     p1Alive &&
     !treasureJustCollected &&
-    isOverlappingWithBuffer(
-      p1Rect,
-      treasureRect,
-      COLLISION_BUFFER.treasure
-    )
+    isOverlappingWithBuffer(p1Rect, treasureRect, COLLISION_BUFFER.treasure)
   ) {
     // Get the correct point value from treasure type
     const treasureType = treasure.dataset.type;
     const treasureTypeData = treasureTypes[treasureType];
-    const basePoints = treasureTypeData ? treasureTypeData.points : parseFloat(treasure.dataset.points) || 0.5;
-    
+    const basePoints = treasureTypeData
+      ? treasureTypeData.points
+      : parseFloat(treasure.dataset.points) || 0.5;
+
     const multiplier =
       activePowerUps.player1 && activePowerUps.player1.type === "POINTS"
         ? 2
         : 1;
     const pointsEarned = basePoints * multiplier;
     const oldScore = p1Score;
-    
+
     // Round to 1 decimal place to prevent floating-point precision issues
     p1Score = Math.round((p1Score + pointsEarned) * 10) / 10;
-    
+
     updateDisplay(); // Update display immediately when score changes
 
     logTreasure(
@@ -2323,9 +2317,9 @@ function checkCollisions() {
     randomObstacleRespawn(); // Trigger random obstacle respawn
     playAudio(treasureSound()); // Treasure sound
     showMessage(
-      `💰 ${player1Name} collected ${
-        treasureType
-      }! +${pointsEarned.toFixed(1)} points`
+      `💰 ${player1Name} collected ${treasureType}! +${pointsEarned.toFixed(
+        1
+      )} points`
     );
 
     // Check for level progression
@@ -2336,28 +2330,28 @@ function checkCollisions() {
   if (mode === 2 && p2Alive && !treasureJustCollected) {
     const p2Rect = cachedP2Rect;
     // Validate p2Rect exists and has valid dimensions (works for all characters)
-    if (p2Rect && p2Rect.width > 0 && 
-        isOverlappingWithBuffer(
-          p2Rect,
-          treasureRect,
-          COLLISION_BUFFER.treasure
-        )
+    if (
+      p2Rect &&
+      p2Rect.width > 0 &&
+      isOverlappingWithBuffer(p2Rect, treasureRect, COLLISION_BUFFER.treasure)
     ) {
       // Get the correct point value from treasure type
       const treasureType = treasure.dataset.type;
       const treasureTypeData = treasureTypes[treasureType];
-      const basePoints = treasureTypeData ? treasureTypeData.points : parseFloat(treasure.dataset.points) || 0.5;
-      
+      const basePoints = treasureTypeData
+        ? treasureTypeData.points
+        : parseFloat(treasure.dataset.points) || 0.5;
+
       const multiplier =
         activePowerUps.player2 && activePowerUps.player2.type === "POINTS"
           ? 2
           : 1;
       const pointsEarned = basePoints * multiplier;
       const oldScore = p2Score;
-      
+
       // Round to 1 decimal place to prevent floating-point precision issues
       p2Score = Math.round((p2Score + pointsEarned) * 10) / 10;
-      
+
       updateDisplay(); // Update display immediately when score changes
 
       logTreasure(
@@ -2376,9 +2370,9 @@ function checkCollisions() {
       randomObstacleRespawn(); // Trigger random obstacle respawn
       playAudio(treasureSound());
       showMessage(
-        `💰 ${player2Name} collected ${
-          treasureType
-        }! +${pointsEarned.toFixed(1)} points`
+        `💰 ${player2Name} collected ${treasureType}! +${pointsEarned.toFixed(
+          1
+        )} points`
       );
 
       // Check for level progression
@@ -2443,9 +2437,7 @@ function checkCollisions() {
         obsRect,
         COLLISION_BUFFER.obstacle
       ) &&
-      !(
-        activePowerUps.player1 && activePowerUps.player1.type === "SHIELD"
-      )
+      !(activePowerUps.player1 && activePowerUps.player1.type === "SHIELD")
     ) {
       p1Lives--;
       updateDisplay(); // Update display immediately when lives change
@@ -2493,15 +2485,8 @@ function checkCollisions() {
     if (mode === 2 && p2Alive && !p2Hit && p2CanTakeDamage) {
       const p2Rect = cachedP2Rect || player2.getBoundingClientRect();
       if (
-        isOverlappingWithBuffer(
-          p2Rect,
-          obsRect,
-          COLLISION_BUFFER.obstacle
-        ) &&
-        !(
-          activePowerUps.player2 &&
-          activePowerUps.player2.type === "SHIELD"
-        )
+        isOverlappingWithBuffer(p2Rect, obsRect, COLLISION_BUFFER.obstacle) &&
+        !(activePowerUps.player2 && activePowerUps.player2.type === "SHIELD")
       ) {
         p2Lives--;
         updateDisplay(); // Update display immediately when lives change
@@ -2517,9 +2502,7 @@ function checkCollisions() {
 
           if (p1Lives <= 0) {
             // Both players dead
-            showMessage(
-              `💀 ${player2Name} eliminated! Both players down!`
-            );
+            showMessage(`💀 ${player2Name} eliminated! Both players down!`);
             logCollision(player2Name, p2Lives, true);
             updateDebugPanel();
             logGameOver("Both players out of lives");
@@ -2533,9 +2516,7 @@ function checkCollisions() {
             updateDebugPanel();
           }
         } else {
-          showMessage(
-            `💥 ${player2Name} hit obstacle! Lives: ${p2Lives}`
-          );
+          showMessage(`💥 ${player2Name} hit obstacle! Lives: ${p2Lives}`);
           logCollision(player2Name, p2Lives, false);
           updateDebugPanel();
         }
@@ -2567,7 +2548,7 @@ function isOverlappingWithBuffer(rect1, rect2, buffer = 0) {
       rect1.right < rect2.left
     );
   }
-  
+
   // For non-zero buffers, use buffered rects
   const r1 = getBufferedRect(rect1, buffer);
   const r2 = getBufferedRect(rect2, buffer);
@@ -2591,9 +2572,13 @@ function updateDisplay() {
   document.getElementById("highScoreDisplay").textContent = highScore;
 
   // Always display scores with one decimal place for consistency
-  let statsHtml = `${player1Name}: ${p1Score.toFixed(1)} points ❤️ ${p1Lives} lives`;
+  let statsHtml = `${player1Name}: ${p1Score.toFixed(
+    1
+  )} points ❤️ ${p1Lives} lives`;
   if (mode === 2) {
-    statsHtml += `<br>${player2Name}: ${p2Score.toFixed(1)} points ❤️ ${p2Lives} lives`;
+    statsHtml += `<br>${player2Name}: ${p2Score.toFixed(
+      1
+    )} points ❤️ ${p2Lives} lives`;
   }
   document.getElementById("playerStats").innerHTML = statsHtml;
 }
@@ -2657,9 +2642,7 @@ function checkLevelProgress() {
       1
     )} | Current Level ${level} threshold: ${currentLevelThreshold} | Next Level ${
       level + 1
-    } at: ${nextLevelThreshold} | Points needed: ${pointsToNext.toFixed(
-      1
-    )}`,
+    } at: ${nextLevelThreshold} | Points needed: ${pointsToNext.toFixed(1)}`,
     "level"
   );
 
@@ -2713,15 +2696,15 @@ let lastTickTime = Date.now();
 function gameTick() {
   const now = Date.now();
   const elapsed = now - lastTickTime;
-  
+
   // Only decrement time if at least 1000ms have passed (prevents timer drift)
   if (elapsed >= 1000) {
     lastTickTime = now;
-    
+
     if (timeLeft > 0 && (p1Lives > 0 || (mode === 2 && p2Lives > 0))) {
       timeLeft--;
       updateDisplay(); // Update time display immediately for smooth countdown
-      
+
       // Defer heavy operations to avoid blocking timer
       requestAnimationFrame(() => {
         moveObstacles();
@@ -2747,17 +2730,13 @@ function gameTick() {
 
 function startGame() {
   // Batch DOM reads first (performance optimization)
-  const selectedModeButton = document.querySelector(
-    ".mode-button.selected"
-  );
+  const selectedModeButton = document.querySelector(".mode-button.selected");
   const player1NameInput = document.getElementById("player1Name");
   const player2NameInput = document.getElementById("player2Name");
   const pauseBtn = document.getElementById("pauseButton");
   const musicBtn = document.getElementById("playMusicBtn");
   const leaderboardModal = document.getElementById("leaderboardModal");
-  const gameHeaderButtons = document.querySelector(
-    ".game-header-buttons"
-  );
+  const gameHeaderButtons = document.querySelector(".game-header-buttons");
 
   // Initialize audio (non-blocking)
   initAudio();
@@ -2793,30 +2772,46 @@ function startGame() {
   if (gameTitle) gameTitle.style.display = "block";
   gameover.style.display = "none";
   if (leaderboardModal) leaderboardModal.style.display = "none";
-  
+
   // Show touch controls on mobile/tablet when game starts
-    const touchControls = document.getElementById('touchControls');
-    if (touchControls) {
-      // Improved touch device detection with multiple fallbacks
-      const isTouch = window.isTouchDevice || 
-                     ('ontouchstart' in window) || 
-                     (navigator.maxTouchPoints > 0) ||
-                     (window.innerWidth <= 1024 && ('ontouchstart' in window || navigator.maxTouchPoints > 0)) ||
-                     /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-      
-      if (isTouch) {
-        window.isTouchDevice = true; // Ensure global flag is set
-        // Always show controls when game starts on touch device
-        touchControls.style.display = 'block';
-        touchControls.style.opacity = '1';
-        touchControls.style.pointerEvents = 'auto';
-        touchControls.style.visibility = 'visible';
-      }
+  // CRITICAL: Only show on actual mobile/tablet devices, NEVER on desktop PC
+  const touchControls = document.getElementById("touchControls");
+  if (touchControls) {
+    // Use the same strict detection as isMobileOrTablet()
+    const isMobileUA =
+      /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+        navigator.userAgent
+      );
+    const hasTouch = "ontouchstart" in window || navigator.maxTouchPoints > 0;
+    const isSmallScreen = window.innerWidth <= 1024;
+    const isDesktopBrowser =
+      /Windows|Macintosh|Linux/i.test(navigator.userAgent) &&
+      !/Android|iPad|iPhone/i.test(navigator.userAgent);
+
+    // Only show if mobile/tablet device (not desktop PC)
+    const isTouchDevice =
+      isMobileUA || (hasTouch && isSmallScreen && !isDesktopBrowser);
+
+    if (isTouchDevice && window.innerWidth <= 1024) {
+      window.isTouchDevice = true; // Ensure global flag is set
+      // Always show controls when game starts on touch device
+      touchControls.style.display = "block";
+      touchControls.style.opacity = "1";
+      touchControls.style.pointerEvents = "auto";
+      touchControls.style.visibility = "visible";
+    } else {
+      // Explicitly hide on desktop PC
+      touchControls.style.display = "none";
+      touchControls.style.opacity = "0";
+      touchControls.style.pointerEvents = "none";
+      touchControls.style.visibility = "hidden";
+      window.isTouchDevice = false; // Ensure flag is false on desktop
     }
-    if (window.isTouchDevice) {
-      requestFullscreenForGame();
-      updateOrientationLock();
-    }
+  }
+  if (window.isTouchDevice) {
+    requestFullscreenForGame();
+    updateOrientationLock();
+  }
 
   // Batch DOM writes - show game elements
   player1.style.opacity = "1";
@@ -2950,9 +2945,7 @@ function showLeaderboardWithAnimation(playerName, finalScore) {
 
 function animateScoreInsertion(newEntryId, position) {
   setTimeout(() => {
-    const newRow = document.querySelector(
-      `[data-entry-id="${newEntryId}"]`
-    );
+    const newRow = document.querySelector(`[data-entry-id="${newEntryId}"]`);
     if (newRow) {
       // Add insertion animation
       newRow.classList.add("inserting");
@@ -2987,17 +2980,12 @@ function endGame() {
   if (mode === 2) {
     message += `<br>${player2Name}: ${p2Score.toFixed(1)} points`;
     const winner =
-      p1Score > p2Score
-        ? player1Name
-        : p2Score > p1Score
-        ? player2Name
-        : "Tie";
+      p1Score > p2Score ? player1Name : p2Score > p1Score ? player2Name : "Tie";
     message += `<br><strong>Winner: ${winner}</strong>`;
   }
 
   const bestScore = Math.max(p1Score, p2Score || 0);
-  const bestPlayerName =
-    p1Score >= (p2Score || 0) ? player1Name : player2Name;
+  const bestPlayerName = p1Score >= (p2Score || 0) ? player1Name : player2Name;
 
   if (bestScore > highScore) {
     highScore = bestScore;
@@ -3036,11 +3024,11 @@ function backToMenu() {
   powerUpStatus.style.display = "none";
   gameover.style.display = "none";
   document.getElementById("leaderboardModal").style.display = "none"; // Hide leaderboard
-  
+
   // Hide touch controls when game ends
-  const touchControls = document.getElementById('touchControls');
+  const touchControls = document.getElementById("touchControls");
   if (touchControls && window.isTouchDevice) {
-    touchControls.style.display = 'none';
+    touchControls.style.display = "none";
   }
   if (window.isTouchDevice) {
     document.body.classList.remove("portrait-lock");
@@ -3128,9 +3116,7 @@ document.addEventListener("keyup", (e) => {
     "s",
     "d",
   ];
-  const hasMovementKeys = movementKeys.some((key) =>
-    keysPressed.has(key)
-  );
+  const hasMovementKeys = movementKeys.some((key) => keysPressed.has(key));
 
   if (!hasMovementKeys && movementInterval) {
     clearInterval(movementInterval);
@@ -3154,13 +3140,9 @@ function processMovement() {
   }
 
   const speedMultiplier =
-    activePowerUps.player1 && activePowerUps.player1.type === "SPEED"
-      ? 2
-      : 1;
+    activePowerUps.player1 && activePowerUps.player1.type === "SPEED" ? 2 : 1;
   const speedMultiplier2 =
-    activePowerUps.player2 && activePowerUps.player2.type === "SPEED"
-      ? 2
-      : 1;
+    activePowerUps.player2 && activePowerUps.player2.type === "SPEED" ? 2 : 1;
 
   let moved = false;
 
@@ -3210,77 +3192,101 @@ function processMovement() {
 
   // Initialize touch controls for mobile/tablet
   function initTouchControls() {
-    // Improved touch detection
-    const isTouch = window.isTouchDevice || 
-                   ('ontouchstart' in window) || 
-                   (navigator.maxTouchPoints > 0) ||
-                   /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    // CRITICAL: Only initialize on mobile/tablet, NEVER on desktop PC
+    const isMobileUA = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    const hasTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+    const isSmallScreen = window.innerWidth <= 1024;
+    const isDesktopBrowser = /Windows|Macintosh|Linux/i.test(navigator.userAgent) && 
+                             !/Android|iPad|iPhone/i.test(navigator.userAgent);
     
-    if (!isTouch) return;
+    // Only initialize if mobile/tablet device (not desktop PC)
+    const isTouchDevice = isMobileUA || (hasTouch && isSmallScreen && !isDesktopBrowser);
     
+    if (!isTouchDevice || window.innerWidth > 1024) {
+      // Desktop PC - do not initialize touch controls
+      const touchControls = document.getElementById('touchControls');
+      if (touchControls) {
+        touchControls.style.display = 'none';
+      }
+      return;
+    }
+
     window.isTouchDevice = true; // Set global flag
-    
-    const touchControls = document.getElementById('touchControls');
-    if (!touchControls) return;
-    
+
+    const touchControls = document.getElementById("touchControls");
+    if (!touchControls) {
+      console.warn('Touch controls element not found');
+      return;
+    }
+
     // Touch controls will be shown/hidden when game starts/ends
     // Don't show here - wait for game to start
-    
-    const dpadButtons = touchControls.querySelectorAll('.dpad-button');
-    
-    dpadButtons.forEach(button => {
+
+    const dpadButtons = touchControls.querySelectorAll(".dpad-button");
+
+    dpadButtons.forEach((button) => {
       const direction = button.dataset.direction;
-      
+
       // Touch start - add to keysPressed
-      button.addEventListener('touchstart', (e) => {
-        e.preventDefault();
-        // Check if game is running by checking if timer exists
-        if (isPaused || !timer) return;
-        keysPressed.add(direction);
-        button.classList.add('pressed');
-        
-        // Start movement processing if not already running
-        if (!movementInterval) {
-          movementInterval = setInterval(processMovement, 16); // ~60fps
-        }
-      }, { passive: false });
-      
+      button.addEventListener(
+        "touchstart",
+        (e) => {
+          e.preventDefault();
+          // Check if game is running by checking if timer exists
+          if (isPaused || !timer) return;
+          keysPressed.add(direction);
+          button.classList.add("pressed");
+
+          // Start movement processing if not already running
+          if (!movementInterval) {
+            movementInterval = setInterval(processMovement, 16); // ~60fps
+          }
+        },
+        { passive: false }
+      );
+
       // Touch end - remove from keysPressed
-      button.addEventListener('touchend', (e) => {
-        e.preventDefault();
-        keysPressed.delete(direction);
-        button.classList.remove('pressed');
-        
-        // Stop movement if no keys pressed
-        if (keysPressed.size === 0 && movementInterval) {
-          clearInterval(movementInterval);
-          movementInterval = null;
-        }
-      }, { passive: false });
-      
+      button.addEventListener(
+        "touchend",
+        (e) => {
+          e.preventDefault();
+          keysPressed.delete(direction);
+          button.classList.remove("pressed");
+
+          // Stop movement if no keys pressed
+          if (keysPressed.size === 0 && movementInterval) {
+            clearInterval(movementInterval);
+            movementInterval = null;
+          }
+        },
+        { passive: false }
+      );
+
       // Touch cancel - remove from keysPressed
-      button.addEventListener('touchcancel', (e) => {
-        e.preventDefault();
-        keysPressed.delete(direction);
-        button.classList.remove('pressed');
-        
-        // Stop movement if no keys pressed
-        if (keysPressed.size === 0 && movementInterval) {
-          clearInterval(movementInterval);
-          movementInterval = null;
-        }
-      }, { passive: false });
-      
+      button.addEventListener(
+        "touchcancel",
+        (e) => {
+          e.preventDefault();
+          keysPressed.delete(direction);
+          button.classList.remove("pressed");
+
+          // Stop movement if no keys pressed
+          if (keysPressed.size === 0 && movementInterval) {
+            clearInterval(movementInterval);
+            movementInterval = null;
+          }
+        },
+        { passive: false }
+      );
     });
   }
-  
+
   // Initialize touch controls when DOM is ready
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initTouchControls);
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initTouchControls);
   } else {
     initTouchControls();
   }
-
 
   if (moved) {
     // Keep players in bounds with smooth screen wrapping

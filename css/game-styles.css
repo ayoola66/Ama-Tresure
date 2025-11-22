@@ -80,7 +80,9 @@ body.portrait-lock {
 
 .game-header-buttons {
   position: fixed;
-  top: calc(var(--safe-top) + var(--ad-banner-height) + 2px); /* Align with stats */
+  top: calc(
+    var(--safe-top) + var(--ad-banner-height) + 2px
+  ); /* Align with stats */
   right: 8px;
   display: flex;
   gap: 4px;
@@ -260,7 +262,7 @@ body.portrait-lock {
     height: clamp(36px, 6vw, 48px) !important;
     font-size: clamp(14px, 2.5vw, 20px) !important;
   }
-  
+
   /* Only apply if not in the specific breakpoints above */
   @media (min-height: 601px) and (max-height: 900px) {
     .dpad-button {
@@ -276,7 +278,11 @@ body.portrait-lock {
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
-  background: linear-gradient(135deg, rgba(26, 26, 46, 0.95) 0%, rgba(22, 33, 62, 0.95) 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(26, 26, 46, 0.95) 0%,
+    rgba(22, 33, 62, 0.95) 100%
+  );
   color: white;
   padding: 25px 30px;
   border-radius: 25px;
@@ -288,7 +294,8 @@ body.portrait-lock {
   overflow-y: auto;
   overflow-x: hidden;
   border: 3px solid rgba(255, 165, 0, 0.4);
-  box-shadow: 0 15px 50px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  box-shadow: 0 15px 50px rgba(0, 0, 0, 0.7),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(10px);
   box-sizing: border-box;
   display: flex;
@@ -307,7 +314,11 @@ body.portrait-lock {
 }
 
 .play-game-btn {
-  background: linear-gradient(135deg, rgba(255, 87, 34, 0.9) 0%, rgba(255, 152, 0, 0.9) 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(255, 87, 34, 0.9) 0%,
+    rgba(255, 152, 0, 0.9) 100%
+  );
   border: 2px solid rgba(255, 152, 0, 1);
   color: white;
   padding: 12px 30px;
@@ -323,7 +334,11 @@ body.portrait-lock {
 }
 
 .play-game-btn:hover {
-  background: linear-gradient(135deg, rgba(255, 152, 0, 1) 0%, rgba(255, 87, 34, 1) 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(255, 152, 0, 1) 0%,
+    rgba(255, 87, 34, 1) 100%
+  );
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(255, 152, 0, 0.6);
 }
@@ -338,12 +353,12 @@ body.portrait-lock {
     max-width: 95%;
     padding: 20px 25px;
   }
-  
+
   .action-buttons-container {
     gap: 12px;
     margin: 15px 0 8px 0;
   }
-  
+
   .play-game-btn,
   .how-to-play-btn {
     min-width: 180px;
@@ -361,17 +376,17 @@ body.portrait-lock {
     border-radius: 20px;
     max-height: 98vh;
   }
-  
+
   #startscreen h2 {
     font-size: 1.4em;
     margin: 0 0 12px 0;
   }
-  
+
   .mode-selection {
     margin: 15px 0;
     gap: 15px;
   }
-  
+
   .player-section {
     padding: 18px;
     margin: 10px 0;
@@ -387,17 +402,17 @@ body.portrait-lock {
     max-height: 98vh;
     border-width: 2px;
   }
-  
+
   #startscreen h2 {
     font-size: 1.2em;
     margin: 0 0 10px 0;
   }
-  
+
   .mode-selection {
     margin: 12px 0;
     gap: 12px;
   }
-  
+
   .player-section {
     padding: 15px;
     margin: 8px 0;
@@ -433,7 +448,9 @@ body.portrait-lock {
     border-width: 8px;
     border-radius: 12px;
     margin: 8px auto;
-    max-height: calc(100vh - 315px); /* Total UI space: 143px top + 172px bottom */
+    max-height: calc(
+      100vh - 315px
+    ); /* Total UI space: 143px top + 172px bottom */
   }
 }
 
@@ -476,11 +493,11 @@ body.portrait-lock {
   .sprite {
     font-size: var(--sprite-size-mobile);
   }
-  
+
   .obstacle {
     font-size: var(--obstacle-size-mobile);
   }
-  
+
   .power-up {
     font-size: var(--powerup-size-mobile);
   }
@@ -672,12 +689,7 @@ button:hover {
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(
-    0,
-    0,
-    0,
-    0.85
-  ); /* Dark overlay to block game elements */
+  background: rgba(0, 0, 0, 0.85); /* Dark overlay to block game elements */
   z-index: 2000;
   display: flex;
   align-items: center;
@@ -975,7 +987,11 @@ input::placeholder {
 .mode-button {
   padding: 30px 25px;
   font-size: 18px;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.1) 0%,
+    rgba(255, 255, 255, 0.05) 100%
+  );
   border: 2px solid rgba(255, 255, 255, 0.25);
   border-radius: 20px;
   color: white;
@@ -999,18 +1015,18 @@ input::placeholder {
     gap: 15px;
     margin: 25px 0;
   }
-  
+
   .mode-button {
     min-width: 180px;
     max-width: calc(50% - 10px);
     padding: 25px 20px;
     font-size: 16px;
   }
-  
+
   .mode-button .icon {
     font-size: 42px;
   }
-  
+
   .mode-button .label {
     font-size: 1.1em;
   }
@@ -1022,7 +1038,7 @@ input::placeholder {
     gap: 12px;
     margin: 20px 0;
   }
-  
+
   .mode-button {
     width: 100%;
     max-width: 100%;
@@ -1030,29 +1046,37 @@ input::placeholder {
     padding: 20px 15px;
     font-size: 15px;
   }
-  
+
   .mode-button .icon {
     font-size: 36px;
   }
-  
+
   .mode-button .label {
     font-size: 1em;
   }
-  
+
   .mode-button .description {
     font-size: 12px;
   }
 }
 
 .mode-button:hover {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.15) 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.2) 0%,
+    rgba(255, 255, 255, 0.15) 100%
+  );
   border-color: rgba(255, 165, 0, 0.6);
   transform: translateY(-5px) scale(1.02);
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4), 0 0 20px rgba(255, 165, 0, 0.2);
 }
 
 .mode-button.selected {
-  background: linear-gradient(135deg, rgba(255, 165, 0, 0.9) 0%, rgba(255, 140, 0, 0.9) 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(255, 165, 0, 0.9) 0%,
+    rgba(255, 140, 0, 0.9) 100%
+  );
   border-color: rgba(255, 165, 0, 1);
   border-width: 3px;
   transform: scale(1.03);
@@ -1090,7 +1114,9 @@ input::placeholder {
 
 .audio-toggle-button {
   position: fixed;
-  top: calc(var(--safe-top) + var(--ad-banner-height) + 2px); /* Align with stats/buttons */
+  top: calc(
+    var(--safe-top) + var(--ad-banner-height) + 2px
+  ); /* Align with stats/buttons */
   right: 20px;
   background: rgba(0, 0, 0, 0.8);
   color: white;
@@ -1321,7 +1347,7 @@ input::placeholder {
     flex-direction: column;
     gap: 10px;
   }
-  
+
   .play-game-btn,
   .how-to-play-btn {
     width: 100%;
@@ -1337,13 +1363,13 @@ input::placeholder {
     padding: 15px;
     max-height: 98vh;
   }
-  
+
   .action-buttons-container {
     flex-direction: column;
     gap: 10px;
     margin: 12px 0 6px 0;
   }
-  
+
   .play-game-btn,
   .how-to-play-btn {
     width: 100%;
@@ -1547,7 +1573,11 @@ button[onclick="startGame()"] {
 .character-option {
   padding: 12px 15px;
   font-size: 32px;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.1) 0%,
+    rgba(255, 255, 255, 0.05) 100%
+  );
   border: 2px solid rgba(255, 255, 255, 0.25);
   border-radius: 15px;
   cursor: pointer;
@@ -1573,7 +1603,7 @@ button[onclick="startGame()"] {
     min-height: 80px;
     gap: 5px;
   }
-  
+
   .character-option .name {
     font-size: 11px;
   }
@@ -1588,21 +1618,29 @@ button[onclick="startGame()"] {
     gap: 4px;
     border-radius: 12px;
   }
-  
+
   .character-option .name {
     font-size: 10px;
   }
 }
 
 .character-option:hover {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.15) 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.2) 0%,
+    rgba(255, 255, 255, 0.15) 100%
+  );
   border-color: rgba(255, 165, 0, 0.6);
   transform: translateY(-3px) scale(1.02);
   box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3), 0 0 15px rgba(255, 165, 0, 0.2);
 }
 
 .character-option.selected {
-  background: linear-gradient(135deg, rgba(255, 165, 0, 0.9) 0%, rgba(255, 140, 0, 0.9) 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(255, 165, 0, 0.9) 0%,
+    rgba(255, 140, 0, 0.9) 100%
+  );
   border-color: rgba(255, 165, 0, 1);
   transform: scale(1.08);
   box-shadow: 0 0 25px rgba(255, 165, 0, 0.7), 0 6px 20px rgba(0, 0, 0, 0.4);
@@ -1639,22 +1677,22 @@ button[onclick="startGame()"] {
     max-width: 100%;
     gap: 15px;
   }
-  
+
   .players-container.two-player {
     flex-direction: column;
     gap: 15px;
   }
-  
+
   .players-container.two-player .player-section {
     width: 100%;
     max-width: 100%;
   }
-  
+
   .how-to-play-content {
     max-width: 95%;
     max-height: 90vh;
   }
-  
+
   .how-to-play-body {
     font-size: 14px;
     padding: 20px;
@@ -1666,30 +1704,30 @@ button[onclick="startGame()"] {
     gap: 12px;
     margin: 15px auto;
   }
-  
+
   .players-container.two-player {
     gap: 12px;
   }
-  
+
   .how-to-play-content {
     max-width: 98%;
     max-height: 95vh;
     border-radius: 15px;
   }
-  
+
   .how-to-play-header {
     padding: 15px 20px;
   }
-  
+
   .how-to-play-header h2 {
     font-size: 1.4em;
   }
-  
+
   .how-to-play-body {
     font-size: 13px;
     padding: 15px;
   }
-  
+
   .how-to-play-footer {
     padding: 15px 20px;
   }
@@ -1697,14 +1735,19 @@ button[onclick="startGame()"] {
 
 /* Player Settings Sections */
 .player-section {
-  background: linear-gradient(135deg, rgba(0, 0, 0, 0.5) 0%, rgba(26, 26, 46, 0.6) 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(0, 0, 0, 0.5) 0%,
+    rgba(26, 26, 46, 0.6) 100%
+  );
   border-radius: 20px;
   padding: 20px;
   margin: 12px 0;
   border: 2px solid rgba(255, 165, 0, 0.3);
   width: 100%;
   box-sizing: border-box;
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
   transition: all 0.3s ease;
 }
 
@@ -1715,12 +1758,12 @@ button[onclick="startGame()"] {
     margin: 15px 0;
     border-radius: 15px;
   }
-  
+
   .player-section h3 {
     font-size: 1.2em;
     margin: 0 0 15px 0;
   }
-  
+
   .player-section p {
     font-size: 0.95em;
     margin: 12px 0 8px 0;
@@ -1733,12 +1776,12 @@ button[onclick="startGame()"] {
     margin: 12px 0;
     border-radius: 12px;
   }
-  
+
   .player-section h3 {
     font-size: 1em;
     margin: 0 0 12px 0;
   }
-  
+
   .player-section p {
     font-size: 0.9em;
     margin: 10px 0 6px 0;
@@ -1747,7 +1790,8 @@ button[onclick="startGame()"] {
 
 .player-section:hover {
   border-color: rgba(255, 165, 0, 0.5);
-  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
   transform: translateY(-2px);
 }
 
@@ -1799,7 +1843,8 @@ button[onclick="startGame()"] {
   outline: none;
   border-color: rgba(255, 165, 0, 0.8);
   background: rgba(0, 0, 0, 0.6);
-  box-shadow: 0 0 15px rgba(255, 165, 0, 0.3), inset 0 2px 5px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 0 15px rgba(255, 165, 0, 0.3),
+    inset 0 2px 5px rgba(0, 0, 0, 0.3);
 }
 
 .player-section input::placeholder {
@@ -1867,12 +1912,12 @@ button[onclick="startGame()"] {
     font-size: clamp(14px, 2.5vw, 20px) !important;
     border-width: 2px !important;
   }
-  
+
   .dpad-container {
     padding: 6px !important;
     gap: 3px !important;
   }
-  
+
   .dpad-row {
     gap: 3px !important;
   }
@@ -1900,11 +1945,11 @@ button[onclick="startGame()"] {
     padding: 12px;
     gap: 6px;
   }
-  
+
   .dpad-row {
     gap: 6px;
   }
-  
+
   .dpad-button {
     width: clamp(50px, 10vw, 64px);
     height: clamp(50px, 10vw, 64px);
@@ -1917,11 +1962,11 @@ button[onclick="startGame()"] {
     padding: 10px;
     gap: 5px;
   }
-  
+
   .dpad-row {
     gap: 5px;
   }
-  
+
   .dpad-button {
     width: clamp(48px, 9vw, 60px);
     height: clamp(48px, 9vw, 60px);
@@ -1935,37 +1980,74 @@ button[onclick="startGame()"] {
     height: 70px;
     font-size: 28px;
   }
-  
+
   .dpad-container {
     padding: 18px;
     gap: 10px;
   }
-  
+
   .dpad-row {
     gap: 10px;
   }
 }
 
 /* Ensure touch controls are visible when game is active and touch device */
-.touch-controls[style*="display: block"] {
-  display: block !important;
-  opacity: 1 !important;
-  pointer-events: auto !important;
-  visibility: visible !important;
-}
-
-/* Force visibility for touch devices when game is running */
+/* BUT ONLY on mobile/tablet - NEVER on desktop PC */
 @media (max-width: 1023px) {
-  body:not(.portrait-lock) .touch-controls,
+  .touch-controls[style*="display: block"] {
+    display: block !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+    visibility: visible !important;
+  }
+
+  /* Force visibility for touch devices when game is running */
+  body:not(.portrait-lock):not([data-mobile="false"]) .touch-controls,
   body.portrait-mode-allowed .touch-controls {
     display: block !important;
   }
 }
 
-@media (min-width: 1024px) {
-  /* Hide touch controls on desktop */
+/* CRITICAL: Desktop PC should NEVER show touch controls */
+@media (min-width: 1024px), (min-width: 769px) and (not (data-mobile="true")) {
   .touch-controls {
     display: none !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+    visibility: hidden !important;
+  }
+}
+
+/* CRITICAL: Hide touch controls on desktop PC - NEVER show on desktop */
+@media (min-width: 1024px) {
+  .touch-controls {
+    display: none !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+    visibility: hidden !important;
+  }
+}
+
+/* Also hide on desktop even if screen is smaller (e.g., browser window) */
+@media (min-width: 769px) {
+  /* Check if it's a desktop browser, not mobile */
+  body:not(.mobile-device) .touch-controls {
+    display: none !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+    visibility: hidden !important;
+  }
+}
+
+/* Force hide on desktop browsers regardless of screen size */
+@media (min-width: 769px) {
+  /* Desktop browsers should never show touch controls */
+  html:not([data-mobile="true"]) .touch-controls,
+  body:not([data-mobile="true"]) .touch-controls {
+    display: none !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+    visibility: hidden !important;
   }
 }
 
@@ -2025,12 +2107,20 @@ button[onclick="startGame()"] {
 }
 
 .orientation-btn-primary {
-  background: linear-gradient(135deg, rgba(0, 173, 181, 0.9), rgba(0, 128, 128, 0.9));
+  background: linear-gradient(
+    135deg,
+    rgba(0, 173, 181, 0.9),
+    rgba(0, 128, 128, 0.9)
+  );
   box-shadow: 0 8px 20px rgba(0, 173, 181, 0.4);
 }
 
 .orientation-btn-primary:hover {
-  background: linear-gradient(135deg, rgba(0, 173, 181, 1), rgba(0, 128, 128, 1));
+  background: linear-gradient(
+    135deg,
+    rgba(0, 173, 181, 1),
+    rgba(0, 128, 128, 1)
+  );
   transform: translateY(-2px);
   box-shadow: 0 10px 25px rgba(0, 173, 181, 0.5);
 }
