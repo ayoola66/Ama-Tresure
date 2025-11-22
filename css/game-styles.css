@@ -195,19 +195,21 @@ body.portrait-lock {
     bottom: calc(var(--safe-bottom) + 20px);
   }
 
+  /* Significantly smaller buttons for landscape */
   .dpad-button {
-    width: clamp(44px, 8vw, 56px);
-    height: clamp(44px, 8vw, 56px);
-    font-size: clamp(18px, 3vw, 24px);
+    width: clamp(36px, 6vw, 48px) !important;
+    height: clamp(36px, 6vw, 48px) !important;
+    font-size: clamp(14px, 2.5vw, 20px) !important;
+    border-width: 2px !important;
   }
 
   .dpad-container {
-    padding: 8px;
-    gap: 4px;
+    padding: 6px !important;
+    gap: 3px !important;
   }
 
   .dpad-row {
-    gap: 4px;
+    gap: 3px !important;
   }
 }
 
@@ -232,10 +234,40 @@ body.portrait-lock {
     bottom: calc(var(--safe-bottom) + 22px);
   }
 
+  /* Smaller buttons for foldable landscape too */
   .dpad-button {
-    width: clamp(52px, 9vw, 64px);
-    height: clamp(52px, 9vw, 64px);
-    font-size: clamp(20px, 3.5vw, 28px);
+    width: clamp(40px, 7vw, 52px) !important;
+    height: clamp(40px, 7vw, 52px) !important;
+    font-size: clamp(16px, 3vw, 24px) !important;
+    border-width: 2px !important;
+  }
+
+  .dpad-container {
+    padding: 8px !important;
+    gap: 4px !important;
+  }
+
+  .dpad-row {
+    gap: 4px !important;
+  }
+}
+
+/* Additional landscape rule for all landscape orientations */
+@media (orientation: landscape) {
+  .dpad-button {
+    /* Override default sizes for landscape */
+    width: clamp(36px, 6vw, 48px) !important;
+    height: clamp(36px, 6vw, 48px) !important;
+    font-size: clamp(14px, 2.5vw, 20px) !important;
+  }
+  
+  /* Only apply if not in the specific breakpoints above */
+  @media (min-height: 601px) and (max-height: 900px) {
+    .dpad-button {
+      width: clamp(40px, 7vw, 52px) !important;
+      height: clamp(40px, 7vw, 52px) !important;
+      font-size: clamp(16px, 3vw, 24px) !important;
+    }
   }
 }
 
@@ -1825,6 +1857,25 @@ button[onclick="startGame()"] {
   touch-action: manipulation;
   transition: all 0.1s ease;
   color: white;
+}
+
+/* Default landscape override - smaller buttons in landscape */
+@media (orientation: landscape) {
+  .dpad-button {
+    width: clamp(36px, 6vw, 48px) !important;
+    height: clamp(36px, 6vw, 48px) !important;
+    font-size: clamp(14px, 2.5vw, 20px) !important;
+    border-width: 2px !important;
+  }
+  
+  .dpad-container {
+    padding: 6px !important;
+    gap: 3px !important;
+  }
+  
+  .dpad-row {
+    gap: 3px !important;
+  }
 }
 
 .dpad-button:hover {

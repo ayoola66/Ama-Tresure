@@ -254,12 +254,18 @@ function updateOrientationLock() {
 
   if (shouldShow) {
     document.body.classList.add("portrait-lock");
-    orientationOverlay.style.display = "flex";
-    orientationOverlay.setAttribute("aria-hidden", "false");
+    if (orientationOverlay) {
+      orientationOverlay.style.display = "flex";
+      orientationOverlay.setAttribute("aria-hidden", "false");
+      orientationOverlay.style.visibility = "visible";
+    }
   } else {
     document.body.classList.remove("portrait-lock");
-    orientationOverlay.style.display = "none";
-    orientationOverlay.setAttribute("aria-hidden", "true");
+    if (orientationOverlay) {
+      orientationOverlay.style.display = "none";
+      orientationOverlay.setAttribute("aria-hidden", "true");
+      orientationOverlay.style.visibility = "hidden";
+    }
   }
 }
 
@@ -289,16 +295,25 @@ if (forceFullscreenBtn) {
 }
 
 if (continuePortraitBtn) {
-  continuePortraitBtn.addEventListener("click", () => {
+  continuePortraitBtn.addEventListener("click", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
     // Allow portrait mode and dismiss overlay
     localStorage.setItem('portraitModeAllowed', 'true');
     portraitModeAllowed = true;
+    
+    // Remove portrait lock and add allowed class
     document.body.classList.remove("portrait-lock");
-    document.body.classList.add("portrait-mode-allowed"); // Add class for CSS targeting
+    document.body.classList.add("portrait-mode-allowed");
+    
+    // Force hide overlay immediately
     if (orientationOverlay) {
       orientationOverlay.style.display = "none";
       orientationOverlay.setAttribute("aria-hidden", "true");
+      orientationOverlay.style.visibility = "hidden";
     }
+    
     // Ensure touch controls are visible
     const touchControls = document.getElementById('touchControls');
     if (touchControls) {
@@ -310,8 +325,15 @@ if (continuePortraitBtn) {
         touchControls.style.display = 'block';
         touchControls.style.opacity = '1';
         touchControls.style.pointerEvents = 'auto';
+        touchControls.style.visibility = 'visible';
       }
     }
+    
+    // Update orientation lock to respect the new preference
+    // This will prevent overlay from showing again
+    updateOrientationLock();
+    
+    console.log('Portrait mode enabled - overlay dismissed');
   });
 }
 
