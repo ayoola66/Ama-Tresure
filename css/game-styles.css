@@ -1935,9 +1935,7 @@ button[onclick="startGame()"] {
   box-shadow: 0 0 20px rgba(255, 165, 0, 0.6);
 }
 
-.dpad-up {
-  /* Already in column layout, no special positioning needed */
-}
+/* .dpad-up - Already in column layout, no special positioning needed */
 
 /* Responsive D-Pad Sizing */
 @media (max-width: 768px) {
@@ -2009,13 +2007,22 @@ button[onclick="startGame()"] {
 }
 
 /* CRITICAL: Desktop PC should NEVER show touch controls */
-@media (min-width: 1024px), (min-width: 769px) and (not (data-mobile="true")) {
+@media (min-width: 1024px) {
   .touch-controls {
     display: none !important;
     opacity: 0 !important;
     pointer-events: none !important;
     visibility: hidden !important;
   }
+}
+
+/* Additional desktop exclusion for browsers with data-mobile="false" */
+body[data-mobile="false"] .touch-controls,
+html[data-mobile="false"] .touch-controls {
+  display: none !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  visibility: hidden !important;
 }
 
 /* CRITICAL: Hide touch controls on desktop PC - NEVER show on desktop */
