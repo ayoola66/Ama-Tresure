@@ -2871,12 +2871,6 @@ function backToMenu() {
 
   startscreen.style.display = "block";
   if (gameTitle) gameTitle.style.display = "none"; // Hide game title when returning to menu
-  
-  // Hide touch controls when returning to menu
-  const touchControls = document.getElementById('touchControls');
-  if (touchControls && window.isTouchDevice) {
-    touchControls.style.display = 'none';
-  }
 }
 
 // Exit game function - returns to start screen
