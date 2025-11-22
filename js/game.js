@@ -1082,7 +1082,7 @@ function init() {
       if (e.key === "Escape" && 
           howToPlayModal.style.display !== "none" && 
           howToPlayModal.style.display !== "" &&
-          !gameRunning) {
+          !timer) {
         closeHowToPlay();
       }
     });
