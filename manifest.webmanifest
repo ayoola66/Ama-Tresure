@@ -1,0 +1,18 @@
+{
+  "name": "Ama Treasure Adventure",
+  "short_name": "Treasure Adventure",
+  "description": "Collect treasures, dodge obstacles, and climb the leaderboard in Ama Treasure Adventure.",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "orientation": "landscape",
+  "background_color": "#0d1b2a",
+  "theme_color": "#0d1b2a",
+  "icons": [
+    {
+      "src": "/data/background/mermaid-background-1.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
