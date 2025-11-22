@@ -143,6 +143,12 @@ const achievement = document.getElementById("achievement");
 const gameContainer = document.getElementById("game");
 const powerUpStatus = document.getElementById("powerUpStatus");
 const gameTitle = document.querySelector(".game-title");
+const orientationOverlay = document.getElementById("orientationOverlay");
+const forceFullscreenBtn = document.getElementById("forceFullscreenBtn");
+const orientationMediaQuery = window.matchMedia
+  ? window.matchMedia("(orientation: portrait)")
+  : null;
+let fullscreenRequested = false;
 
 // Game State
 let obstacles = [];
@@ -180,6 +186,89 @@ const COLLISION_BUFFER = {
   treasure: 0, // No buffer for treasures - instant collection when visually touching (works for all characters)
   powerup: 12, // Power-ups moderate difficulty
 };
+
+function isTouchLayout() {
+  return Boolean(window.isTouchDevice);
+}
+
+function isGameActive() {
+  return startscreen && startscreen.style.display === "none";
+}
+
+function requestFullscreenForGame(force = false) {
+  if (!isTouchLayout()) return;
+  const container = document.getElementById("game-container") || document.body;
+  const fullscreenElement =
+    document.fullscreenElement ||
+    document.webkitFullscreenElement ||
+    document.msFullscreenElement;
+
+  if (fullscreenElement && !force) {
+    return;
+  }
+
+  const request =
+    container.requestFullscreen ||
+    container.webkitRequestFullscreen ||
+    container.msRequestFullscreen;
+
+  if (typeof request === "function") {
+    try {
+      const maybePromise = request.call(container);
+      fullscreenRequested = true;
+      if (maybePromise && typeof maybePromise.catch === "function") {
+        maybePromise.catch((err) => {
+          console.warn("Fullscreen request was blocked:", err.message);
+          fullscreenRequested = false;
+        });
+      }
+    } catch (error) {
+      console.warn("Could not request fullscreen:", error.message);
+      fullscreenRequested = false;
+    }
+  }
+}
+
+function updateOrientationLock() {
+  if (!orientationOverlay) return;
+
+  const portrait = orientationMediaQuery
+    ? orientationMediaQuery.matches
+    : window.innerHeight > window.innerWidth;
+  const shouldShow = isTouchLayout() && portrait && isGameActive();
+
+  if (shouldShow) {
+    document.body.classList.add("portrait-lock");
+    orientationOverlay.style.display = "flex";
+    orientationOverlay.setAttribute("aria-hidden", "false");
+  } else {
+    document.body.classList.remove("portrait-lock");
+    orientationOverlay.style.display = "none";
+    orientationOverlay.setAttribute("aria-hidden", "true");
+  }
+}
+
+const orientationChangeHandler = () => updateOrientationLock();
+
+if (orientationMediaQuery) {
+  if (orientationMediaQuery.addEventListener) {
+    orientationMediaQuery.addEventListener("change", orientationChangeHandler);
+  } else if (orientationMediaQuery.addListener) {
+    orientationMediaQuery.addListener(orientationChangeHandler);
+  }
+}
+
+window.addEventListener("resize", orientationChangeHandler);
+document.addEventListener("fullscreenchange", () => {
+  if (!document.fullscreenElement) {
+    fullscreenRequested = false;
+    updateOrientationLock();
+  }
+});
+
+if (forceFullscreenBtn) {
+  forceFullscreenBtn.addEventListener("click", () => requestFullscreenForGame(true));
+}
 
 // Debug Logging System (using external logger)
 const MAX_DEBUG_ENTRIES = 200; // Increased to track longer games up to level 20+
@@ -978,9 +1067,13 @@ function init() {
   
   // Hide touch controls when on start screen
   const touchControls = document.getElementById('touchControls');
-  if (touchControls && window.isTouchDevice) {
-    touchControls.style.display = 'none';
-  }
+    if (touchControls && window.isTouchDevice) {
+      touchControls.style.display = 'none';
+    }
+    if (window.isTouchDevice) {
+      document.body.classList.remove("portrait-lock");
+      updateOrientationLock();
+    }
 
   // Update high score display
   document.getElementById("highScoreDisplay").textContent = highScore;
@@ -997,8 +1090,9 @@ function init() {
            (window.innerWidth <= 1024 && 'ontouchstart' in window);
   }
 
-  const isTouchDevice = isMobileOrTablet();
-  window.isTouchDevice = isTouchDevice; // Make globally accessible
+    const isTouchDevice = isMobileOrTablet();
+    window.isTouchDevice = isTouchDevice; // Make globally accessible
+    updateOrientationLock();
   
   // Disable two-player mode on mobile/tablet
   const twoPlayerButton = document.querySelector('.mode-button[data-mode="2"]');
@@ -2634,10 +2728,14 @@ function startGame() {
   if (leaderboardModal) leaderboardModal.style.display = "none";
   
   // Show touch controls on mobile/tablet when game starts
-  const touchControls = document.getElementById('touchControls');
-  if (touchControls && window.isTouchDevice) {
-    touchControls.style.display = 'block';
-  }
+    const touchControls = document.getElementById('touchControls');
+    if (touchControls && window.isTouchDevice) {
+      touchControls.style.display = 'block';
+    }
+    if (window.isTouchDevice) {
+      requestFullscreenForGame();
+      updateOrientationLock();
+    }
 
   // Batch DOM writes - show game elements
   player1.style.opacity = "1";
@@ -2862,6 +2960,10 @@ function backToMenu() {
   const touchControls = document.getElementById('touchControls');
   if (touchControls && window.isTouchDevice) {
     touchControls.style.display = 'none';
+  }
+  if (window.isTouchDevice) {
+    document.body.classList.remove("portrait-lock");
+    updateOrientationLock();
   }
 
   obstacles.forEach((obs) => obs.remove());
