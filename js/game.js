@@ -2961,6 +2961,10 @@ function backToMenu() {
   if (touchControls && window.isTouchDevice) {
     touchControls.style.display = 'none';
   }
+  if (window.isTouchDevice) {
+    document.body.classList.remove("portrait-lock");
+    updateOrientationLock();
+  }
 
   obstacles.forEach((obs) => obs.remove());
   obstacles = [];
