@@ -145,10 +145,12 @@ const powerUpStatus = document.getElementById("powerUpStatus");
 const gameTitle = document.querySelector(".game-title");
 const orientationOverlay = document.getElementById("orientationOverlay");
 const forceFullscreenBtn = document.getElementById("forceFullscreenBtn");
+const continuePortraitBtn = document.getElementById("continuePortraitBtn");
 const orientationMediaQuery = window.matchMedia
   ? window.matchMedia("(orientation: portrait)")
   : null;
 let fullscreenRequested = false;
+let portraitModeAllowed = false; // User preference for portrait mode
 
 // Game State
 let obstacles = [];
@@ -235,7 +237,20 @@ function updateOrientationLock() {
   const portrait = orientationMediaQuery
     ? orientationMediaQuery.matches
     : window.innerHeight > window.innerWidth;
-  const shouldShow = isTouchLayout() && portrait && isGameActive();
+  
+  // Check if user has allowed portrait mode
+  const portraitAllowed = localStorage.getItem('portraitModeAllowed') === 'true';
+  portraitModeAllowed = portraitAllowed;
+  
+  // Add/remove class for CSS targeting
+  if (portraitAllowed) {
+    document.body.classList.add("portrait-mode-allowed");
+  } else {
+    document.body.classList.remove("portrait-mode-allowed");
+  }
+  
+  // Only show overlay if portrait, game active, touch device, AND portrait not allowed
+  const shouldShow = isTouchLayout() && portrait && isGameActive() && !portraitAllowed;
 
   if (shouldShow) {
     document.body.classList.add("portrait-lock");
@@ -267,7 +282,37 @@ document.addEventListener("fullscreenchange", () => {
 });
 
 if (forceFullscreenBtn) {
-  forceFullscreenBtn.addEventListener("click", () => requestFullscreenForGame(true));
+  forceFullscreenBtn.addEventListener("click", () => {
+    requestFullscreenForGame(true);
+    updateOrientationLock();
+  });
+}
+
+if (continuePortraitBtn) {
+  continuePortraitBtn.addEventListener("click", () => {
+    // Allow portrait mode and dismiss overlay
+    localStorage.setItem('portraitModeAllowed', 'true');
+    portraitModeAllowed = true;
+    document.body.classList.remove("portrait-lock");
+    document.body.classList.add("portrait-mode-allowed"); // Add class for CSS targeting
+    if (orientationOverlay) {
+      orientationOverlay.style.display = "none";
+      orientationOverlay.setAttribute("aria-hidden", "true");
+    }
+    // Ensure touch controls are visible
+    const touchControls = document.getElementById('touchControls');
+    if (touchControls) {
+      const isTouch = window.isTouchDevice || 
+                     ('ontouchstart' in window) || 
+                     (navigator.maxTouchPoints > 0);
+      if (isTouch) {
+        window.isTouchDevice = true;
+        touchControls.style.display = 'block';
+        touchControls.style.opacity = '1';
+        touchControls.style.pointerEvents = 'auto';
+      }
+    }
+  });
 }
 
 // Debug Logging System (using external logger)
@@ -1067,7 +1112,7 @@ function init() {
   
   // Hide touch controls when on start screen
   const touchControls = document.getElementById('touchControls');
-    if (touchControls && window.isTouchDevice) {
+    if (touchControls) {
       touchControls.style.display = 'none';
     }
     if (window.isTouchDevice) {
@@ -2729,8 +2774,22 @@ function startGame() {
   
   // Show touch controls on mobile/tablet when game starts
     const touchControls = document.getElementById('touchControls');
-    if (touchControls && window.isTouchDevice) {
-      touchControls.style.display = 'block';
+    if (touchControls) {
+      // Improved touch device detection with multiple fallbacks
+      const isTouch = window.isTouchDevice || 
+                     ('ontouchstart' in window) || 
+                     (navigator.maxTouchPoints > 0) ||
+                     (window.innerWidth <= 1024 && ('ontouchstart' in window || navigator.maxTouchPoints > 0)) ||
+                     /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+      
+      if (isTouch) {
+        window.isTouchDevice = true; // Ensure global flag is set
+        // Always show controls when game starts on touch device
+        touchControls.style.display = 'block';
+        touchControls.style.opacity = '1';
+        touchControls.style.pointerEvents = 'auto';
+        touchControls.style.visibility = 'visible';
+      }
     }
     if (window.isTouchDevice) {
       requestFullscreenForGame();
@@ -3129,7 +3188,15 @@ function processMovement() {
 
   // Initialize touch controls for mobile/tablet
   function initTouchControls() {
-    if (!isTouchDevice) return;
+    // Improved touch detection
+    const isTouch = window.isTouchDevice || 
+                   ('ontouchstart' in window) || 
+                   (navigator.maxTouchPoints > 0) ||
+                   /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    
+    if (!isTouch) return;
+    
+    window.isTouchDevice = true; // Set global flag
     
     const touchControls = document.getElementById('touchControls');
     if (!touchControls) return;
