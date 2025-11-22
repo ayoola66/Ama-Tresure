@@ -2,14 +2,11 @@
   # No build command needed for static site
   publish = "."
 
-[[redirects]]
-  from = "/"
-  to = "/play_index.html"
-  status = 200
-
+# Netlify automatically serves index.html from root directory
+# This redirect is a fallback for SPA routing (if needed in future)
 [[redirects]]
   from = "/*"
-  to = "/play_index.html"
+  to = "/index.html"
   status = 200
 
 # Headers for better performance
