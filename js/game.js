@@ -2035,6 +2035,10 @@ let cachedP1Rect = null;
 let cachedP2Rect = null;
 let cachedTreasureRect = null;
 
+// Track treasure collection to prevent multiple collections of the same treasure
+let treasureJustCollected = false;
+let lastTreasurePosition = null;
+
 function checkCollisions() {
   // Update cached rects every frame for accurate collision detection (critical for all characters)
   // Removed caching delay to ensure real-time collision detection
@@ -2052,42 +2056,59 @@ function checkCollisions() {
     return; // Skip collision check if rects are invalid
   }
 
-  // Check treasure collision for player 1 (only if alive)
+  // Check if treasure has moved (reset collection flag if treasure position changed)
+  const currentTreasurePos = `${treasure.style.left},${treasure.style.top}`;
+  if (lastTreasurePosition !== currentTreasurePos) {
+    treasureJustCollected = false;
+    lastTreasurePosition = currentTreasurePos;
+  }
+
+  // Check treasure collision for player 1 (only if alive and treasure not just collected)
   // Buffer is 0, so collision happens when visual elements overlap (works for all characters)
   if (
     p1Alive &&
+    !treasureJustCollected &&
     isOverlappingWithBuffer(
       p1Rect,
       treasureRect,
       COLLISION_BUFFER.treasure
     )
   ) {
-    const points = parseFloat(treasure.dataset.points) || 0.5;
+    // Get the correct point value from treasure type
+    const treasureType = treasure.dataset.type;
+    const treasureTypeData = treasureTypes[treasureType];
+    const basePoints = treasureTypeData ? treasureTypeData.points : parseFloat(treasure.dataset.points) || 0.5;
+    
     const multiplier =
       activePowerUps.player1 && activePowerUps.player1.type === "POINTS"
         ? 2
         : 1;
-    const pointsEarned = points * multiplier;
+    const pointsEarned = basePoints * multiplier;
     const oldScore = p1Score;
-    p1Score += pointsEarned;
+    
+    // Round to 1 decimal place to prevent floating-point precision issues
+    p1Score = Math.round((p1Score + pointsEarned) * 10) / 10;
+    
     updateDisplay(); // Update display immediately when score changes
 
     logTreasure(
       player1Name,
-      treasure.dataset.type,
-      points,
+      treasureType,
+      basePoints,
       multiplier,
       oldScore,
       p1Score
     );
     updateDebugPanel();
 
+    // Mark treasure as collected and move it immediately
+    treasureJustCollected = true;
     placeTreasure();
     randomObstacleRespawn(); // Trigger random obstacle respawn
-    playAudio(treasureSound); // Treasure sound
+    playAudio(treasureSound()); // Treasure sound
     showMessage(
       `💰 ${player1Name} collected ${
-        treasure.dataset.type
+        treasureType
       }! +${pointsEarned.toFixed(1)} points`
     );
 
@@ -2095,8 +2116,8 @@ function checkCollisions() {
     checkLevelProgress();
   }
 
-  // Check treasure collision for player 2 (only if alive)
-  if (mode === 2 && p2Alive) {
+  // Check treasure collision for player 2 (only if alive and treasure not just collected)
+  if (mode === 2 && p2Alive && !treasureJustCollected) {
     const p2Rect = cachedP2Rect;
     // Validate p2Rect exists and has valid dimensions (works for all characters)
     if (p2Rect && p2Rect.width > 0 && 
@@ -2106,32 +2127,41 @@ function checkCollisions() {
           COLLISION_BUFFER.treasure
         )
     ) {
-      const points = parseFloat(treasure.dataset.points) || 0.5;
+      // Get the correct point value from treasure type
+      const treasureType = treasure.dataset.type;
+      const treasureTypeData = treasureTypes[treasureType];
+      const basePoints = treasureTypeData ? treasureTypeData.points : parseFloat(treasure.dataset.points) || 0.5;
+      
       const multiplier =
         activePowerUps.player2 && activePowerUps.player2.type === "POINTS"
           ? 2
           : 1;
-      const pointsEarned = points * multiplier;
+      const pointsEarned = basePoints * multiplier;
       const oldScore = p2Score;
-      p2Score += pointsEarned;
+      
+      // Round to 1 decimal place to prevent floating-point precision issues
+      p2Score = Math.round((p2Score + pointsEarned) * 10) / 10;
+      
       updateDisplay(); // Update display immediately when score changes
 
       logTreasure(
         player2Name,
-        treasure.dataset.type,
-        points,
+        treasureType,
+        basePoints,
         multiplier,
         oldScore,
         p2Score
       );
       updateDebugPanel();
 
+      // Mark treasure as collected and move it immediately
+      treasureJustCollected = true;
       placeTreasure();
       randomObstacleRespawn(); // Trigger random obstacle respawn
       playAudio(treasureSound());
       showMessage(
         `💰 ${player2Name} collected ${
-          treasure.dataset.type
+          treasureType
         }! +${pointsEarned.toFixed(1)} points`
       );
 
@@ -2344,9 +2374,10 @@ function updateDisplay() {
   document.getElementById("levelDisplay").textContent = level;
   document.getElementById("highScoreDisplay").textContent = highScore;
 
-  let statsHtml = `${player1Name}: ${p1Score} points ❤️ ${p1Lives} lives`;
+  // Always display scores with one decimal place for consistency
+  let statsHtml = `${player1Name}: ${p1Score.toFixed(1)} points ❤️ ${p1Lives} lives`;
   if (mode === 2) {
-    statsHtml += `<br>${player2Name}: ${p2Score} points ❤️ ${p2Lives} lives`;
+    statsHtml += `<br>${player2Name}: ${p2Score.toFixed(1)} points ❤️ ${p2Lives} lives`;
   }
   document.getElementById("playerStats").innerHTML = statsHtml;
 }
@@ -2577,6 +2608,10 @@ function startGame() {
   updatePlayerAppearance();
   updateBackgroundPreview(selectedP1Character);
 
+  // Reset treasure collection tracking
+  treasureJustCollected = false;
+  lastTreasurePosition = null;
+
   // Place treasure and obstacles
   placeTreasure();
   createObstacles();
@@ -2708,9 +2743,9 @@ function endGame() {
   keysPressed.clear();
   stopBackgroundMusic();
 
-  let message = `Game Over!<br>${player1Name}: ${p1Score} points`;
+  let message = `Game Over!<br>${player1Name}: ${p1Score.toFixed(1)} points`;
   if (mode === 2) {
-    message += `<br>${player2Name}: ${p2Score} points`;
+    message += `<br>${player2Name}: ${p2Score.toFixed(1)} points`;
     const winner =
       p1Score > p2Score
         ? player1Name
