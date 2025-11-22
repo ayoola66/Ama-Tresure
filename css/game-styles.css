@@ -1608,6 +1608,105 @@ button[onclick="startGame()"] {
   opacity: 0.8;
 }
 
+/* Touch Controls D-Pad (Mobile/Tablet Only) */
+.touch-controls {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  z-index: 100;
+  display: none; /* Hidden by default, shown on mobile/tablet when game is running */
+}
+
+.dpad-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(10px);
+  padding: 15px;
+  border-radius: 20px;
+  border: 2px solid rgba(255, 165, 0, 0.3);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+}
+
+.dpad-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
+}
+
+.dpad-button {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  border: 3px solid rgba(255, 255, 255, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  cursor: pointer;
+  user-select: none;
+  touch-action: manipulation;
+  transition: all 0.1s ease;
+  color: white;
+}
+
+.dpad-button:hover {
+  background: rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 165, 0, 0.6);
+}
+
+.dpad-button.pressed {
+  background: rgba(255, 165, 0, 0.8);
+  border-color: rgba(255, 165, 0, 1);
+  transform: scale(0.9);
+  box-shadow: 0 0 20px rgba(255, 165, 0, 0.6);
+}
+
+.dpad-up {
+  /* Already in column layout, no special positioning needed */
+}
+
+/* Responsive D-Pad Sizing */
+@media (min-width: 768px) {
+  .dpad-button {
+    width: 70px;
+    height: 70px;
+    font-size: 28px;
+  }
+  
+  .dpad-container {
+    padding: 18px;
+    gap: 10px;
+  }
+  
+  .dpad-row {
+    gap: 10px;
+  }
+}
+
+@media (min-width: 1024px) {
+  /* Hide touch controls on desktop */
+  .touch-controls {
+    display: none !important;
+  }
+}
+
+/* Disabled mode button styling */
+.mode-button.disabled {
+  opacity: 0.5 !important;
+  cursor: not-allowed !important;
+  pointer-events: none;
+}
+
+.mode-button.disabled:hover {
+  transform: none !important;
+  box-shadow: none !important;
+}
+
 /* Loading Screen Styles */
 #loadingScreen {
   position: fixed;

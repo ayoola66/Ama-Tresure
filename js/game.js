@@ -975,6 +975,12 @@ function init() {
   treasure.style.display = "none";
   document.querySelector(".game-header-buttons").style.display = "none";
   powerUpStatus.style.display = "none";
+  
+  // Hide touch controls when on start screen
+  const touchControls = document.getElementById('touchControls');
+  if (touchControls && window.isTouchDevice) {
+    touchControls.style.display = 'none';
+  }
 
   // Update high score display
   document.getElementById("highScoreDisplay").textContent = highScore;
@@ -985,14 +991,62 @@ function init() {
   // Set initial background based on default Player 1 character (Mermaid)
   updateBackgroundPreview(selectedP1Character);
 
+  // Device detection for mobile/tablet (global variable)
+  function isMobileOrTablet() {
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+           (window.innerWidth <= 1024 && 'ontouchstart' in window);
+  }
+
+  const isTouchDevice = isMobileOrTablet();
+  window.isTouchDevice = isTouchDevice; // Make globally accessible
+  
+  // Disable two-player mode on mobile/tablet
+  const twoPlayerButton = document.querySelector('.mode-button[data-mode="2"]');
+  const twoPlayerDescription = twoPlayerButton?.querySelector('.description');
+  
+  if (isTouchDevice && twoPlayerButton) {
+    twoPlayerButton.classList.add('disabled');
+    twoPlayerButton.style.opacity = '0.5';
+    twoPlayerButton.style.cursor = 'not-allowed';
+    if (twoPlayerDescription) {
+      twoPlayerDescription.textContent = 'Mobile/tablet screens are not wide enough for two players. Use on-screen arrows to play!';
+      twoPlayerDescription.style.fontSize = '0.85em';
+      twoPlayerDescription.style.color = 'rgba(255, 255, 255, 0.8)';
+    }
+    
+    // Prevent clicking two-player mode on mobile/tablet
+    twoPlayerButton.addEventListener('click', (e) => {
+      if (isTouchDevice) {
+        e.preventDefault();
+        e.stopPropagation();
+        playAudio(menuClickSound());
+        showMessage('📱 Two-player mode is not available on mobile/tablet devices. Please use Single Player mode with on-screen controls!', 3000);
+        return false;
+      }
+    });
+  }
+
   // Mode selection
   document.querySelectorAll(".mode-button").forEach((button) => {
     button.addEventListener("click", () => {
+      // Prevent selection if disabled (mobile/tablet two-player)
+      if (button.classList.contains('disabled') && isTouchDevice) {
+        return;
+      }
+      
       document
         .querySelectorAll(".mode-button")
         .forEach((b) => b.classList.remove("selected"));
       button.classList.add("selected");
       mode = parseInt(button.dataset.mode);
+      
+      // Force single-player mode on mobile/tablet
+      if (isTouchDevice && mode === 2) {
+        mode = 1;
+        document.querySelector('.mode-button[data-mode="1"]').classList.add("selected");
+        button.classList.remove("selected");
+      }
+      
       playAudio(menuClickSound()); // Click sound
 
       const player2Settings = document.getElementById("player2Settings");
@@ -2577,6 +2631,12 @@ function startGame() {
   if (gameTitle) gameTitle.style.display = "block";
   gameover.style.display = "none";
   if (leaderboardModal) leaderboardModal.style.display = "none";
+  
+  // Show touch controls on mobile/tablet when game starts
+  const touchControls = document.getElementById('touchControls');
+  if (touchControls && window.isTouchDevice) {
+    touchControls.style.display = 'block';
+  }
 
   // Batch DOM writes - show game elements
   player1.style.opacity = "1";
@@ -2796,6 +2856,12 @@ function backToMenu() {
   powerUpStatus.style.display = "none";
   gameover.style.display = "none";
   document.getElementById("leaderboardModal").style.display = "none"; // Hide leaderboard
+  
+  // Hide touch controls when game ends
+  const touchControls = document.getElementById('touchControls');
+  if (touchControls && window.isTouchDevice) {
+    touchControls.style.display = 'none';
+  }
 
   obstacles.forEach((obs) => obs.remove());
   obstacles = [];
@@ -2804,6 +2870,12 @@ function backToMenu() {
 
   startscreen.style.display = "block";
   if (gameTitle) gameTitle.style.display = "none"; // Hide game title when returning to menu
+  
+  // Hide touch controls when returning to menu
+  const touchControls = document.getElementById('touchControls');
+  if (touchControls && window.isTouchDevice) {
+    touchControls.style.display = 'none';
+  }
 }
 
 // Exit game function - returns to start screen
@@ -2957,6 +3029,72 @@ function processMovement() {
       moved = true;
     }
   }
+
+  // Initialize touch controls for mobile/tablet
+  function initTouchControls() {
+    if (!isTouchDevice) return;
+    
+    const touchControls = document.getElementById('touchControls');
+    if (!touchControls) return;
+    
+    // Touch controls will be shown/hidden when game starts/ends
+    // Don't show here - wait for game to start
+    
+    const dpadButtons = touchControls.querySelectorAll('.dpad-button');
+    
+    dpadButtons.forEach(button => {
+      const direction = button.dataset.direction;
+      
+      // Touch start - add to keysPressed
+      button.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        // Check if game is running by checking if timer exists
+        if (isPaused || !timer) return;
+        keysPressed.add(direction);
+        button.classList.add('pressed');
+        
+        // Start movement processing if not already running
+        if (!movementInterval) {
+          movementInterval = setInterval(processMovement, 16); // ~60fps
+        }
+      }, { passive: false });
+      
+      // Touch end - remove from keysPressed
+      button.addEventListener('touchend', (e) => {
+        e.preventDefault();
+        keysPressed.delete(direction);
+        button.classList.remove('pressed');
+        
+        // Stop movement if no keys pressed
+        if (keysPressed.size === 0 && movementInterval) {
+          clearInterval(movementInterval);
+          movementInterval = null;
+        }
+      }, { passive: false });
+      
+      // Touch cancel - remove from keysPressed
+      button.addEventListener('touchcancel', (e) => {
+        e.preventDefault();
+        keysPressed.delete(direction);
+        button.classList.remove('pressed');
+        
+        // Stop movement if no keys pressed
+        if (keysPressed.size === 0 && movementInterval) {
+          clearInterval(movementInterval);
+          movementInterval = null;
+        }
+      }, { passive: false });
+      
+    });
+  }
+  
+  // Initialize touch controls when DOM is ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initTouchControls);
+  } else {
+    initTouchControls();
+  }
+
 
   if (moved) {
     // Keep players in bounds with smooth screen wrapping
