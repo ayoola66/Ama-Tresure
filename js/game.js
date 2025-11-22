@@ -1342,7 +1342,8 @@ function placeTreasure() {
 
 // Continuously enforce minimum separation between all game elements during gameplay
 function enforceElementSeparation() {
-  if (!gameRunning) return;
+  // Check if game is running by checking if timer exists
+  if (!timer) return;
 
   const game = document.getElementById("game");
 
