@@ -1098,10 +1098,13 @@ function init() {
   document.querySelector(".game-header-buttons").style.display = "none";
   powerUpStatus.style.display = "none";
 
-  // Hide touch controls when on start screen
+  // CRITICAL: Don't set inline display:none here - let CSS handle it
+  // Touch controls visibility is controlled by CSS media queries and JavaScript detection
   const touchControls = document.getElementById("touchControls");
-  if (touchControls) {
-    touchControls.style.display = "none";
+  if (touchControls && !window.isTouchDevice) {
+    // Only hide if we're certain it's desktop - otherwise let CSS decide
+    // Remove any inline styles that might interfere
+    touchControls.style.display = "";
   }
   if (window.isTouchDevice) {
     document.body.classList.remove("portrait-lock");
@@ -1140,24 +1143,32 @@ function init() {
     return isMobileUA || (hasTouch && isSmallScreen && !isDesktopBrowser);
   }
 
-  const isTouchDevice = isMobileOrTablet();
-  window.isTouchDevice = isTouchDevice; // Make globally accessible
-
-  // Set data attribute for CSS targeting
-  if (isTouchDevice) {
-    document.documentElement.setAttribute("data-mobile", "true");
-    document.body.setAttribute("data-mobile", "true");
-    document.body.classList.add("mobile-device");
-  } else {
-    document.documentElement.setAttribute("data-mobile", "false");
-    document.body.setAttribute("data-mobile", "false");
-    document.body.classList.remove("mobile-device");
-    // Explicitly hide touch controls on desktop
-    const touchControls = document.getElementById("touchControls");
-    if (touchControls) {
-      touchControls.style.display = "none";
+    const isTouchDevice = isMobileOrTablet();
+    window.isTouchDevice = isTouchDevice; // Make globally accessible
+    
+    // Set data attribute for CSS targeting
+    if (isTouchDevice) {
+      document.documentElement.setAttribute("data-mobile", "true");
+      document.body.setAttribute("data-mobile", "true");
+      document.body.classList.add("mobile-device");
+      // Remove any inline styles that might hide controls on mobile
+      const touchControls = document.getElementById("touchControls");
+      if (touchControls) {
+        touchControls.style.display = "";
+      }
+    } else {
+      document.documentElement.setAttribute("data-mobile", "false");
+      document.body.setAttribute("data-mobile", "false");
+      document.body.classList.remove("mobile-device");
+      // Explicitly hide touch controls on desktop with all properties
+      const touchControls = document.getElementById("touchControls");
+      if (touchControls) {
+        touchControls.style.display = "none";
+        touchControls.style.visibility = "hidden";
+        touchControls.style.opacity = "0";
+        touchControls.style.pointerEvents = "none";
+      }
     }
-  }
 
   updateOrientationLock();
 
@@ -2777,30 +2788,17 @@ function startGame() {
   // CRITICAL: Only show on actual mobile/tablet devices, NEVER on desktop PC
   const touchControls = document.getElementById("touchControls");
   if (touchControls) {
-    // Use the same strict detection as isMobileOrTablet()
-    const isMobileUA =
-      /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-        navigator.userAgent
-      );
-    const hasTouch = "ontouchstart" in window || navigator.maxTouchPoints > 0;
-    const isSmallScreen = window.innerWidth <= 1024;
-    const isDesktopBrowser =
-      /Windows|Macintosh|Linux/i.test(navigator.userAgent) &&
-      !/Android|iPad|iPhone/i.test(navigator.userAgent);
-
-    // Only show if mobile/tablet device (not desktop PC)
-    const isTouchDevice =
-      isMobileUA || (hasTouch && isSmallScreen && !isDesktopBrowser);
-
-    if (isTouchDevice && window.innerWidth <= 1024) {
-      window.isTouchDevice = true; // Ensure global flag is set
+    // Use window.isTouchDevice which was set during initialization
+    // This ensures consistent detection throughout the app
+    if (window.isTouchDevice && window.innerWidth <= 1024) {
       // Always show controls when game starts on touch device
+      // Remove any inline styles that might hide it
       touchControls.style.display = "block";
       touchControls.style.opacity = "1";
       touchControls.style.pointerEvents = "auto";
       touchControls.style.visibility = "visible";
     } else {
-      // Explicitly hide on desktop PC
+      // Explicitly hide on desktop PC with all properties
       touchControls.style.display = "none";
       touchControls.style.opacity = "0";
       touchControls.style.pointerEvents = "none";
@@ -3193,20 +3191,25 @@ function processMovement() {
   // Initialize touch controls for mobile/tablet
   function initTouchControls() {
     // CRITICAL: Only initialize on mobile/tablet, NEVER on desktop PC
-    const isMobileUA = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-    const hasTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+    const isMobileUA =
+      /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+        navigator.userAgent
+      );
+    const hasTouch = "ontouchstart" in window || navigator.maxTouchPoints > 0;
     const isSmallScreen = window.innerWidth <= 1024;
-    const isDesktopBrowser = /Windows|Macintosh|Linux/i.test(navigator.userAgent) && 
-                             !/Android|iPad|iPhone/i.test(navigator.userAgent);
-    
+    const isDesktopBrowser =
+      /Windows|Macintosh|Linux/i.test(navigator.userAgent) &&
+      !/Android|iPad|iPhone/i.test(navigator.userAgent);
+
     // Only initialize if mobile/tablet device (not desktop PC)
-    const isTouchDevice = isMobileUA || (hasTouch && isSmallScreen && !isDesktopBrowser);
-    
+    const isTouchDevice =
+      isMobileUA || (hasTouch && isSmallScreen && !isDesktopBrowser);
+
     if (!isTouchDevice || window.innerWidth > 1024) {
       // Desktop PC - do not initialize touch controls
-      const touchControls = document.getElementById('touchControls');
+      const touchControls = document.getElementById("touchControls");
       if (touchControls) {
-        touchControls.style.display = 'none';
+        touchControls.style.display = "none";
       }
       return;
     }
@@ -3215,7 +3218,7 @@ function processMovement() {
 
     const touchControls = document.getElementById("touchControls");
     if (!touchControls) {
-      console.warn('Touch controls element not found');
+      console.warn("Touch controls element not found");
       return;
     }
 

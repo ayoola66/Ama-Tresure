@@ -1864,7 +1864,18 @@ button[onclick="startGame()"] {
   left: 50%;
   transform: translateX(-50%);
   z-index: 1200;
-  display: none; /* Hidden by default, shown on mobile/tablet when game is running */
+  display: none; /* Hidden by default - CSS media queries and JavaScript will show on mobile/tablet */
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Show touch controls on mobile/tablet when game is active */
+@media (max-width: 1023px) {
+  body:not([data-mobile="false"]) .touch-controls {
+    /* Will be shown by JavaScript when game starts on mobile */
+    /* CSS provides fallback if JavaScript doesn't run */
+  }
 }
 
 .dpad-container {
