@@ -5,8 +5,9 @@
  * PERFORMANCE OPTIMIZED: Batched localStorage writes to prevent browser crashes
  */
 
-// Production mode flag - set to true to disable all debug logging
-const DEBUG_MODE = false;
+// Debug mode flag - enables logging for activity.html dashboard
+// The real performance fix was removing console.log from game loops, not this flag
+const DEBUG_MODE = true;
 
 class GameActivityLogger {
   constructor() {

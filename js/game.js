@@ -418,11 +418,8 @@ function updateDebugPanel() {
     .join("");
 }
 
-// Toggle debug panel
-function toggleDebugPanel() {
-  const panel = document.getElementById("debugPanel");
-  panel.classList.toggle("visible");
-}
+// Debug panel removed from UI - use /activity.html for game logs
+// toggleDebugPanel function removed
 
 // Leaderboard System
 class LeaderboardManager {
@@ -3674,19 +3671,7 @@ document.getElementById("pauseButton").addEventListener("click", () => {
   }
 });
 
-// Debug toggle button
-document.getElementById("debugToggle").addEventListener("click", () => {
-  toggleDebugPanel();
-});
-
-// Debug panel close button
-const debugCloseBtn = document.getElementById("debugCloseBtn");
-if (debugCloseBtn) {
-  debugCloseBtn.addEventListener("click", () => {
-    const panel = document.getElementById("debugPanel");
-    panel.classList.remove("visible");
-  });
-}
+// Debug panel removed from UI - access /activity.html for game activity logs
 
 // Initialize when page loads
 document.addEventListener("DOMContentLoaded", init);
