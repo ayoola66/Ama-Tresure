@@ -1,21 +1,32 @@
 /**
  * Ama Treasure Adventure - Debug Logger
  * Comprehensive activity logging system for gameplay monitoring
+ * 
+ * PERFORMANCE OPTIMIZED: Batched localStorage writes to prevent browser crashes
  */
+
+// Production mode flag - set to true to disable all debug logging
+const DEBUG_MODE = false;
 
 class GameActivityLogger {
   constructor() {
     this.storageKey = "amaGameActivityLog";
-    this.maxEntries = 500; // Store many more entries for long games (to level 20+)
-    this.displayLimit = 200; // Show much more gameplay progression
+    this.maxEntries = 200; // Reduced from 500 to prevent memory bloat
+    this.displayLimit = 100; // Reduced from 200 for better performance
     this.sessionId = Date.now();
     this.sessionStartTime = new Date();
+    this.pendingLogs = []; // Buffer for batched writes
+    this.saveTimeout = null; // Timer for batched saves
+    this.saveInterval = 2000; // Only save to localStorage every 2 seconds
   }
 
   /**
-   * Add a new log entry
+   * Add a new log entry - PERFORMANCE OPTIMIZED
    */
   addLog(message, type = "info", details = {}) {
+    // Skip logging entirely in production mode
+    if (!DEBUG_MODE) return null;
+    
     const timestamp = new Date().toLocaleTimeString();
     const entry = {
       time: timestamp,
@@ -26,37 +37,59 @@ class GameActivityLogger {
       details: details,
     };
 
-    // Get existing logs
-    const logs = this.getAllLogs();
-    logs.unshift(entry); // Add to beginning
-
-    // Keep only max entries
-    if (logs.length > this.maxEntries) {
-      logs.splice(this.maxEntries);
+    // Add to pending buffer instead of immediately saving
+    this.pendingLogs.unshift(entry);
+    
+    // Keep buffer size limited
+    if (this.pendingLogs.length > this.maxEntries) {
+      this.pendingLogs.splice(this.maxEntries);
     }
 
-    // Save to localStorage
-    try {
-      localStorage.setItem(this.storageKey, JSON.stringify(logs));
-    } catch (e) {
-      console.warn("Failed to save logs to localStorage:", e);
-    }
+    // Schedule batched save (debounced)
+    this._scheduleSave();
 
-    // Also log to console
-    console.log(`[${timestamp}] ${message}`, details);
+    // Console logging removed for performance - was doubling all logs
 
     return entry;
   }
+  
+  /**
+   * Schedule a batched save to localStorage (debounced)
+   */
+  _scheduleSave() {
+    if (this.saveTimeout) return; // Already scheduled
+    
+    this.saveTimeout = setTimeout(() => {
+      this._flushToStorage();
+      this.saveTimeout = null;
+    }, this.saveInterval);
+  }
+  
+  /**
+   * Flush pending logs to localStorage
+   */
+  _flushToStorage() {
+    if (this.pendingLogs.length === 0) return;
+    
+    try {
+      localStorage.setItem(this.storageKey, JSON.stringify(this.pendingLogs));
+    } catch (e) {
+      // Silently fail - don't spam console with warnings
+    }
+  }
 
   /**
-   * Get all logs from storage
+   * Get all logs from storage (or pending buffer in DEBUG_MODE)
    */
   getAllLogs() {
+    // In production mode or with pending logs, return from buffer
+    if (!DEBUG_MODE) return [];
+    if (this.pendingLogs.length > 0) return this.pendingLogs;
+    
     try {
       const stored = localStorage.getItem(this.storageKey);
       return stored ? JSON.parse(stored) : [];
     } catch (e) {
-      console.warn("Failed to retrieve logs:", e);
       return [];
     }
   }
@@ -81,11 +114,15 @@ class GameActivityLogger {
    * Clear all logs completely (used when starting a new game)
    */
   clearAllLogs() {
+    this.pendingLogs = []; // Clear buffer
+    if (this.saveTimeout) {
+      clearTimeout(this.saveTimeout);
+      this.saveTimeout = null;
+    }
     try {
       localStorage.removeItem(this.storageKey);
-      console.log("All activity logs cleared for new game");
     } catch (e) {
-      console.warn("Failed to clear all logs:", e);
+      // Silently fail
     }
   }
 
@@ -100,12 +137,15 @@ class GameActivityLogger {
    * Clear only current session logs
    */
   clearSessionLogs() {
-    const allLogs = this.getAllLogs();
-    const otherLogs = allLogs.filter((log) => log.sessionId !== this.sessionId);
+    this.pendingLogs = []; // Clear buffer
+    if (this.saveTimeout) {
+      clearTimeout(this.saveTimeout);
+      this.saveTimeout = null;
+    }
     try {
-      localStorage.setItem(this.storageKey, JSON.stringify(otherLogs));
+      localStorage.removeItem(this.storageKey);
     } catch (e) {
-      console.warn("Failed to clear session logs:", e);
+      // Silently fail
     }
   }
 

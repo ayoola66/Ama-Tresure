@@ -1627,11 +1627,7 @@ function enforceElementSeparation() {
 
     // If obstacle gets too close to treasure during movement, nudge it away
     if (distance < BUFFER_DISTANCES.OBSTACLE_TO_TREASURE) {
-      console.log(
-        `⚠️ Separating obstacle from treasure: ${Math.round(distance)}px → ${
-          BUFFER_DISTANCES.OBSTACLE_TO_TREASURE
-        }px`
-      );
+      // Debug log removed for performance - was causing browser crashes
 
       // Calculate push direction (away from treasure)
       const angle = Math.atan2(
@@ -1680,11 +1676,7 @@ function enforceElementSeparation() {
 
       // If obstacles are too close to each other, push them apart
       if (distance < BUFFER_DISTANCES.OBSTACLE_TO_OBSTACLE) {
-        console.log(
-          `⚠️ Separating obstacles: ${Math.round(distance)}px → ${
-            BUFFER_DISTANCES.OBSTACLE_TO_OBSTACLE
-          }px (${obs1.dataset.type} vs ${obs2.dataset.type})`
-        );
+        // Debug log removed for performance - was causing browser crashes
 
         // Calculate push direction (push both away from each other)
         const angle = Math.atan2(
@@ -1737,11 +1729,7 @@ function enforceElementSeparation() {
 
     // If obstacle is too close to player 1, push it away
     if (distanceToP1 < BUFFER_DISTANCES.OBSTACLE_TO_CHARACTER) {
-      console.log(
-        `⚠️ Separating obstacle from Player 1: ${Math.round(
-          distanceToP1
-        )}px → ${BUFFER_DISTANCES.OBSTACLE_TO_CHARACTER}px`
-      );
+      // Debug log removed for performance - was causing browser crashes
 
       // Calculate push direction (away from player)
       const angle = Math.atan2(
@@ -1777,11 +1765,7 @@ function enforceElementSeparation() {
 
       // If obstacle is too close to player 2, push it away
       if (distanceToP2 < BUFFER_DISTANCES.OBSTACLE_TO_CHARACTER) {
-        console.log(
-          `⚠️ Separating obstacle from Player 2: ${Math.round(
-            distanceToP2
-          )}px → ${BUFFER_DISTANCES.OBSTACLE_TO_CHARACTER}px`
-        );
+        // Debug log removed for performance - was causing browser crashes
 
         // Calculate push direction (away from player)
         const angle = Math.atan2(
