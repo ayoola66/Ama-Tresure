@@ -1,18 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-      <meta charset="UTF-8" />
-      <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
-      />
-      <meta name="theme-color" content="#0d1b2a" />
-      <meta name="apple-mobile-web-app-capable" content="yes" />
-      <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-      <meta name="mobile-web-app-capable" content="yes" />
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#0d1b2a" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
+    <meta name="mobile-web-app-capable" content="yes" />
     <title>Ama Treasure Adventure - Complete Edition</title>
-      <link rel="manifest" href="/manifest.webmanifest" />
-      <link rel="apple-touch-icon" href="/data/background/mermaid-background-1.png" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link
+      rel="apple-touch-icon"
+      href="/data/background/mermaid-background-1.png"
+    />
     <link rel="stylesheet" href="css/game-styles.css?v=2" />
     <!-- CSS moved to css/game-styles.css for better organization and caching -->
   </head>
@@ -40,55 +46,146 @@
         <div class="loading-hint">Preloading all game assets...</div>
       </div>
 
-      <div class="game-stats">
-        <div>⏳ Time: <span id="timeDisplay">40</span></div>
-        <div>🏆 Level: <span id="levelDisplay">1</span></div>
-        <div>⭐ High Score: <span id="highScoreDisplay">0</span></div>
-        <div id="playerStats"></div>
-      </div>
-
-      <button
-        class="audio-toggle-button"
-        id="audioToggleBtn"
-        title="Music Settings"
-      >
-        🎵
-      </button>
-
-      <div class="audio-controls" id="audioControls">
-        <h3>🎵 Audio Settings</h3>
-        <button id="playMusicBtn">🎵 Play Music</button>
-        <div class="volume-control">
-          <span>🎵</span>
-          <input type="range" id="musicVolume" min="0" max="100" value="50" />
-          <span id="musicVolumeValue">50%</span>
+      <!-- ========== ADAPTIVE LAYOUT: ADS BAR (Top Row) ========== -->
+      <header class="ads-bar" id="adsBar">
+        <div class="ads-slot" id="adsSlot">
+          <!-- Google Ads Banner placeholder (728x90 desktop, 320x50 mobile) -->
+          <span class="ads-placeholder">Google Ads Banner</span>
         </div>
-        <div class="volume-control">
-          <span>🔊</span>
-          <input type="range" id="fxVolume" min="0" max="100" value="70" />
-          <span id="fxVolumeValue">70%</span>
+        <div class="ads-bar-buttons">
+          <button
+            class="ads-bar-music-btn"
+            id="adsBarMusicBtn"
+            title="Music Settings"
+          >
+            🎵
+          </button>
+          <button id="pauseButton" class="game-header-button pause-button">
+            ⏸ PAUSE
+          </button>
+          <button id="exitButton" class="game-header-button exit-button">
+            🏠 EXIT
+          </button>
         </div>
-        <button id="muteBtn">🔇 Mute All</button>
-      </div>
+      </header>
 
-      <div class="power-up-status" id="powerUpStatus">
-        <div>Active Power-up:</div>
-        <div id="powerUpName">None</div>
-        <div id="powerUpTime"></div>
-      </div>
+      <!-- ========== ADAPTIVE LAYOUT: SCORE COLUMN (Left Sidebar on Desktop) ========== -->
+      <aside class="score-column" id="scoreColumn">
+        <div class="score-column-content">
+          <!-- Scorecards -->
+          <div class="game-stats" id="gameStats">
+            <!-- Time & Level row (side by side on desktop) -->
+            <div class="stat-row-pair">
+              <div class="stat-card stat-card-compact">
+                <span class="stat-icon">⏳</span>
+                <span class="stat-label">Time</span>
+                <span class="stat-value" id="timeDisplay">40</span>
+              </div>
+              <div class="stat-card stat-card-compact">
+                <span class="stat-icon">🏆</span>
+                <span class="stat-label">Level</span>
+                <span class="stat-value" id="levelDisplay">1</span>
+              </div>
+            </div>
+            <!-- High Score (full width) -->
+            <div class="stat-card">
+              <span class="stat-icon">⭐</span>
+              <span class="stat-label">High Score</span>
+              <span class="stat-value" id="highScoreDisplay">0</span>
+            </div>
+            <!-- Player Stats Section -->
+            <div class="player-stats-section">
+              <div class="player-stats-header">Player Stats</div>
+              <div class="player-box" id="player1Box">
+                <div class="player-box-header">
+                  <span class="player-icon" id="player1Icon">👤</span>
+                  <span class="player-name" id="player1Name">Player 1</span>
+                </div>
+                <div class="player-box-stats">
+                  <div class="player-stat-row">
+                    <span>Lives:</span>
+                    <span id="player1Lives">❤️ 3</span>
+                  </div>
+                  <div class="player-stat-row">
+                    <span>Points:</span>
+                    <span id="player1Points">0</span>
+                  </div>
+                </div>
+              </div>
+              <div class="player-box" id="player2Box" style="display: none">
+                <div class="player-box-header">
+                  <span class="player-icon" id="player2Icon">👤</span>
+                  <span class="player-name" id="player2Name">Player 2</span>
+                </div>
+                <div class="player-box-stats">
+                  <div class="player-stat-row">
+                    <span>Lives:</span>
+                    <span id="player2Lives">❤️ 3</span>
+                  </div>
+                  <div class="player-stat-row">
+                    <span>Points:</span>
+                    <span id="player2Points">0</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
 
-      <div class="game-header-buttons">
-        <button id="exitButton" class="game-header-button exit-button">
-          🏠 EXIT GAME
-        </button>
-        <button id="pauseButton" class="game-header-button pause-button">
-          ⏸ PAUSE
-        </button>
-      </div>
+          <!-- Audio Controls Panel (triggered by ads-bar music button) -->
+          <div class="audio-controls" id="audioControls">
+            <h3>🎵 Audio Settings</h3>
+            <button id="playMusicBtn">🎵 Play Music</button>
+            <div class="volume-control">
+              <span>🎵</span>
+              <input
+                type="range"
+                id="musicVolume"
+                min="0"
+                max="100"
+                value="50"
+              />
+              <span id="musicVolumeValue">50%</span>
+            </div>
+            <div class="volume-control">
+              <span>🔊</span>
+              <input type="range" id="fxVolume" min="0" max="100" value="70" />
+              <span id="fxVolumeValue">70%</span>
+            </div>
+            <button id="muteBtn">🔇 Mute All</button>
+          </div>
 
-        <!-- Debug Panel -->
-      <button class="debug-toggle" id="debugToggle">🐛 DEBUG</button>
+          <!-- Power-up Status -->
+          <div class="power-up-status" id="powerUpStatus">
+            <div>Active Power-up:</div>
+            <div id="powerUpName">None</div>
+            <div id="powerUpTime"></div>
+          </div>
+        </div>
+
+        <!-- Footer area with DEBUG above title -->
+        <footer class="score-column-footer">
+          <button class="debug-toggle" id="debugToggle">🐛 DEBUG</button>
+          <div class="footer-title">AMA<br />TREASURE<br />ADVENTURE</div>
+          <div class="footer-links">
+            <a href="#">Terms</a> | <a href="#">Policy</a>
+          </div>
+          <div class="footer-social">
+            <a href="#" title="Instagram" class="social-link instagram">IG</a>
+            <a href="#" title="YouTube" class="social-link youtube">YT</a>
+            <a href="#" title="X (Twitter)" class="social-link twitter">X</a>
+          </div>
+        </footer>
+      </aside>
+
+      <!-- Debug Panel (floats over content) -->
       <div class="debug-panel" id="debugPanel">
+        <button
+          class="debug-close-btn"
+          id="debugCloseBtn"
+          title="Close Debug Panel"
+        >
+          ✕
+        </button>
         <h3>🐛 GAME ACTIVITY LOG</h3>
 
         <div class="debug-section">
@@ -102,44 +199,46 @@
         </div>
       </div>
 
-      <div id="game">
-        <div id="player1" class="sprite">🧜‍♀️</div>
-        <div id="player2" class="sprite" style="display: none">🧑‍🚀</div>
-        <div id="treasure" class="sprite">💰</div>
-        <div id="gameover"></div>
-        <div id="achievement"></div>
+      <!-- ========== ADAPTIVE LAYOUT: GAME WRAPPER (Main Content Area) ========== -->
+      <main class="game-wrapper" id="gameWrapper">
+        <div id="game">
+          <div id="player1" class="sprite">🧜‍♀️</div>
+          <div id="player2" class="sprite" style="display: none">🧑‍🚀</div>
+          <div id="treasure" class="sprite">💰</div>
+          <div id="gameover"></div>
+          <div id="achievement"></div>
 
-        <!-- Leaderboard Modal -->
-        <div id="leaderboardModal" style="display: none">
-          <div class="leaderboard-container">
-            <div class="leaderboard-title">🏆 TOP 10 LEADERBOARD 🏆</div>
-            <table class="leaderboard-table">
-              <thead class="leaderboard-header">
-                <tr>
-                  <th>Rank</th>
-                  <th>Player</th>
-                  <th>Score</th>
-                  <th>Date</th>
-                </tr>
-              </thead>
-              <tbody id="leaderboardBody">
-                <!-- Leaderboard entries will be inserted here -->
-              </tbody>
-            </table>
-            <div class="leaderboard-buttons">
-              <button class="leaderboard-button" onclick="startGame()">
-                🔄 Play Again
-              </button>
-              <button
-                class="leaderboard-button secondary"
-                onclick="backToMenu()"
-              >
-                🏠 Main Menu
-              </button>
+          <!-- Leaderboard Modal -->
+          <div id="leaderboardModal" style="display: none">
+            <div class="leaderboard-container">
+              <div class="leaderboard-title">🏆 TOP 10 LEADERBOARD 🏆</div>
+              <table class="leaderboard-table">
+                <thead class="leaderboard-header">
+                  <tr>
+                    <th>Rank</th>
+                    <th>Player</th>
+                    <th>Score</th>
+                    <th>Date</th>
+                  </tr>
+                </thead>
+                <tbody id="leaderboardBody">
+                  <!-- Leaderboard entries will be inserted here -->
+                </tbody>
+              </table>
+              <div class="leaderboard-buttons">
+                <button class="leaderboard-button" onclick="startGame()">
+                  🔄 Play Again
+                </button>
+                <button
+                  class="leaderboard-button secondary"
+                  onclick="backToMenu()"
+                >
+                  🏠 Main Menu
+                </button>
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
         <div
           id="orientationOverlay"
@@ -150,12 +249,21 @@
         >
           <div class="orientation-card">
             <div class="orientation-icon">📱⟶📺</div>
-            <p>Rotate your device to landscape for the best treasure-hunting experience.</p>
+            <p>
+              Rotate your device to landscape for the best treasure-hunting
+              experience.
+            </p>
             <div class="orientation-buttons">
-              <button id="forceFullscreenBtn" class="orientation-btn orientation-btn-primary">
+              <button
+                id="forceFullscreenBtn"
+                class="orientation-btn orientation-btn-primary"
+              >
                 Enter fullscreen
               </button>
-              <button id="continuePortraitBtn" class="orientation-btn orientation-btn-secondary">
+              <button
+                id="continuePortraitBtn"
+                class="orientation-btn orientation-btn-secondary"
+              >
                 Continue in portrait
               </button>
             </div>
@@ -163,176 +271,201 @@
         </div>
 
         <div id="startscreen">
-        <h2>🏝️ Ama Treasure Adventure 🏝️</h2>
+          <h2>🏝️ Ama Treasure Adventure 🏝️</h2>
 
-        <div class="mode-selection">
-          <button class="mode-button selected" data-mode="1">
-            <span class="icon">🤹‍♂️</span>
-            <span class="label">Single Player</span>
-            <span class="description">Challenge yourself in solo mode!</span>
-          </button>
-          <button class="mode-button" data-mode="2">
-            <span class="icon">🤸‍♂️🤸‍♀️</span>
-            <span class="label">Two Players</span>
-            <span class="description">Compete with a friend!</span>
-          </button>
-        </div>
-
-        <!-- Players Container - Side-by-side for two-player mode -->
-        <div id="playersContainer" class="players-container">
-          <!-- Player 1 Settings -->
-          <div class="player-section">
-            <h3>🎮 Player 1 Setup</h3>
-            <p>Enter Player 1 name:</p>
-            <input
-              id="player1Name"
-              type="text"
-              placeholder="Player 1 name"
-              value="Player 1"
-            />
-
-            <p>Choose Player 1 character:</p>
-            <div id="player1Characters" class="character-selection"></div>
+          <div class="mode-selection">
+            <button class="mode-button selected" data-mode="1">
+              <span class="icon">🤹‍♂️</span>
+              <span class="label">Single Player</span>
+              <span class="description">Challenge yourself in solo mode!</span>
+            </button>
+            <button class="mode-button" data-mode="2">
+              <span class="icon">🤸‍♂️🤸‍♀️</span>
+              <span class="label">Two Players</span>
+              <span class="description">Compete with a friend!</span>
+            </button>
           </div>
 
-          <!-- Player 2 Settings -->
+          <!-- Players Container - Side-by-side for two-player mode -->
+          <div id="playersContainer" class="players-container">
+            <!-- Player 1 Settings -->
+            <div class="player-section">
+              <h3>🎮 Player 1 Setup</h3>
+              <p>Enter Player 1 name:</p>
+              <input
+                id="player1Name"
+                type="text"
+                placeholder="Player 1 name"
+                value="Player 1"
+              />
+
+              <p>Choose Player 1 character:</p>
+              <div id="player1Characters" class="character-selection"></div>
+            </div>
+
+            <!-- Player 2 Settings -->
+            <div
+              id="player2Settings"
+              class="player-section"
+              style="display: none"
+            >
+              <h3>🎮 Player 2 Setup</h3>
+              <p>Enter Player 2 name:</p>
+              <input
+                id="player2Name"
+                type="text"
+                placeholder="Player 2 name"
+                value="Player 2"
+              />
+
+              <p>Choose Player 2 character:</p>
+              <div id="player2Characters" class="character-selection"></div>
+            </div>
+          </div>
+
+          <!-- Action Buttons Container - Side by side -->
+          <div class="action-buttons-container">
+            <button onclick="startGame()" class="play-game-btn">
+              🚀 Play Game
+            </button>
+            <button id="howToPlayBtn" class="how-to-play-btn">
+              📖 How to Play
+            </button>
+          </div>
+
+          <!-- How to Play Modal -->
           <div
-            id="player2Settings"
-            class="player-section"
+            id="howToPlayModal"
+            class="how-to-play-modal"
             style="display: none"
           >
-            <h3>🎮 Player 2 Setup</h3>
-            <p>Enter Player 2 name:</p>
-            <input
-              id="player2Name"
-              type="text"
-              placeholder="Player 2 name"
-              value="Player 2"
-            />
-
-            <p>Choose Player 2 character:</p>
-            <div id="player2Characters" class="character-selection"></div>
-          </div>
-        </div>
-
-        <!-- Action Buttons Container - Side by side -->
-        <div class="action-buttons-container">
-          <button onclick="startGame()" class="play-game-btn">🚀 Play Game</button>
-          <button id="howToPlayBtn" class="how-to-play-btn">
-            📖 How to Play
-          </button>
-        </div>
-
-        <!-- How to Play Modal -->
-        <div
-          id="howToPlayModal"
-          class="how-to-play-modal"
-          style="display: none"
-        >
-          <div class="how-to-play-content">
-            <div class="how-to-play-header">
-              <h2>📖 How to Play</h2>
-              <button class="close-modal-btn" onclick="closeHowToPlay()">
-                ×
-              </button>
-            </div>
-            <div class="how-to-play-body">
-              <p>
-                <strong>🎯 Objective:</strong> Collect treasures and avoid
-                obstacles before time runs out!
-              </p>
-              <p>
-                <strong>🎮 Controls:</strong><br />
-                - <strong>Player 1:</strong> Arrow Keys (↑↓←→) - Character faces
-                left/right<br />
-                - <strong>Player 2:</strong> WASD Keys (W=Up, A=Left, S=Down,
-                D=Right) - Character faces left/right<br />
-                - <strong>ESC Key:</strong> Pause/Resume game anytime
-              </p>
-              <p>
-                <strong>🎭 Characters & Backgrounds:</strong><br />
-                Choose from 6 unique characters: Mermaid, Runner, Fish, Car,
-                Horse, or Surfer!<br />
-                Each character has its own themed background environment<br />
-                Characters face the direction they move (left/right only)
-              </p>
-              <p>
-                <strong>💰 Treasures:</strong><br />
-                - 💰 Coins (1 point) - Common<br />
-                - ⚪ Silver (3 points) - Uncommon<br />
-                - 🌟 Gold (5 points) - Rare<br />
-                - 💎 Gems (10 points) - Very Rare
-              </p>
-              <p>
-                <strong>⚡ Power-ups (Level 3+):</strong><br />
-                - 🧲 Magnet: Pulls treasures closer<br />
-                - ⚡ Speed: Move faster temporarily<br />
-                - 🛡️ Shield: Temporary invincibility<br />
-                - ✨ Points: Double points for duration
-              </p>
-              <p>
-                <strong>🌊 Dynamic Obstacles:</strong><br />
-                - 🐊 Crocodiles face their movement direction and track
-                players<br />
-                - 🔥 Fire and 🥥 Coconuts move randomly<br />
-                - Obstacles respawn randomly when treasures are collected!
-              </p>
-              <p>
-                <strong>🎵 Audio Controls:</strong><br />
-                - Click the 🎵 button (top-right) to open/close music
-                settings<br />
-                - Adjust music and sound effects volumes independently<br />
-                - Play/pause music and mute all sounds
-              </p>
-              <p>
-                <strong>📊 Level Progression:</strong><br />
-                - Level 2 at 10 points, Level 3 at 30 pts, Level 4 at 60 pts<br />
-                - Each level requires +10 more points than previous (+10, +20,
-                +30, +40...)<br />
-                - +10 seconds time bonus each level up<br />
-                - Bonus life awarded at Level 6
-              </p>
-              <p>
-                <strong>🎯 Obstacle Behavior:</strong><br />
-                - Level 1: Static obstacles<br />
-                - Level 2: Obstacles start bouncing<br />
-                - Level 3+: Obstacles track players<br />
-                - Level 5, 10, 15, 20, 25: Special horizontal crocodile
-                appears!<br />
-                - Level 26+: Horizontal crocodile EVERY level (maximum
-                challenge!)
-              </p>
-            </div>
-            <div class="how-to-play-footer">
-              <button class="close-modal-btn" onclick="closeHowToPlay()">
-                Got it!
-              </button>
+            <div class="how-to-play-content">
+              <div class="how-to-play-header">
+                <h2>📖 How to Play</h2>
+                <button class="close-modal-btn" onclick="closeHowToPlay()">
+                  ×
+                </button>
+              </div>
+              <div class="how-to-play-body">
+                <p>
+                  <strong>🎯 Objective:</strong> Collect treasures and avoid
+                  obstacles before time runs out!
+                </p>
+                <p>
+                  <strong>🎮 Controls:</strong><br />
+                  - <strong>Player 1:</strong> Arrow Keys (↑↓←→) - Character
+                  faces left/right<br />
+                  - <strong>Player 2:</strong> WASD Keys (W=Up, A=Left, S=Down,
+                  D=Right) - Character faces left/right<br />
+                  - <strong>ESC Key:</strong> Pause/Resume game anytime
+                </p>
+                <p>
+                  <strong>🎭 Characters & Backgrounds:</strong><br />
+                  Choose from 6 unique characters: Mermaid, Runner, Fish, Car,
+                  Horse, or Surfer!<br />
+                  Each character has its own themed background environment<br />
+                  Characters face the direction they move (left/right only)
+                </p>
+                <p>
+                  <strong>💰 Treasures:</strong><br />
+                  - 💰 Coins (1 point) - Common<br />
+                  - ⚪ Silver (3 points) - Uncommon<br />
+                  - 🌟 Gold (5 points) - Rare<br />
+                  - 💎 Gems (10 points) - Very Rare
+                </p>
+                <p>
+                  <strong>⚡ Power-ups (Level 3+):</strong><br />
+                  - 🧲 Magnet: Pulls treasures closer<br />
+                  - ⚡ Speed: Move faster temporarily<br />
+                  - 🛡️ Shield: Temporary invincibility<br />
+                  - ✨ Points: Double points for duration
+                </p>
+                <p>
+                  <strong>🌊 Dynamic Obstacles:</strong><br />
+                  - 🐊 Crocodiles face their movement direction and track
+                  players<br />
+                  - 🔥 Fire and 🥥 Coconuts move randomly<br />
+                  - Obstacles respawn randomly when treasures are collected!
+                </p>
+                <p>
+                  <strong>🎵 Audio Controls:</strong><br />
+                  - Click the 🎵 button (top-right) to open/close music
+                  settings<br />
+                  - Adjust music and sound effects volumes independently<br />
+                  - Play/pause music and mute all sounds
+                </p>
+                <p>
+                  <strong>📊 Level Progression:</strong><br />
+                  - Level 2 at 10 points, Level 3 at 30 pts, Level 4 at 60
+                  pts<br />
+                  - Each level requires +10 more points than previous (+10, +20,
+                  +30, +40...)<br />
+                  - +10 seconds time bonus each level up<br />
+                  - Bonus life awarded at Level 6
+                </p>
+                <p>
+                  <strong>🎯 Obstacle Behavior:</strong><br />
+                  - Level 1: Static obstacles<br />
+                  - Level 2: Obstacles start bouncing<br />
+                  - Level 3+: Obstacles track players<br />
+                  - Level 5, 10, 15, 20, 25: Special horizontal crocodile
+                  appears!<br />
+                  - Level 26+: Horizontal crocodile EVERY level (maximum
+                  challenge!)
+                </p>
+              </div>
+              <div class="how-to-play-footer">
+                <button class="close-modal-btn" onclick="closeHowToPlay()">
+                  Got it!
+                </button>
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      </main>
+      <!-- End game-wrapper -->
 
+      <!-- ========== ADAPTIVE LAYOUT: CONTROL ZONE (Mobile D-Pad Safety Area) ========== -->
+      <div class="control-zone" id="controlZone">
         <!-- Mobile/Tablet Touch Controls D-Pad (Player 1 Only) -->
-        <div id="touchControls" class="touch-controls" style="display: none;">
+        <div id="touchControls" class="touch-controls">
           <div class="dpad-container">
-            <div class="dpad-button dpad-up" data-direction="arrowup" aria-label="Move up">
+            <div
+              class="dpad-button dpad-up"
+              data-direction="arrowup"
+              aria-label="Move up"
+            >
               ⬆️
             </div>
             <div class="dpad-row">
-              <div class="dpad-button dpad-left" data-direction="arrowleft" aria-label="Move left">
+              <div
+                class="dpad-button dpad-left"
+                data-direction="arrowleft"
+                aria-label="Move left"
+              >
                 ⬅️
               </div>
-              <div class="dpad-button dpad-down" data-direction="arrowdown" aria-label="Move down">
+              <div
+                class="dpad-button dpad-down"
+                data-direction="arrowdown"
+                aria-label="Move down"
+              >
                 ⬇️
               </div>
-              <div class="dpad-button dpad-right" data-direction="arrowright" aria-label="Move right">
+              <div
+                class="dpad-button dpad-right"
+                data-direction="arrowright"
+                aria-label="Move right"
+              >
                 ➡️
               </div>
             </div>
           </div>
         </div>
+      </div>
 
-      <div class="game-title">AMA TREASURE ADVENTURE</div>
+      <!-- Game title for mobile (hidden on desktop where footer shows) -->
+      <div class="game-title game-title-mobile">AMA TREASURE ADVENTURE</div>
     </div>
 
     <!-- Audio Elements (must be before scripts so they exist when JS loads) -->

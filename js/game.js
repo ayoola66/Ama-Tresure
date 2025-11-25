@@ -268,6 +268,42 @@ function updateOrientationLock() {
 
 const orientationChangeHandler = () => updateOrientationLock();
 
+// ===== ADAPTIVE LAYOUT: Update CSS variables based on current state =====
+function updateLayoutVariables() {
+  const root = document.documentElement;
+  const adsBar = document.getElementById("adsBar");
+  const controlZone = document.getElementById("controlZone");
+
+  // Measure ads bar height
+  const adHeight = adsBar ? adsBar.offsetHeight : 60;
+  root.style.setProperty("--ad-height", adHeight + "px");
+
+  // Measure control zone height (only on touch devices)
+  let controlZoneHeight = 0;
+  if (window.isTouchDevice && controlZone) {
+    // Show control zone on mobile/tablet
+    controlZone.style.display = "flex";
+    controlZoneHeight = controlZone.offsetHeight || 130;
+  } else if (controlZone) {
+    // Hide on desktop
+    controlZone.style.display = "none";
+  }
+  root.style.setProperty("--control-zone-height", controlZoneHeight + "px");
+
+  // Update score column width based on breakpoint
+  const isMobile = window.innerWidth < 1024;
+  root.style.setProperty("--score-column-width", isMobile ? "0px" : "180px");
+}
+
+// Throttled resize handler for layout updates
+let layoutResizeTimeout;
+function handleLayoutResize() {
+  clearTimeout(layoutResizeTimeout);
+  layoutResizeTimeout = setTimeout(() => {
+    updateLayoutVariables();
+  }, 100);
+}
+
 if (orientationMediaQuery) {
   if (orientationMediaQuery.addEventListener) {
     orientationMediaQuery.addEventListener("change", orientationChangeHandler);
@@ -277,6 +313,8 @@ if (orientationMediaQuery) {
 }
 
 window.addEventListener("resize", orientationChangeHandler);
+window.addEventListener("resize", handleLayoutResize);
+window.addEventListener("orientationchange", handleLayoutResize);
 document.addEventListener("fullscreenchange", () => {
   if (!document.fullscreenElement) {
     fullscreenRequested = false;
@@ -937,38 +975,76 @@ document.getElementById("muteBtn").addEventListener("click", () => {
 // Audio panel toggle functionality
 let audioControlsExpanded = false;
 
-document.getElementById("audioToggleBtn").addEventListener("click", () => {
-  const audioControls = document.getElementById("audioControls");
-  const toggleBtn = document.getElementById("audioToggleBtn");
+// Ads bar music button (new location)
+const adsBarMusicBtn = document.getElementById("adsBarMusicBtn");
+if (adsBarMusicBtn) {
+  adsBarMusicBtn.addEventListener("click", () => {
+    const audioControls = document.getElementById("audioControls");
 
-  audioControlsExpanded = !audioControlsExpanded;
+    audioControlsExpanded = !audioControlsExpanded;
 
-  if (audioControlsExpanded) {
-    audioControls.classList.add("expanded");
-    toggleBtn.classList.add("active");
-    toggleBtn.innerHTML = "🎶";
-  } else {
-    audioControls.classList.remove("expanded");
-    toggleBtn.classList.remove("active");
-    toggleBtn.innerHTML = "🎵";
-  }
+    if (audioControlsExpanded) {
+      audioControls.classList.add("expanded");
+      adsBarMusicBtn.classList.add("active");
+      adsBarMusicBtn.innerHTML = "🎶";
+    } else {
+      audioControls.classList.remove("expanded");
+      adsBarMusicBtn.classList.remove("active");
+      adsBarMusicBtn.innerHTML = "🎵";
+    }
+  });
+}
 
-  playAudio(menuClickSound());
-});
+// Legacy audio toggle button (fallback if it still exists)
+const audioToggleBtn = document.getElementById("audioToggleBtn");
+if (audioToggleBtn) {
+  audioToggleBtn.addEventListener("click", () => {
+    const audioControls = document.getElementById("audioControls");
+
+    audioControlsExpanded = !audioControlsExpanded;
+
+    if (audioControlsExpanded) {
+      audioControls.classList.add("expanded");
+      audioToggleBtn.classList.add("active");
+      audioToggleBtn.innerHTML = "🎶";
+    } else {
+      audioControls.classList.remove("expanded");
+      audioToggleBtn.classList.remove("active");
+      audioToggleBtn.innerHTML = "🎵";
+    }
+
+    playAudio(menuClickSound());
+  });
+}
 
 // Close audio controls when clicking outside
 document.addEventListener("click", (e) => {
   const audioControls = document.getElementById("audioControls");
-  const toggleBtn = document.getElementById("audioToggleBtn");
+  const adsBarBtn = document.getElementById("adsBarMusicBtn");
+  const legacyToggleBtn = document.getElementById("audioToggleBtn");
+
+  // Check if click is outside all relevant elements
+  const clickedInsideAudioControls =
+    audioControls && audioControls.contains(e.target);
+  const clickedAdsBarBtn = adsBarBtn && adsBarBtn.contains(e.target);
+  const clickedLegacyBtn =
+    legacyToggleBtn && legacyToggleBtn.contains(e.target);
 
   if (
     audioControlsExpanded &&
-    !audioControls.contains(e.target) &&
-    !toggleBtn.contains(e.target)
+    !clickedInsideAudioControls &&
+    !clickedAdsBarBtn &&
+    !clickedLegacyBtn
   ) {
-    audioControls.classList.remove("expanded");
-    toggleBtn.classList.remove("active");
-    toggleBtn.innerHTML = "🎵";
+    if (audioControls) audioControls.classList.remove("expanded");
+    if (adsBarBtn) {
+      adsBarBtn.classList.remove("active");
+      adsBarBtn.innerHTML = "🎵";
+    }
+    if (legacyToggleBtn) {
+      legacyToggleBtn.classList.remove("active");
+      legacyToggleBtn.innerHTML = "🎵";
+    }
     audioControlsExpanded = false;
   }
 });
@@ -1095,7 +1171,9 @@ function init() {
   player1.style.display = "none";
   player2.style.display = "none";
   treasure.style.display = "none";
-  document.querySelector(".game-header-buttons").style.display = "none";
+  // ADAPTIVE: Header buttons now in ads-bar, hide via class or leave visible
+  const gameHeaderButtons = document.querySelector(".game-header-buttons");
+  if (gameHeaderButtons) gameHeaderButtons.style.display = "none";
   powerUpStatus.style.display = "none";
 
   // CRITICAL: Don't set inline display:none here - let CSS handle it
@@ -1143,34 +1221,37 @@ function init() {
     return isMobileUA || (hasTouch && isSmallScreen && !isDesktopBrowser);
   }
 
-    const isTouchDevice = isMobileOrTablet();
-    window.isTouchDevice = isTouchDevice; // Make globally accessible
-    
-    // Set data attribute for CSS targeting
-    if (isTouchDevice) {
-      document.documentElement.setAttribute("data-mobile", "true");
-      document.body.setAttribute("data-mobile", "true");
-      document.body.classList.add("mobile-device");
-      // Remove any inline styles that might hide controls on mobile
-      const touchControls = document.getElementById("touchControls");
-      if (touchControls) {
-        touchControls.style.display = "";
-      }
-    } else {
-      document.documentElement.setAttribute("data-mobile", "false");
-      document.body.setAttribute("data-mobile", "false");
-      document.body.classList.remove("mobile-device");
-      // Explicitly hide touch controls on desktop with all properties
-      const touchControls = document.getElementById("touchControls");
-      if (touchControls) {
-        touchControls.style.display = "none";
-        touchControls.style.visibility = "hidden";
-        touchControls.style.opacity = "0";
-        touchControls.style.pointerEvents = "none";
-      }
+  const isTouchDevice = isMobileOrTablet();
+  window.isTouchDevice = isTouchDevice; // Make globally accessible
+
+  // Set data attribute for CSS targeting
+  if (isTouchDevice) {
+    document.documentElement.setAttribute("data-mobile", "true");
+    document.body.setAttribute("data-mobile", "true");
+    document.body.classList.add("mobile-device");
+    // Remove any inline styles that might hide controls on mobile
+    const touchControls = document.getElementById("touchControls");
+    if (touchControls) {
+      touchControls.style.display = "";
     }
+  } else {
+    document.documentElement.setAttribute("data-mobile", "false");
+    document.body.setAttribute("data-mobile", "false");
+    document.body.classList.remove("mobile-device");
+    // Explicitly hide touch controls on desktop with all properties
+    const touchControls = document.getElementById("touchControls");
+    if (touchControls) {
+      touchControls.style.display = "none";
+      touchControls.style.visibility = "hidden";
+      touchControls.style.opacity = "0";
+      touchControls.style.pointerEvents = "none";
+    }
+  }
 
   updateOrientationLock();
+
+  // Initialize adaptive layout variables
+  updateLayoutVariables();
 
   // Disable two-player mode on mobile/tablet
   const twoPlayerButton = document.querySelector('.mode-button[data-mode="2"]');
@@ -2582,16 +2663,54 @@ function updateDisplay() {
   document.getElementById("levelDisplay").textContent = level;
   document.getElementById("highScoreDisplay").textContent = highScore;
 
-  // Always display scores with one decimal place for consistency
-  let statsHtml = `${player1Name}: ${p1Score.toFixed(
-    1
-  )} points ❤️ ${p1Lives} lives`;
-  if (mode === 2) {
-    statsHtml += `<br>${player2Name}: ${p2Score.toFixed(
-      1
-    )} points ❤️ ${p2Lives} lives`;
+  // Update Player 1 stats in new format
+  const player1NameEl = document.getElementById("player1Name");
+  const player1LivesEl = document.getElementById("player1Lives");
+  const player1PointsEl = document.getElementById("player1Points");
+  const player1IconEl = document.getElementById("player1Icon");
+
+  if (player1NameEl) player1NameEl.textContent = player1Name;
+  if (player1LivesEl) player1LivesEl.innerHTML = `❤️ ${p1Lives}`;
+  if (player1PointsEl) player1PointsEl.textContent = p1Score.toFixed(1);
+  // Show selected character emoji in player icon
+  if (player1IconEl && characterOptions[selectedP1Character]) {
+    player1IconEl.textContent = characterOptions[selectedP1Character].emoji;
   }
-  document.getElementById("playerStats").innerHTML = statsHtml;
+
+  // Update Player 2 stats if in multiplayer mode
+  const player2Box = document.getElementById("player2Box");
+  if (mode === 2) {
+    if (player2Box) player2Box.style.display = "block";
+
+    const player2NameEl = document.getElementById("player2Name");
+    const player2LivesEl = document.getElementById("player2Lives");
+    const player2PointsEl = document.getElementById("player2Points");
+    const player2IconEl = document.getElementById("player2Icon");
+
+    if (player2NameEl) player2NameEl.textContent = player2Name;
+    if (player2LivesEl) player2LivesEl.innerHTML = `❤️ ${p2Lives}`;
+    if (player2PointsEl) player2PointsEl.textContent = p2Score.toFixed(1);
+    // Show selected character emoji in player icon
+    if (player2IconEl && characterOptions[selectedP2Character]) {
+      player2IconEl.textContent = characterOptions[selectedP2Character].emoji;
+    }
+  } else {
+    if (player2Box) player2Box.style.display = "none";
+  }
+
+  // Legacy fallback for old playerStats element
+  const legacyPlayerStats = document.getElementById("playerStats");
+  if (legacyPlayerStats && !document.getElementById("player1Name")) {
+    let statsHtml = `${player1Name}: ${p1Score.toFixed(
+      1
+    )} points ❤️ ${p1Lives} lives`;
+    if (mode === 2) {
+      statsHtml += `<br>${player2Name}: ${p2Score.toFixed(
+        1
+      )} points ❤️ ${p2Lives} lives`;
+    }
+    legacyPlayerStats.innerHTML = statsHtml;
+  }
 }
 
 function showMessage(text) {
@@ -2780,7 +2899,14 @@ function startGame() {
 
   // Batch DOM writes - hide menu elements
   startscreen.style.display = "none";
-  if (gameTitle) gameTitle.style.display = "block";
+  // ADAPTIVE: Only show game title on mobile (desktop has it in score-column footer)
+  if (gameTitle) {
+    if (window.innerWidth < 1024) {
+      gameTitle.style.display = "block";
+    } else {
+      gameTitle.style.display = "none";
+    }
+  }
   gameover.style.display = "none";
   if (leaderboardModal) leaderboardModal.style.display = "none";
 
@@ -3008,6 +3134,9 @@ function endGame() {
 
 function backToMenu() {
   clearInterval(timer);
+  timer = null;
+  isPaused = false;
+
   if (movementInterval) {
     clearInterval(movementInterval);
     movementInterval = null;
@@ -3018,10 +3147,17 @@ function backToMenu() {
   player1.style.display = "none";
   player2.style.display = "none";
   treasure.style.display = "none";
-  document.querySelector(".game-header-buttons").style.display = "none";
+
+  // Hide game header buttons (check if exists - may be in ads bar now)
+  const gameHeaderButtons = document.querySelector(".game-header-buttons");
+  if (gameHeaderButtons) gameHeaderButtons.style.display = "none";
+
   powerUpStatus.style.display = "none";
   gameover.style.display = "none";
-  document.getElementById("leaderboardModal").style.display = "none"; // Hide leaderboard
+
+  // Hide leaderboard
+  const leaderboardModal = document.getElementById("leaderboardModal");
+  if (leaderboardModal) leaderboardModal.style.display = "none";
 
   // Hide touch controls when game ends
   const touchControls = document.getElementById("touchControls");
@@ -3040,19 +3176,133 @@ function backToMenu() {
 
   startscreen.style.display = "block";
   if (gameTitle) gameTitle.style.display = "none"; // Hide game title when returning to menu
+
+  // Reset pause button state
+  const pauseBtn = document.getElementById("pauseButton");
+  if (pauseBtn) {
+    pauseBtn.innerHTML = "⏸ PAUSE";
+    pauseBtn.style.background = "rgba(255, 193, 7, 0.8)";
+  }
 }
 
-// Exit game function - returns to start screen
+// Exit game function - returns to start screen with custom modal
 function exitGame() {
-  // Show confirmation dialog
-  if (
-    confirm(
-      "Are you sure you want to exit the game? Your progress will be lost."
-    )
-  ) {
-    playAudio(menuClickSound());
-    backToMenu();
+  // Pause the game while showing modal
+  if (timer) {
+    isPaused = true;
+    clearInterval(timer);
+    timer = null;
+    if (movementInterval) {
+      clearInterval(movementInterval);
+      movementInterval = null;
+    }
+    keysPressed.clear();
+    // Pause music
+    const bgMusic = backgroundMusic();
+    if (bgMusic && !bgMusic.paused) {
+      musicWasPlayingBeforePause = true;
+      bgMusic.pause();
+    }
   }
+
+  // Show custom confirmation modal
+  showExitConfirmModal();
+}
+
+// Custom exit confirmation modal
+function showExitConfirmModal() {
+  // Remove existing modal if any
+  const existingModal = document.getElementById("exitConfirmModal");
+  if (existingModal) existingModal.remove();
+
+  const modal = document.createElement("div");
+  modal.id = "exitConfirmModal";
+  modal.style.cssText = `
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10000;
+    animation: fadeIn 0.2s ease;
+  `;
+
+  modal.innerHTML = `
+    <div style="
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      border: 2px solid #ffd700;
+      border-radius: 16px;
+      padding: 32px 40px;
+      text-align: center;
+      max-width: 400px;
+      box-shadow: 0 0 40px rgba(255, 215, 0, 0.3);
+    ">
+      <div style="font-size: 48px; margin-bottom: 16px;">⚠️</div>
+      <h2 style="color: #ffd700; font-size: 24px; margin-bottom: 12px;">Exit Game?</h2>
+      <p style="color: rgba(255, 255, 255, 0.8); font-size: 16px; margin-bottom: 24px;">
+        Are you sure you want to exit?<br>Your progress will be lost.
+      </p>
+      <div style="display: flex; gap: 16px; justify-content: center;">
+        <button id="exitConfirmYes" style="
+          background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+          color: white;
+          border: none;
+          padding: 12px 28px;
+          border-radius: 8px;
+          font-size: 16px;
+          font-weight: bold;
+          cursor: pointer;
+          transition: all 0.2s;
+        ">🏠 Yes, Exit</button>
+        <button id="exitConfirmNo" style="
+          background: linear-gradient(135deg, #28a745 0%, #218838 100%);
+          color: white;
+          border: none;
+          padding: 12px 28px;
+          border-radius: 8px;
+          font-size: 16px;
+          font-weight: bold;
+          cursor: pointer;
+          transition: all 0.2s;
+        ">▶ No, Continue</button>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(modal);
+
+  // Handle Yes - exit
+  document.getElementById("exitConfirmYes").addEventListener("click", () => {
+    playAudio(menuClickSound());
+    modal.remove();
+    backToMenu();
+  });
+
+  // Handle No - continue
+  document.getElementById("exitConfirmNo").addEventListener("click", () => {
+    playAudio(menuClickSound());
+    modal.remove();
+    // Resume game
+    isPaused = false;
+    lastTickTime = Date.now();
+    timer = setInterval(gameTick, 100);
+    const bgMusicModal = backgroundMusic();
+    if (musicWasPlayingBeforePause && bgMusicModal) {
+      bgMusicModal.play().catch((e) => console.log("Music resume blocked:", e));
+    }
+    showMessage("▶ Game Resumed");
+  });
+
+  // Close on background click
+  modal.addEventListener("click", (e) => {
+    if (e.target === modal) {
+      document.getElementById("exitConfirmNo").click();
+    }
+  });
 }
 
 // Key state tracking for simultaneous movement
@@ -3079,6 +3329,16 @@ document.addEventListener("keydown", (e) => {
         movementInterval = null;
       }
       keysPressed.clear(); // Clear all key presses
+
+      // PAUSE MUSIC when ESC is pressed
+      const bgMusicEsc = backgroundMusic();
+      if (bgMusicEsc && !bgMusicEsc.paused) {
+        musicWasPlayingBeforePause = true;
+        bgMusicEsc.pause();
+      } else {
+        musicWasPlayingBeforePause = false;
+      }
+
       pauseBtn.innerHTML = "▶ RESUME";
       pauseBtn.style.background = "rgba(40, 167, 69, 0.8)";
       showMessage("⏸ Game Paused - Press ESC to resume");
@@ -3087,6 +3347,15 @@ document.addEventListener("keydown", (e) => {
       isPaused = false;
       lastTickTime = Date.now(); // Reset timer reference on resume
       timer = setInterval(gameTick, 100); // Check every 100ms for precision
+
+      // RESUME MUSIC when ESC resumes
+      const bgMusicResume = backgroundMusic();
+      if (musicWasPlayingBeforePause && bgMusicResume) {
+        bgMusicResume
+          .play()
+          .catch((e) => console.log("Music resume blocked:", e));
+      }
+
       pauseBtn.innerHTML = "⏸ PAUSE";
       pauseBtn.style.background = "rgba(255, 193, 7, 0.8)";
       showMessage("▶ Game Resumed");
@@ -3373,9 +3642,13 @@ document.getElementById("exitButton").addEventListener("click", () => {
   exitGame();
 });
 
+// Track if music was playing before pause
+let musicWasPlayingBeforePause = false;
+
 // Pause button
 document.getElementById("pauseButton").addEventListener("click", () => {
   const pauseBtn = document.getElementById("pauseButton");
+  const bgMusic = backgroundMusic(); // Get the actual audio element
 
   if (timer) {
     // PAUSE the game
@@ -3388,6 +3661,15 @@ document.getElementById("pauseButton").addEventListener("click", () => {
       movementInterval = null;
     }
     keysPressed.clear(); // Clear all key presses
+
+    // PAUSE MUSIC: Remember if music was playing and pause it
+    if (bgMusic && !bgMusic.paused) {
+      musicWasPlayingBeforePause = true;
+      bgMusic.pause();
+    } else {
+      musicWasPlayingBeforePause = false;
+    }
+
     pauseBtn.innerHTML = "▶ RESUME";
     pauseBtn.style.background = "rgba(40, 167, 69, 0.8)";
     showMessage("⏸ Game Paused");
@@ -3396,6 +3678,12 @@ document.getElementById("pauseButton").addEventListener("click", () => {
     isPaused = false;
     lastTickTime = Date.now(); // Reset timer reference on resume
     timer = setInterval(gameTick, 100); // Check every 100ms for precision
+
+    // RESUME MUSIC: Only resume if it was playing before pause
+    if (musicWasPlayingBeforePause && bgMusic) {
+      bgMusic.play().catch((e) => console.log("Music resume blocked:", e));
+    }
+
     pauseBtn.innerHTML = "⏸ PAUSE";
     pauseBtn.style.background = "rgba(255, 193, 7, 0.8)";
     showMessage("▶ Game Resumed");
@@ -3406,6 +3694,15 @@ document.getElementById("pauseButton").addEventListener("click", () => {
 document.getElementById("debugToggle").addEventListener("click", () => {
   toggleDebugPanel();
 });
+
+// Debug panel close button
+const debugCloseBtn = document.getElementById("debugCloseBtn");
+if (debugCloseBtn) {
+  debugCloseBtn.addEventListener("click", () => {
+    const panel = document.getElementById("debugPanel");
+    panel.classList.remove("visible");
+  });
+}
 
 // Initialize when page loads
 document.addEventListener("DOMContentLoaded", init);

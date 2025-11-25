@@ -1,18 +1,33 @@
 :root {
+  /* Typography */
   --hud-font-size: clamp(11px, 1.6vw, 16px);
   --button-font-size: clamp(13px, 1.8vw, 18px);
+
+  /* Sprite sizing */
   --sprite-size: clamp(34px, 6vw, 50px);
   --obstacle-size: clamp(38px, 7vw, 60px);
   --powerup-size: clamp(28px, 5vw, 40px);
-  --touch-control-size: clamp(56px, 12vw, 72px);
-  --safe-top: max(16px, env(safe-area-inset-top));
-  --safe-bottom: max(12px, env(safe-area-inset-bottom));
-  --ad-banner-height: 60px;
-  --stats-bar-height: 40px;
-  --header-buttons-height: 35px;
   --sprite-size-mobile: clamp(24px, 4vw, 32px);
   --obstacle-size-mobile: clamp(28px, 5vw, 40px);
   --powerup-size-mobile: clamp(20px, 3.5vw, 28px);
+
+  /* Touch controls */
+  --touch-control-size: clamp(56px, 12vw, 72px);
+
+  /* Safe area insets */
+  --safe-top: max(16px, env(safe-area-inset-top));
+  --safe-bottom: max(12px, env(safe-area-inset-bottom));
+
+  /* ADAPTIVE LAYOUT VARIABLES */
+  --ad-height: 60px; /* Top ads bar height */
+  --score-column-width: 180px; /* Desktop score column */
+  --control-zone-height: 0px; /* Set by JS on touch devices */
+  --layout-gap: 12px; /* Grid/flex gap */
+
+  /* Legacy (for compatibility) */
+  --ad-banner-height: 60px;
+  --stats-bar-height: 40px;
+  --header-buttons-height: 35px;
 }
 
 body {
@@ -26,68 +41,522 @@ body.portrait-lock {
   overflow: hidden;
 }
 
-/* Ad Banner Reserve Area - Future ad integration */
-.ad-banner-reserve {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: var(--ad-banner-height);
-  z-index: 50;
-  background: transparent;
-  display: none; /* Hidden by default, shown when ad loaded */
-}
-
-.ad-banner-reserve.active {
-  display: block;
-  background: rgba(0, 0, 0, 0.05);
-}
+/* ============================================================
+   ADAPTIVE LAYOUT SYSTEM
+   Desktop: Grid with score column | game area
+   Mobile:  Column flow with score grid at top
+   ============================================================ */
 
 #game-container {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
+  inset: 0;
+  display: grid;
+  grid-template-columns: var(--score-column-width) 1fr;
+  grid-template-rows: var(--ad-height) 1fr var(--control-zone-height);
+  grid-template-areas:
+    "ads ads"
+    "scores game"
+    "controls controls";
   background: #1a1a1a;
-  padding: 20px;
-}
-
-.game-stats {
-  position: fixed;
-  top: calc(var(--safe-top) + var(--ad-banner-height));
-  left: 8px;
-  right: 120px; /* Leave space for header buttons */
-  z-index: 1000;
-  color: white;
-  font-size: var(--hud-font-size);
-  display: flex;
-  gap: clamp(8px, 2vw, 16px);
-  flex-wrap: wrap;
-  max-width: min(55%, 420px);
-  max-height: var(--stats-bar-height);
-  line-height: 1.2;
   overflow: hidden;
 }
 
-.game-stats > div {
+/* ===== ADS BAR (Top Row) ===== */
+.ads-bar {
+  grid-area: ads;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--layout-gap);
+  background: rgba(30, 30, 30, 0.95);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  z-index: 100;
+}
+
+.ads-slot {
+  flex: 1;
+  max-width: 728px;
+  height: 90px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(50, 50, 50, 0.5);
+  border-radius: 4px;
+  margin-right: var(--layout-gap);
+}
+
+.ads-placeholder {
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 12px;
+}
+
+.ads-bar-buttons {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+/* Music button in ads bar - COMPACT & VISIBLE */
+.ads-bar-music-btn {
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid #ffd700;
+  color: #333;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s;
+  box-shadow: 0 0 6px rgba(255, 215, 0, 0.4);
+}
+
+.ads-bar-music-btn:hover {
+  background: #ffd700;
+  color: #000;
+  transform: scale(1.05);
+}
+
+.ads-bar-music-btn.active {
+  background: #ffd700;
+  color: #000;
+  box-shadow: 0 0 8px rgba(255, 215, 0, 0.6);
+}
+
+/* ===== SCORE COLUMN (Desktop Sidebar) ===== */
+.score-column {
+  grid-area: scores;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: var(--layout-gap);
+  background: rgba(20, 25, 35, 0.95);
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  overflow-y: auto;
+  z-index: 90;
+}
+
+.score-column-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--layout-gap);
+}
+
+/* Scorecard Stat Cards */
+.game-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Time & Level side by side on desktop */
+.stat-row-pair {
+  display: flex;
+  gap: 8px;
+}
+
+.stat-row-pair .stat-card {
+  flex: 1;
+}
+
+.stat-card {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 10px;
+  background: rgba(40, 50, 70, 0.8);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: white;
+  min-width: 0;
+}
+
+.stat-card-compact {
+  justify-content: center;
+}
+
+.stat-icon {
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.stat-label {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.7);
+  display: none; /* Hide label to save space, icon is enough */
+}
+
+.stat-value {
+  font-size: 16px;
+  font-weight: bold;
+  color: #ffd700;
+  line-height: 1.2;
+}
+
+/* Player Stats Section */
+.player-stats-section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.player-stats-header {
+  font-size: 11px;
+  font-weight: bold;
+  color: rgba(255, 255, 255, 0.6);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 4px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.player-box {
+  background: rgba(40, 50, 70, 0.8);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 10px;
+  color: white;
+}
+
+.player-box-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.player-icon {
+  font-size: 20px;
+}
+
+.player-name {
+  font-size: 13px;
+  font-weight: bold;
+  color: #ffd700;
+}
+
+.player-box-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.player-stat-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+}
+
+.player-stat-row span:first-child {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.player-stat-row span:last-child {
+  font-weight: bold;
+  color: white;
+}
+
+/* Score Column Footer (anchored to bottom) */
+.score-column-footer {
+  margin-top: auto;
+  padding-top: var(--layout-gap);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* DEBUG button in footer (above title) - Override global fixed positioning */
+.score-column-footer .debug-toggle {
+  position: relative !important;
+  bottom: auto !important;
+  left: auto !important;
+  background: rgba(255, 165, 0, 0.2) !important;
+  border: 1px solid rgba(255, 165, 0, 0.4) !important;
+  color: #ffa500 !important;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: bold;
+  transition: all 0.2s;
+  align-self: center;
+  z-index: 10 !important;
+  margin-bottom: 8px;
+}
+
+.score-column-footer .debug-toggle:hover {
+  background: rgba(255, 165, 0, 0.3) !important;
+}
+
+.footer-title {
+  font-size: 14px;
+  font-weight: bold;
+  color: #ffd700;
+  line-height: 1.3;
+}
+
+.footer-links {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.footer-links a {
+  color: rgba(255, 255, 255, 0.6);
+  text-decoration: none;
+}
+
+.footer-links a:hover {
+  color: #ffd700;
+}
+
+.footer-social {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  font-size: 11px;
+}
+
+.footer-social .social-link {
+  text-decoration: none;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-weight: bold;
+  transition: all 0.2s;
+  cursor: pointer;
+}
+
+.footer-social .social-link.instagram {
+  background: linear-gradient(
+    45deg,
+    #f09433,
+    #e6683c,
+    #dc2743,
+    #cc2366,
+    #bc1888
+  );
+  color: white;
+}
+
+.footer-social .social-link.youtube {
+  background: #ff0000;
+  color: white;
+}
+
+.footer-social .social-link.twitter {
+  background: #000000;
+  color: white;
+  border: 1px solid #333;
+}
+
+.footer-social .social-link:hover {
+  transform: scale(1.1);
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
+}
+
+/* ===== GAME WRAPPER (Main Content Area) ===== */
+.game-wrapper {
+  grid-area: game;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch; /* Stretch to fill width */
+  justify-content: stretch; /* Stretch to fill height */
+  padding: 8px; /* Minimal padding for golden border visibility */
+  overflow: hidden;
+  position: relative;
+}
+
+/* ===== CONTROL ZONE (Mobile Touch Controls) ===== */
+.control-zone {
+  grid-area: controls;
+  display: none; /* Hidden by default on desktop */
+  align-items: center;
+  justify-content: center;
+  background: rgba(20, 20, 20, 0.9);
+  padding: 8px;
+}
+
+/* Header buttons styling (inside ads-bar) */
+.game-header-button {
+  padding: 10px 18px;
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.2s;
   white-space: nowrap;
 }
 
+/* Legacy compatibility - hide old game-header-buttons container */
 .game-header-buttons {
-  position: fixed;
-  top: calc(
-    var(--safe-top) + var(--ad-banner-height) + 2px
-  ); /* Align with stats */
-  right: 8px;
-  display: flex;
-  gap: 4px;
-  z-index: 1001;
-  flex-direction: row; /* Horizontal by default */
+  display: none !important;
+}
+
+/* Game title for mobile only */
+.game-title-mobile {
+  display: none;
+}
+
+/* ============================================================
+   ADAPTIVE LAYOUT: MOBILE / TABLET REFLOW (<1024px)
+   Changes grid to column flow with score grid at top
+   ============================================================ */
+@media (max-width: 1023px) {
+  :root {
+    --score-column-width: 0px;
+    --ad-height: 50px;
+  }
+
+  #game-container {
+    grid-template-columns: 1fr;
+    grid-template-rows: var(--ad-height) auto 1fr var(--control-zone-height);
+    grid-template-areas:
+      "ads"
+      "scores"
+      "game"
+      "controls";
+  }
+
+  /* Ads bar compact on mobile */
+  .ads-bar {
+    padding: 4px 8px;
+  }
+
+  .ads-slot {
+    max-width: 320px;
+    height: 50px;
+  }
+
+  .ads-bar-buttons {
+    gap: 4px;
+  }
+
+  .ads-bar-buttons .game-header-button {
+    padding: 6px 10px;
+    font-size: 11px;
+  }
+
+  /* Score column becomes horizontal grid at top */
+  .score-column {
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: stretch;
+    padding: 8px;
+    border-right: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
+
+  .score-column-content {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 8px;
+    width: 100%;
+  }
+
+  /* Scorecards become responsive grid */
+  .game-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 8px;
+    width: 100%;
+  }
+
+  .stat-card {
+    padding: 8px 10px;
+    flex-direction: row;
+    min-width: 0;
+  }
+
+  .stat-icon {
+    font-size: 16px;
+  }
+
+  .stat-label {
+    font-size: 10px;
+  }
+
+  .stat-value {
+    font-size: 14px;
+  }
+
+  /* Hide footer on mobile (shown in game-title-mobile instead) */
+  .score-column-footer {
+    display: none;
+  }
+
+  /* Hide audio/debug in score column on mobile (move elsewhere) */
+  .score-column .audio-toggle-button,
+  .score-column .audio-controls,
+  .score-column .power-up-status,
+  .score-column .debug-toggle {
+    display: none;
+  }
+
+  /* Show mobile game title */
+  .game-title-mobile {
+    display: block;
+    position: fixed;
+    bottom: var(--safe-bottom);
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 10px;
+    color: rgba(255, 255, 255, 0.6);
+    white-space: nowrap;
+    z-index: 50;
+  }
+
+  /* Control zone visible on touch devices */
+  .control-zone {
+    display: flex;
+    min-height: 120px;
+  }
+
+  /* Game wrapper adjustments */
+  .game-wrapper {
+    padding: 8px;
+  }
+}
+
+/* Extra small mobile (<480px) */
+@media (max-width: 479px) {
+  .game-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .stat-card {
+    padding: 6px 8px;
+  }
+
+  .stat-icon {
+    font-size: 14px;
+  }
+
+  .stat-label {
+    font-size: 9px;
+  }
+
+  .stat-value {
+    font-size: 12px;
+  }
+}
+
+/* Desktop: Hide control zone */
+@media (min-width: 1024px) {
+  .control-zone {
+    display: none !important;
+  }
+
+  :root {
+    --control-zone-height: 0px;
+  }
 }
 
 .game-header-button {
@@ -125,76 +594,13 @@ body.portrait-lock {
   background: rgba(255, 193, 7, 0.9);
 }
 
-/* Responsive adjustments for smaller screens */
-@media (max-width: 768px) {
-  .game-stats {
-    font-size: clamp(10px, 1.4vw, 12px);
-    gap: clamp(4px, 1vw, 8px);
-    max-width: calc(100% - 130px);
-    max-height: 40px;
-    line-height: 1.2;
-  }
+/* Legacy responsive rules - now handled by adaptive layout system */
+/* These are kept for backward compatibility but overridden by new layout */
 
-  .game-header-button {
-    padding: 4px 8px;
-    font-size: clamp(9px, 1.2vw, 11px);
-  }
-}
-
-@media (max-width: 480px) {
-  .game-stats {
-    font-size: clamp(9px, 1.3vw, 11px);
-    gap: clamp(3px, 0.8vw, 6px);
-    max-width: calc(100% - 120px);
-    max-height: 40px;
-    line-height: 1.2;
-  }
-
-  .game-header-button {
-    padding: 3px 6px;
-    font-size: clamp(8px, 1.1vw, 10px);
-  }
-
-  .game-header-buttons {
-    right: 8px;
-    gap: 3px;
-    flex-direction: row; /* Keep horizontal on smallest screens */
-  }
-}
-
-/* Landscape Orientation Optimisations */
+/* Landscape Orientation - touch controls only */
 @media (orientation: landscape) and (max-height: 600px) {
-  /* Compact layout for landscape mobile devices */
-  .game-stats {
-    font-size: clamp(8px, 1.2vw, 10px);
-    gap: clamp(2px, 0.6vw, 4px);
-    max-height: 32px;
-    top: calc(var(--safe-top) + var(--ad-banner-height));
-  }
-
-  .game-header-buttons {
-    top: calc(var(--safe-top) + var(--ad-banner-height) + 2px);
-    gap: 3px;
-  }
-
-  .game-header-button {
-    padding: 3px 8px;
-    font-size: clamp(8px, 1vw, 10px);
-  }
-
-  #game {
-    height: min(75vh, calc(100vh - 120px));
-    width: min(85vw, calc(100vw - 10vw));
-    border-width: 6px;
-  }
-
-  .game-title {
-    font-size: clamp(8px, 1.2vw, 10px);
-    bottom: var(--safe-bottom);
-  }
-
   .touch-controls {
-    bottom: calc(var(--safe-bottom) + 20px);
+    /* Compact touch controls for landscape */
   }
 
   /* Significantly smaller buttons for landscape */
@@ -215,28 +621,9 @@ body.portrait-lock {
   }
 }
 
-/* Foldable devices (like ZFold 3) - wider landscape */
+/* Foldable devices (like ZFold 3) - touch control adjustments */
 @media (orientation: landscape) and (min-width: 600px) and (max-height: 900px) {
-  .game-stats {
-    font-size: clamp(10px, 1.3vw, 12px);
-    max-height: 36px;
-  }
-
-  .game-header-button {
-    padding: 4px 10px;
-    font-size: clamp(9px, 1.1vw, 11px);
-  }
-
-  #game {
-    height: min(80vh, calc(100vh - 140px));
-    width: min(90vw, calc(100vw - 8vw));
-  }
-
-  .touch-controls {
-    bottom: calc(var(--safe-bottom) + 22px);
-  }
-
-  /* Smaller buttons for foldable landscape too */
+  /* Smaller buttons for foldable landscape */
   .dpad-button {
     width: clamp(40px, 7vw, 52px) !important;
     height: clamp(40px, 7vw, 52px) !important;
@@ -274,7 +661,8 @@ body.portrait-lock {
 }
 
 #startscreen {
-  position: fixed;
+  /* ADAPTIVE: Now contained within game-wrapper, not fixed */
+  position: absolute;
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
@@ -289,8 +677,8 @@ body.portrait-lock {
   text-align: center;
   width: 90%;
   max-width: 950px;
-  z-index: 1001; /* Increased from 1000 to ensure it's above game title */
-  max-height: 95vh;
+  z-index: 1001;
+  max-height: 95%;
   overflow-y: auto;
   overflow-x: hidden;
   border: 3px solid rgba(255, 165, 0, 0.4);
@@ -421,36 +809,34 @@ body.portrait-lock {
 
 #game {
   position: relative;
-  width: min(95vw, 120vh);
-  height: min(82vh, 60vw);
-  aspect-ratio: 16 / 9;
-  min-width: 300px;
-  min-height: 340px;
-  max-width: 1100px;
-  max-height: calc(100vh - 40px);
-  border: 10px solid rgba(0, 0, 0, 0.8);
-  border-radius: 15px;
+  /* ADAPTIVE: Fill available space in game-wrapper */
+  width: 100%;
+  height: 100%;
+  max-width: none; /* Remove max-width restriction - fill to edges */
+  max-height: calc(
+    100vh - var(--ad-height) - var(--control-zone-height) - 20px
+  );
+  /* Golden thread border - subtle but visible boundary */
+  border: 2px solid rgba(255, 215, 0, 0.5);
+  border-radius: 8px;
   overflow: hidden;
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 0 10px rgba(255, 215, 0, 0.2), inset 0 0 30px rgba(0, 0, 0, 0.3);
   /* Dynamic background set by JavaScript based on Player 1's character choice */
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
   box-sizing: border-box;
-  margin: 8px auto; /* Centre with visible spacing */
 }
 
 /* Responsive game container */
 @media (max-width: 768px) {
   #game {
-    width: min(88vw, calc(100vw - 12vw)); /* 88vw max, 6vw margin each side */
-    height: min(70vh, calc(100vh - 143px - 172px)); /* Account for UI space */
-    border-width: 8px;
-    border-radius: 12px;
-    margin: 8px auto;
-    max-height: calc(
-      100vh - 315px
-    ); /* Total UI space: 143px top + 172px bottom */
+    width: 100%;
+    height: 100%;
+    border-width: 2px;
+    border-radius: 6px;
+    margin: 0;
+    max-height: calc(100vh - 200px); /* Account for mobile UI */
   }
 }
 
@@ -621,11 +1007,14 @@ button:hover {
 }
 
 .game-title {
+  /* ADAPTIVE: Hidden on desktop (footer in score-column shows branding) */
+  /* Only visible on mobile where score-column footer is hidden */
+  display: none; /* Hidden by default on desktop */
   position: fixed;
-  bottom: var(--safe-bottom); /* Absolute bottom */
+  bottom: var(--safe-bottom);
   left: 50%;
   transform: translateX(-50%);
-  font-size: clamp(22px, 4vw, 32px);
+  font-size: clamp(14px, 2.5vw, 20px);
   font-weight: bold;
   background: linear-gradient(
     to right,
@@ -643,11 +1032,11 @@ button:hover {
   color: transparent;
   -webkit-text-fill-color: transparent;
   animation: shine 3s infinite linear;
-  z-index: 1100; /* Below controls (1200) */
-  white-space: nowrap; /* Force single line */
+  z-index: 1100;
+  white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 90vw; /* Prevent overflow */
+  max-width: 90vw;
   padding: 2px 8px;
   line-height: 1.2;
   /* Add subtle background container for readability while preserving gradient text */
@@ -1199,6 +1588,30 @@ input::placeholder {
 
 .debug-panel.visible {
   display: block;
+}
+
+/* Debug panel close button - LEFT TOP corner */
+.debug-close-btn {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  background: rgba(255, 0, 0, 0.3);
+  border: 1px solid #ff0000;
+  color: #ff0000;
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: bold;
+  line-height: 1;
+  transition: all 0.2s;
+  z-index: 10;
+}
+
+.debug-close-btn:hover {
+  background: rgba(255, 0, 0, 0.5);
+  color: #fff;
 }
 
 .debug-panel h3 {
@@ -1859,15 +2272,13 @@ button[onclick="startGame()"] {
 
 /* Touch Controls D-Pad (Mobile/Tablet Only) */
 .touch-controls {
-  position: fixed;
-  bottom: calc(var(--safe-bottom) + 24px); /* Above title */
-  left: 50%;
-  transform: translateX(-50%);
+  /* ADAPTIVE: Now lives inside .control-zone grid area */
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   z-index: 1200;
-  display: none; /* Hidden by default - CSS media queries and JavaScript will show on mobile/tablet */
-  visibility: hidden;
-  opacity: 0;
-  pointer-events: none;
+  /* Visibility controlled by control-zone display */
 }
 
 /* Show touch controls on mobile/tablet when game is active */
