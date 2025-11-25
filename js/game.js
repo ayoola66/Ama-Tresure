@@ -2861,8 +2861,8 @@ function gameTick() {
 function startGame() {
   // Batch DOM reads first (performance optimization)
   const selectedModeButton = document.querySelector(".mode-button.selected");
-  const player1NameInput = document.getElementById("player1Name");
-  const player2NameInput = document.getElementById("player2Name");
+  const player1NameInput = document.getElementById("player1NameInput");
+  const player2NameInput = document.getElementById("player2NameInput");
   const pauseBtn = document.getElementById("pauseButton");
   const musicBtn = document.getElementById("playMusicBtn");
   const leaderboardModal = document.getElementById("leaderboardModal");

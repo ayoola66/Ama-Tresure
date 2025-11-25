@@ -599,10 +599,6 @@ body.portrait-lock {
 
 /* Landscape Orientation - touch controls only */
 @media (orientation: landscape) and (max-height: 600px) {
-  .touch-controls {
-    /* Compact touch controls for landscape */
-  }
-
   /* Significantly smaller buttons for landscape */
   .dpad-button {
     width: clamp(36px, 6vw, 48px) !important;
@@ -2279,14 +2275,6 @@ button[onclick="startGame()"] {
   justify-content: center;
   z-index: 1200;
   /* Visibility controlled by control-zone display */
-}
-
-/* Show touch controls on mobile/tablet when game is active */
-@media (max-width: 1023px) {
-  body:not([data-mobile="false"]) .touch-controls {
-    /* Will be shown by JavaScript when game starts on mobile */
-    /* CSS provides fallback if JavaScript doesn't run */
-  }
 }
 
 .dpad-container {
